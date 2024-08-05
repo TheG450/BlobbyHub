@@ -9,13 +9,14 @@ local Window = Fluent:CreateWindow({
     Size = UDim2.fromOffset(580, 460),
     Acrylic = true, -- การเบลออาจตรวจจับได้ การตั้งค่านี้เป็น false จะปิดการเบลอทั้งหมด
     Theme = "Dark",
-    MinimizeKey = Enum.KeyCode.LeftControl -- ใช้เมื่อไม่มีคีย์ลัดในการย่อขนาด
+    MinimizeKey = Enum.KeyCode.LeftControl
 })
 
 -- Fluent มีไอคอน Lucide https://lucide.dev/icons/ สำหรับแท็บ ไอคอนเป็นตัวเลือก
 local Tabs = {
-    Main = Window:AddTab({ Title = "Main", Icon = "" }),
-    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
+    Main = Window:AddTab({ Title = "Main", Icon = "house" }),
+    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" }),
+    Teleport = Window:AddTab({ Title = "Teleport", Icon = "map" })
 }
 
 local Options = Fluent.Options
@@ -24,7 +25,7 @@ do
     Fluent:Notify({
         Title = "Notification",
         Content = "This is a notification",
-        SubContent = "SubContent", -- ตัวเลือก
+        SubContent = "SubContent",
         Duration = 5 -- ตั้งค่าเป็น nil เพื่อไม่ให้การแจ้งเตือนหายไป
     })
 
