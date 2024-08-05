@@ -60,16 +60,32 @@ do
     })
 
     local Toggle = Tabs.Main:AddToggle("MyToggle", {Title = "Toggle", Default = false })
+    local AutoFarm = Tabs.Main:AddToggle("AutoFarm", {Title = "AutoFarm", Default = false })
 
     Toggle:OnChanged(function()
         task.spawn(function()
             while wait() do
-                print("Toggle changed:", Options.MyToggle.Value)
+                if Options.MyToggle.Value then
+                    print("Toggle changed:", Options.MyToggle.Value)
+                end
             end
         end)
     end)
 
+    AutoFarm:OnChanged(function()
+        task.spawn(function()
+            while wait() do
+                if Options.AutoFarm.Value then
+                    print("Toggle changed:", Options.AutoFarm.Value)
+                end
+            end
+        end)
+    end)
+
+
+
     Options.MyToggle:SetValue(false)
+    Options.AutoFarm:SetValue(false)
 
     local Slider = Tabs.Main:AddSlider("Slider", {
         Title = "Slider",
