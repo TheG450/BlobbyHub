@@ -1,3 +1,68 @@
+--[[Create Toggle
+    local AutoFarm = Tabs.Main:AddToggle("AutoFarm", {Title = "AutoFarm", Default = false })
+]]
+--[[Create Button + Dialog
+    Tabs.Main:AddButton({
+        Title = "Button",
+        Description = "Very important button",
+        Callback = function()
+            Window:Dialog({
+                Title = "Title",
+                Content = "This is a dialog",
+                Buttons = {
+                    {
+                        Title = "Confirm",
+                        Callback = function()
+                            print("Confirmed the dialog.")
+                        end
+                    },
+                    {
+                        Title = "Cancel",
+                        Callback = function()
+                            print("Cancelled the dialog.")
+                        end
+                    }
+                }
+            })
+        end
+    })
+]]
+--[[Create Paragraph
+    Tabs.Main:AddParagraph({
+        Title = "Paragraph",
+        Content = "This is a paragraph.\nSecond line!"
+    })
+]]
+--[[Create Dropdown
+local Slider = Tabs.Main:AddSlider("Slider", {
+    Title = "Slider",
+    Description = "This is a slider",
+    Default = 2,
+    Min = 0,
+    Max = 5,
+    Rounding = 1,
+    Callback = function(Value)
+        print("Slider was changed:", Value)
+    end
+})
+]]
+--[[Create Multiple Dropdown
+    local MultiDropdown = Tabs.Main:AddDropdown("MultiDropdown", {
+        Title = "Dropdown",
+        Description = "You can select multiple values.",
+        Values = {"one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen"},
+        Multi = true,
+        Default = {"seven", "twelve"},
+    })
+]]
+--[[Create Notify
+Fluent:Notify({
+    Title = "Notification",
+    Content = "Script Is Lodded",
+    SubContent = "SubContent", --ไม่ใส่ก็ได้
+    Duration = 5 -- ตั้งค่าเป็น nil เพื่อไม่ให้การแจ้งเตือนหายไป
+})
+]]
 _G.Settings = {
     Version = "1.0",
 }
@@ -28,59 +93,8 @@ local Tabs = {
 --local Options = Fluent.Options
 
 do
-
-    Tabs.Main:AddParagraph({
-        Title = "Paragraph",
-        Content = "This is a paragraph.\nSecond line!"
-    })
-
-    Tabs.Main:AddButton({
-        Title = "Button",
-        Description = "Very important button",
-        Callback = function()
-            Window:Dialog({
-                Title = "Title",
-                Content = "This is a dialog",
-                Buttons = {
-                    {
-                        Title = "Confirm",
-                        Callback = function()
-                            print("Confirmed the dialog.")
-                        end
-                    },
-                    {
-                        Title = "Cancel",
-                        Callback = function()
-                            print("Cancelled the dialog.")
-                        end
-                    }
-                }
-            })
-        end
-    })
-
     local Toggle = Tabs.Main:AddToggle("MyToggle", {Title = "Toggle", Default = false })
     local AutoFarm = Tabs.Main:AddToggle("AutoFarm", {Title = "AutoFarm", Default = false })
-
-    Toggle:OnChanged(function()
-        task.spawn(function()
-            while wait() do
-                if Toggle.Value then
-                    print("Toggle changed:", Toggle.Value)
-                end
-            end
-        end)
-    end)
-
-    AutoFarm:OnChanged(function()
-        task.spawn(function()
-            while wait() do
-                if AutoFarm.Value then
-                    print("Toggle Autofarm:", AutoFarm.Value)
-                end
-            end
-        end)
-    end)
 
     local Slider = Tabs.Main:AddSlider("Slider", {
         Title = "Slider",
@@ -93,10 +107,6 @@ do
             print("Slider was changed:", Value)
         end
     })
-
-    Slider:OnChanged(function(Value)
-        print("Slider changed:", Value)
-    end)
 
     local Dropdown = Tabs.Main:AddDropdown("Dropdown", {
         Title = "Dropdown",
@@ -217,6 +227,31 @@ do
     Input:OnChanged(function()
         print("Input updated:", Input.Value)
     end)
+
+    -----------------Script Workings--------------------------------
+    Toggle:OnChanged(function()
+        task.spawn(function()
+            while wait() do
+                if Toggle.Value then
+                    print("Toggle changed:", Toggle.Value)
+                end
+            end
+        end)
+    end)
+
+    AutoFarm:OnChanged(function()
+        task.spawn(function()
+            while wait() do
+                if AutoFarm.Value then
+                    print("Toggle Autofarm:", AutoFarm.Value)
+                end
+            end
+        end)
+    end)
+
+    Slider:OnChanged(function(Value)
+        print("Slider changed:", Value)
+    end)
 end
 
 -- ส่วนเสริม:
@@ -237,27 +272,19 @@ SaveManager:SetIgnoreIndexes({})
 -- กรณีการใช้งานที่ทำแบบนี้:
 -- สคริปต์ฮับสามารถมีธีมในโฟลเดอร์ระดับโลก
 -- และการกำหนดค่าเกมในโฟลเดอร์แยกต่างหากต่อเกม
-InterfaceManager:SetFolder("FluentScriptHub")
+InterfaceManager:SetFolder("BlobbyHub")
 SaveManager:SetFolder("BlobbyHub/games")
 
-InterfaceManager:BuildInterfaceSection(Tabs.Settings)
-SaveManager:BuildConfigSection(Tabs.Settings)
+InterfaceManager:BuildInterfaceSection(Tabs.Teleport)
+SaveManager:BuildConfigSection(Tabs.Teleport)
 
-Window:SelectTab(1)
+Window:SelectTab(3)
 
 Fluent:Notify({
-    Title = "Fluent",
+    Title = "BlobbyHub",
     Content = "The script has been loaded.",
     Duration = 8
 })
---[[    
-Fluent:Notify({
-    Title = "Notification",
-    Content = "Script Is Lodded",
-    SubContent = "SubContent",
-    Duration = 5 -- ตั้งค่าเป็น nil เพื่อไม่ให้การแจ้งเตือนหายไป
-})
-]]
 
 -- คุณสามารถใช้ SaveManager:LoadAutoloadConfig() เพื่อโหลดการกำหนดค่า
 -- ที่ถูกทำเครื่องหมายว่าเป็นการกำหนดค่าอัตโนมัติ!
