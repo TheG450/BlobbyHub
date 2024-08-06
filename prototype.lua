@@ -275,10 +275,10 @@ SaveManager:SetIgnoreIndexes({})
 InterfaceManager:SetFolder("BlobbyHub")
 SaveManager:SetFolder("BlobbyHub/games")
 
-InterfaceManager:BuildInterfaceSection(Tabs.Teleport)
-SaveManager:BuildConfigSection(Tabs.Teleport)
+InterfaceManager:BuildInterfaceSection(Tabs.Settings)
+SaveManager:BuildConfigSection(Tabs.Settings)
 
-Window:SelectTab(3)
+Window:SelectTab(1)
 
 Fluent:Notify({
     Title = "BlobbyHub",
