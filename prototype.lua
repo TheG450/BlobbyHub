@@ -9,7 +9,7 @@ local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.
 
 local Window = Fluent:CreateWindow({
     Title = "BlobbyHub " .. _G.Settings.Version,
-    SubTitle = "by dawid",
+    SubTitle = "by GZE450#6591",
     TabWidth = 160,
     Size = UDim2.fromOffset(480, 360), --default size (580, 460)
     Acrylic = true, -- การเบลออาจตรวจจับได้ การตั้งค่านี้เป็น false จะปิดการเบลอทั้งหมด
@@ -76,7 +76,7 @@ do
         task.spawn(function()
             while wait() do
                 if Options.AutoFarm.Value then
-                    print("Toggle changed:", Options.AutoFarm.Value)
+                    print("Toggle Autofarm:", AutoFarm.Value)
                 end
             end
         end)
