@@ -260,7 +260,7 @@ end
 
 -- ส่งต่อไลบรารีไปยังผู้จัดการของเรา
 SaveManager:SetLibrary(Fluent)
-InterfaceManager:SetLibrary(Fluent)
+--InterfaceManager:SetLibrary(Fluent)
 
 -- ไม่สนใจคีย์ที่ใช้โดย ThemeManager
 -- (เราไม่ต้องการให้การกำหนดค่าบันทึกธีมใช่ไหม?)
@@ -272,10 +272,10 @@ SaveManager:SetIgnoreIndexes({})
 -- กรณีการใช้งานที่ทำแบบนี้:
 -- สคริปต์ฮับสามารถมีธีมในโฟลเดอร์ระดับโลก
 -- และการกำหนดค่าเกมในโฟลเดอร์แยกต่างหากต่อเกม
-InterfaceManager:SetFolder("BlobbyHub")
+--InterfaceManager:SetFolder("BlobbyHub")
 SaveManager:SetFolder("BlobbyHub/games")
 
-InterfaceManager:BuildInterfaceSection(Tabs.Settings)
+--InterfaceManager:BuildInterfaceSection(Tabs.Settings)
 SaveManager:BuildConfigSection(Tabs.Settings)
 
 Window:SelectTab(1)
