@@ -25,7 +25,7 @@ local Tabs = {
     Teleport = Window:AddTab({ Title = "Teleport", Icon = "map" })
 }
 
-local Options = Fluent.Options
+--local Options = Fluent.Options
 
 do
 
@@ -65,8 +65,8 @@ do
     Toggle:OnChanged(function()
         task.spawn(function()
             while wait() do
-                if Options.MyToggle.Value then
-                    print("Toggle changed:", Options.MyToggle.Value)
+                if Toggle.Value then
+                    print("Toggle changed:", Toggle.Value)
                 end
             end
         end)
@@ -75,17 +75,12 @@ do
     AutoFarm:OnChanged(function()
         task.spawn(function()
             while wait() do
-                if Options.AutoFarm.Value then
+                if AutoFarm.Value then
                     print("Toggle Autofarm:", AutoFarm.Value)
                 end
             end
         end)
     end)
-
-
-
-    Options.MyToggle:SetValue(false)
-    Options.AutoFarm:SetValue(false)
 
     local Slider = Tabs.Main:AddSlider("Slider", {
         Title = "Slider",
@@ -103,8 +98,6 @@ do
         print("Slider changed:", Value)
     end)
 
-    Slider:SetValue(3)
-
     local Dropdown = Tabs.Main:AddDropdown("Dropdown", {
         Title = "Dropdown",
         Values = {"one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen"},
@@ -113,6 +106,9 @@ do
     })
 
     Dropdown:SetValue("four")
+    Slider:SetValue(3)
+    Toggle:SetValue(true)
+    AutoFarm:SetValue(false)
 
     Dropdown:OnChanged(function(Value)
         print("Dropdown changed:", Value)
