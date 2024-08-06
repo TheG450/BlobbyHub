@@ -1,15 +1,19 @@
+_G.Settings = {
+    Version = "1.0",
+}
+
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 -- loadstring(game:HttpGet("https://raw.githubusercontent.com/TheG450/BlobbyHub/main/prototype.lua"))()
 
 local Window = Fluent:CreateWindow({
-    Title = "Fluent " .. Fluent.Version,
+    Title = "BlobbyHub " .. _G.Settings.Version,
     SubTitle = "by dawid",
     TabWidth = 160,
-    Size = UDim2.fromOffset(580, 460),
+    Size = UDim2.fromOffset(480, 360), --default size (580, 460)
     Acrylic = true, -- การเบลออาจตรวจจับได้ การตั้งค่านี้เป็น false จะปิดการเบลอทั้งหมด
-    Theme = "Dark",
+    Theme = "Amethyst",
     MinimizeKey = Enum.KeyCode.LeftControl
 })
 
@@ -24,12 +28,6 @@ local Tabs = {
 local Options = Fluent.Options
 
 do
-    Fluent:Notify({
-        Title = "Notification",
-        Content = "Script Is Lodded",
-        SubContent = "SubContent",
-        Duration = 5 -- ตั้งค่าเป็น nil เพื่อไม่ให้การแจ้งเตือนหายไป
-    })
 
     Tabs.Main:AddParagraph({
         Title = "Paragraph",
@@ -256,6 +254,14 @@ Fluent:Notify({
     Content = "The script has been loaded.",
     Duration = 8
 })
+--[[    
+Fluent:Notify({
+    Title = "Notification",
+    Content = "Script Is Lodded",
+    SubContent = "SubContent",
+    Duration = 5 -- ตั้งค่าเป็น nil เพื่อไม่ให้การแจ้งเตือนหายไป
+})
+]]
 
 -- คุณสามารถใช้ SaveManager:LoadAutoloadConfig() เพื่อโหลดการกำหนดค่า
 -- ที่ถูกทำเครื่องหมายว่าเป็นการกำหนดค่าอัตโนมัติ!
