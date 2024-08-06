@@ -1,6 +1,7 @@
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
+-- loadstring(game:HttpGet("https://raw.githubusercontent.com/TheG450/BlobbyHub/main/prototype.lua"))()
 
 local Window = Fluent:CreateWindow({
     Title = "Fluent " .. Fluent.Version,
@@ -14,6 +15,7 @@ local Window = Fluent:CreateWindow({
 
 -- Fluent มีไอคอน Lucide https://lucide.dev/icons/ สำหรับแท็บ ไอคอนเป็นตัวเลือก
 local Tabs = {
+    --[[ Tabs --]]
     Main = Window:AddTab({ Title = "Main", Icon = "house" }),
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" }),
     Teleport = Window:AddTab({ Title = "Teleport", Icon = "map" })
@@ -24,7 +26,7 @@ local Options = Fluent.Options
 do
     Fluent:Notify({
         Title = "Notification",
-        Content = "This is a notification",
+        Content = "Script Is Lodded",
         SubContent = "SubContent",
         Duration = 5 -- ตั้งค่าเป็น nil เพื่อไม่ให้การแจ้งเตือนหายไป
     })
