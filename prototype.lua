@@ -264,7 +264,7 @@ InterfaceManager:SetLibrary(Fluent)
 
 -- ไม่สนใจคีย์ที่ใช้โดย ThemeManager
 -- (เราไม่ต้องการให้การกำหนดค่าบันทึกธีมใช่ไหม?)
---SaveManager:IgnoreThemeSettings()
+SaveManager:IgnoreThemeSettings()
 
 -- คุณสามารถเพิ่มดัชนีขององค์ประกอบที่ตัวจัดการการบันทึกควรละเว้น
 SaveManager:SetIgnoreIndexes({})
