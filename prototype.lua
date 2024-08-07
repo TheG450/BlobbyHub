@@ -1,6 +1,6 @@
 --[[Create Toggle
     local AutoFarm = Tabs.Main:AddToggle("AutoFarm", {Title = "AutoFarm", Default = false })
-]]
+--]]
 --[[Create Button + Dialog
     Tabs.Main:AddButton({
         Title = "Button",
@@ -26,13 +26,13 @@
             })
         end
     })
-]]
+--]]
 --[[Create Paragraph
     Tabs.Main:AddParagraph({
         Title = "Paragraph",
         Content = "This is a paragraph.\nSecond line!"
     })
-]]
+--]]
 --[[Create Dropdown
 local Slider = Tabs.Main:AddSlider("Slider", {
     Title = "Slider",
@@ -45,7 +45,7 @@ local Slider = Tabs.Main:AddSlider("Slider", {
         print("Slider was changed:", Value)
     end
 })
-]]
+--]]
 --[[Create Multiple Dropdown
     local MultiDropdown = Tabs.Main:AddDropdown("MultiDropdown", {
         Title = "Dropdown",
@@ -54,7 +54,44 @@ local Slider = Tabs.Main:AddSlider("Slider", {
         Multi = true,
         Default = {"seven", "twelve"},
     })
-]]
+--]]
+--[[Create Colorpicker
+    local Colorpicker = Tabs.Main:AddColorpicker("Colorpicker", {
+        Title = "Colorpicker",
+        Default = Color3.fromRGB(96, 205, 255)
+    })
+--]]
+--[[Create TColorpicker
+    local TColorpicker = Tabs.Main:AddColorpicker("TransparencyColorpicker", {
+        Title = "Colorpicker",
+        Description = "but you can change the transparency.",
+        Transparency = 0,
+        Default = Color3.fromRGB(96, 205, 255)
+    })
+--]]
+--[[Create Keybind
+    local Keybind = Tabs.Main:AddKeybind("Keybind", {
+        Title = "KeyBind",
+        Mode = "Toggle", -- Always, Toggle, Hold
+        Default = "LeftControl", -- String เป็นชื่อของคีย์ลัด (MB1, MB2 สำหรับปุ่มเมาส์)
+
+        -- เกิดขึ้นเมื่อคลิกคีย์ลัด ค่าเป็น `true`/`false`
+        Callback = function(Value)
+            print("Keybind clicked!", Value)
+        end,
+
+        -- เกิดขึ้นเมื่อมีการเปลี่ยนแปลงคีย์ลัด `New` เป็น KeyCode Enum หรือ UserInputType Enum
+        ChangedCallback = function(New)
+            print("Keybind changed!", New)
+        end
+    })
+     Keybind:OnClick(function()
+        print("Keybind clicked:", Keybind:GetState())
+    end)
+    Keybind:OnChanged(function()
+        print("Keybind changed:", Keybind.Value)
+    end)
+--]]
 --[[Create Notify
 Fluent:Notify({
     Title = "Notification",
@@ -78,7 +115,7 @@ local Window = Fluent:CreateWindow({
     TabWidth = 160,
     Size = UDim2.fromOffset(480, 360), --default size (580, 460)
     Acrylic = true, -- การเบลออาจตรวจจับได้ การตั้งค่านี้เป็น false จะปิดการเบลอทั้งหมด
-    Theme = "Amethyst",
+    Theme = "Dark", --Amethyst
     MinimizeKey = Enum.KeyCode.LeftControl
 })
 
