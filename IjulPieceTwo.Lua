@@ -52,10 +52,10 @@ do
     weaponListInsert()
     local distanceSlider = Tabs.pageSettingFarm:AddSlider("DistanceFarm", {
         Title = "Distance Farm",
-        Description = "This is a slider",
         Default = 1,
         Min = 0,
         Max = 1000,
+        Rounding = 0,
         Callback = function(Value)
             _G.Settings.SettingsFarm.Distance = Value
         end
@@ -64,7 +64,6 @@ do
         Title = "Select Weapon",
         Values = WeaponList,
         Multi = false,
-        Default = 1,
     })
     local RefreshWeapon = Tabs.pageSettingFarm:AddButton({
         Title = "Refresh Weapon",
