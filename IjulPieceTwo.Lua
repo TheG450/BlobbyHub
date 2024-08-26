@@ -4,9 +4,6 @@ _G.Settings = {
         [1] = "[Free Version]",
         [2] = "[Premium Version]",
     },
-    Variables = {
-        localPlayer = game:GetService("Players").LocalPlayer
-    },
     SettingsFarm = {
         Distance = nil,
         SelectWeapon = nil,
@@ -39,7 +36,7 @@ do
     --[[SettingFarm]]
     local WeaponList = {}
     local function weaponListInsert()
-        for i,v in pairs(_G.Settings.Variables.localPlayer.Backpack:GetDescendants())do
+        for i,v in pairs(game:GetService("Players").LocalPlayer.Backpack:GetDescendants())do
             if v:IsA("Tool") and v:FindFirstChild("localType") then
                 table.insert(WeaponList,v.Name)
             end
@@ -52,13 +49,13 @@ do
             end
         end
     end
+    weaponListInsert()
     local distanceSlider = Tabs.pageSettingFarm:AddSlider("DistanceFarm", {
         Title = "Distance Farm",
         Description = "This is a slider",
         Default = 1,
         Min = 0,
         Max = 1000,
-        Rounding = 1,
         Callback = function(Value)
             _G.Settings.SettingsFarm.Distance = Value
         end
