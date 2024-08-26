@@ -271,35 +271,34 @@ do
             local localPlayer = players.LocalPlayer
             local playerCharacter = localPlayer.Character
             local playerHumanoid = playerCharacter and playerCharacter:FindFirstChild("Humanoid")
-            local toolEquipped = false
+            local VirtualUserService = game:GetService("VirtualUser")
     
             while FarmMob.Value do
                 wait()
-    
                 if playerHumanoid and playerHumanoid.Health > 0 then
                     for _, v in pairs(workspace.Npcs[_G.Settings.Main.SelectMob]:GetDescendants()) do
                         if v:IsA("Humanoid") then
                             v.WalkSpeed = 0
                             v.JumpPower = 0
-                            for _, tool in pairs(localPlayer.Backpack:GetChildren()) do
-                                if tool.Name == _G.Settings.SettingsFarm.SelectWeapon and tool:IsA("Tool") then
-                                    playerHumanoid:EquipTool(tool)
-                                end
-                            end
                             if v.Health > 0 then
+                                for _, tool in pairs(localPlayer.Backpack:GetChildren()) do
+                                    if tool.Name == _G.Settings.SettingsFarm.SelectWeapon and tool:IsA("Tool") then
+                                        playerHumanoid:EquipTool(tool)
+                                    end
+                                end
                                 for _, Target in pairs(workspace.Npcs[_G.Settings.Main.SelectMob]:GetChildren()) do
                                     if Target.Name == "HumanoidRootPart" then
                                         playerCharacter.HumanoidRootPart.CFrame = Target.CFrame * CFrame.new(0, 0, _G.Settings.SettingsFarm.Distance)
                                     end
                                 end
+                                VirtualUserService:CaptureController()
+                                VirtualUserService:ClickButton1(Vector2.new(0, 0))
                             end
                             if v.Health < v.MaxHealth then
                                 v.Health = -899999999
                             end
                         end
                     end
-                else
-                    break
                 end
             end
         end)

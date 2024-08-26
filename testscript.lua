@@ -16,3 +16,9 @@ for _, v in pairs(workspace.Npcs["DarkPiratesBoss"]:GetDescendants()) do
         end
     end
 end
+
+local VirtualUserService = game:GetService("VirtualUser")
+while wait(0.1) do
+    VirtualUserService:CaptureController()
+    VirtualUserService:ClickButton1(Vector2.new(0, 0))
+end
