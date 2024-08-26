@@ -52,9 +52,9 @@ do
     weaponListInsert()
     local distanceSlider = Tabs.pageSettingFarm:AddSlider("DistanceFarm", {
         Title = "Distance",
-        Default = 1,
+        Default = 4,
         Min = 0,
-        Max = 1000,
+        Max = 10,
         Rounding = 0,
         Callback = function(Value)
             _G.Settings.SettingsFarm.Distance = Value
@@ -64,6 +64,7 @@ do
         Title = "Select Weapon",
         Values = WeaponList,
         Multi = false,
+        Default = _G.Settings.SettingsFarm.SelectWeapon ~= nil and _G.Settings.SettingsFarm.SelectWeapon or WeaponList[1],
     })
     local RefreshWeapon = Tabs.pageSettingFarm:AddButton({
         Title = "Refresh Weapon",
@@ -77,4 +78,8 @@ do
         end
     })
     local AutoFarm = Tabs.pageMain:AddToggle("AutoFarm", {Title = "AutoFarm", Default = false })
+
+    SelectWeapons:OnChanged(function(Value)
+        _G.Settings.SettingsFarm.SelectWeapon = Value
+    end)
 end
