@@ -182,9 +182,14 @@ do
     local npcList = {}
     local islandList = {}
     local function npcListInsert()
+        local uniqueMobs = {}
+
         for i,v in pairs(game:GetService("Workspace").Map.NPC:GetChildren())do
             if v:IsA("Model") and v:FindFirstChild("Humanoid") then
-                table.insert(npcList,v.Name)
+                if not uniqueMobs[v.Name] then
+                    table.insert(npcList,v.Name)
+                    uniqueMobs[v.Name] = true
+                end
             end
         end
     end
@@ -203,21 +208,11 @@ do
         end
     end
     npcListInsert()
+    islandListInsert()
     local IslandTitle = Tabs.pageTeleport:AddSection("Island") --Section Island
     local SelectIsland = Tabs.pageTeleport:AddDropdown("SelectIsland", {
         Title = "Select Island",
-        Values = {
-            "Windmill",
-            "Boss Island",
-            "ShellsTown",
-            "Jungle",
-            "BuggyTown",
-            "DesertIsland1",
-            "Tojisland",
-            "SnowIsland",
-            "Dark Island",
-            "Hueco Mundo"
-        },
+        Values = islandList,
         Multi = false
     })
     local Teleport = Tabs.pageTeleport:AddButton({
@@ -261,6 +256,31 @@ do
 
     SelectNPC:OnChanged(function(Value)
         _G.Settings.Teleport.SelectNPC = Value
+    end)
+
+
+    -------------[[SCRIPTS]]---------------------------------------------------------------------------------------------------------------------
+    FarmMob:OnChanged(function()
+        _G.Settings.Main.FarmMobState = FarmMob.Value
+        task.spawn(function()
+            while wait() do
+                if FarmMob.Value then
+                    for i,v in pairs(game:GetService("Workspace").Npcs:GetDescendants()) do
+                        if v.Name == _G.Settings.Main.SelectMob and v:FindFirstChild("AI") and v.Humanoid.Health > 0 and game.Players.LocalPlayer.Character.Humanoid.Health > 0 then
+                            for _,tool in pairs(game:GetService("Players").LocalPlayer.Backpack:GetChildren()) do
+                                if tool.Name == _G.Settings.SettingsFarm.SelectWeapon and tool:IsA("Tool") then
+                                    tool.Parent = game.Players.LocalPlayer.Character
+                                end
+                            end
+                            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0,0,_G.Settings.SettingsFarm.Distance)
+                            if v.Humanoid.Health < v.Humanoid.MaxHealth then
+                                v.Humanoid.Health = 0
+                            end
+                        end
+                    end
+                end
+            end
+        end)
     end)
 end
 
