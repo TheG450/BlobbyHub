@@ -22,6 +22,7 @@ _G.Settings = {
     },
     Teleport = {
         SelectIsland = nil,
+        SelectNPC = nil,
     }
 }
 
@@ -112,9 +113,14 @@ do
     --[[Main]]----------------------------------------------------------------------------------------------------------------------
     local MobList = {}
     local function mobListInsert()
-        for i,v in pairs(game:GetService("Players").LocalPlayer.Backpack:GetDescendants())do
-            if v:IsA("Tool") and v:FindFirstChild("localType") then
-                table.insert(MobList,v.Name)
+        local uniqueMobs = {}
+        
+        for i, v in pairs(game:GetService("Workspace").Npcs:GetChildren()) do
+            if v:IsA("Model") and v:FindFirstChild("Humanoid") then
+                if not uniqueMobs[v.Name] then
+                    table.insert(MobList, v.Name)
+                    uniqueMobs[v.Name] = true
+                end
             end
         end
     end
@@ -173,6 +179,23 @@ do
     local UpSpecial = Tabs.pageStats:AddToggle("UpSpecial", {Title = "UpSpecial", Default = false })
 
     --[[Teleport]]----------------------------------------------------------------------------------------------------------------------
+    local npcList = {}
+    local function npcListInsert()
+        for i,v in pairs(game:GetService("Workspace").Map.NPC:GetDescendants())do
+            if v:IsA("Model") then
+                table.insert(npcList,v.Name)
+            end
+        end
+    end
+    local function npcListRemove()
+        if npcList ~= nil then
+            for i = #npcList, 1, -1 do
+                table.remove(npcList, i)
+            end
+        end
+    end
+    npcListInsert()
+    local IslandTitle = Tabs.pageTeleport:AddSection("Island") --Section Island
     local SelectIsland = Tabs.pageTeleport:AddDropdown("SelectIsland", {
         Title = "Select Island",
         Values = {
@@ -197,6 +220,39 @@ do
     })
     SelectIsland:OnChanged(function(Value)
         _G.Settings.Teleport.SelectIsland = Value
+    end)
+
+    local NPCTitle = Tabs.pageTeleport:AddSection("Island") --Section NPC
+    local SelectNPC = Tabs.pageTeleport:AddDropdown("SelectNPC", {
+        Title = "Select NPC",
+        Values = npcList,
+        Multi = false
+    })
+    local RefreshNPC = Tabs.pageMain:AddButton({
+        Title = "Refresh NPC",
+        Callback = function()
+            local currentSelection = SelectNPC.Value
+            
+            npcListRemove()
+            npcListInsert()
+            SelectNPC:SetValues(npcList)
+            
+            if table.find(npcList, currentSelection) then
+                SelectNPC:SetValue(currentSelection)
+            else
+                SelectNPC:SetValue(npcList[#npcList])
+            end
+        end
+    })
+    local TeleportToNPC = Tabs.pageTeleport:AddButton({
+        Title = "Teleport To NPC",
+        Callback = function()
+            print(_G.Settings.Teleport.SelectNPC)
+        end
+    })
+
+    SelectNPC:OnChanged(function(Value)
+        _G.Settings.Teleport.SelectNPC = Value
     end)
 end
 
