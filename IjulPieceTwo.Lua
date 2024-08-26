@@ -32,7 +32,7 @@ local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.
 local Window = Fluent:CreateWindow({
     Title = "Blobby Hub".." | ".._G.Settings.gameName.." | ".._G.Settings.Version[1],
     TabWidth = 160,
-    Size = UDim2.fromOffset(480, 360),
+    Size = UDim2.fromOffset(480, 380),
     Acrylic = false,
     Theme = "Amethyst",
     MinimizeKey = Enum.KeyCode.LeftControl
@@ -156,7 +156,7 @@ do
         _G.Settings.Main.SelectMob = Value
     end)
     --[[Stats]]----------------------------------------------------------------------------------------------------------------------
-    local pointSlider = Tabs.pageSettingFarm:AddSlider("Point", {
+    local pointSlider = Tabs.pageStats:AddSlider("Point", {
         Title = "Point",
         Default = 1,
         Min = 1,
@@ -166,11 +166,11 @@ do
             _G.Settings.Stats.Points = Value
         end
     })
-    local UpStrenght = Tabs.pageMain:AddToggle("UpStrenght", {Title = "UpStrenght", Default = false })
-    local UpDurability = Tabs.pageMain:AddToggle("UpDurability", {Title = "UpDurability", Default = false })
-    local UpSword = Tabs.pageMain:AddToggle("UpSword", {Title = "UpSword", Default = false })
-    local UpDevilFruit = Tabs.pageMain:AddToggle("UpDevilFruit", {Title = "UpDevilFruit", Default = false })
-    local UpSpecial = Tabs.pageMain:AddToggle("UpSpecial", {Title = "UpSpecial", Default = false })
+    local UpStrenght = Tabs.pageStats:AddToggle("UpStrenght", {Title = "UpStrenght", Default = false })
+    local UpDurability = Tabs.pageStats:AddToggle("UpDurability", {Title = "UpDurability", Default = false })
+    local UpSword = Tabs.pageStats:AddToggle("UpSword", {Title = "UpSword", Default = false })
+    local UpDevilFruit = Tabs.pageStats:AddToggle("UpDevilFruit", {Title = "UpDevilFruit", Default = false })
+    local UpSpecial = Tabs.pageStats:AddToggle("UpSpecial", {Title = "UpSpecial", Default = false })
 
     --[[Teleport]]----------------------------------------------------------------------------------------------------------------------
     local SelectIsland = Tabs.pageTeleport:AddDropdown("SelectIsland", {
@@ -189,7 +189,7 @@ do
         },
         Multi = false
     })
-    local Teleport = Tabs.pageMain:AddButton({
+    local Teleport = Tabs.pageTeleport:AddButton({
         Title = "Teleport",
         Callback = function()
             print(_G.Settings.Teleport.SelectIsland)
@@ -199,3 +199,11 @@ do
         _G.Settings.Teleport.SelectIsland = Value
     end)
 end
+
+Window:SelectTab(1)
+
+Fluent:Notify({
+    Title = "Blobby Hub",
+    Content = "The script has been loaded.",
+    Duration = 5
+})
