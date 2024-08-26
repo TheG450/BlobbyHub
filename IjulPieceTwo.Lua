@@ -51,7 +51,7 @@ do
     end
     weaponListInsert()
     local distanceSlider = Tabs.pageSettingFarm:AddSlider("DistanceFarm", {
-        Title = "Distance Farm",
+        Title = "Distance",
         Default = 1,
         Min = 0,
         Max = 1000,
@@ -60,7 +60,7 @@ do
             _G.Settings.SettingsFarm.Distance = Value
         end
     })
-    local Dropdown = Tabs.pageSettingFarm:AddDropdown("SelectWeapon", {
+    local SelectWeapons = Tabs.pageSettingFarm:AddDropdown("SelectWeapon", {
         Title = "Select Weapon",
         Values = WeaponList,
         Multi = false,
@@ -70,6 +70,9 @@ do
         Callback = function()
             weaponListRemove()
             weaponListInsert()
+            SelectWeapons:Clear()
+            wait(0.2)
+            SelectWeapons:AddItems(WeaponList)
         end
     })
     local AutoFarm = Tabs.Main:AddToggle("AutoFarm", {Title = "AutoFarm", Default = false })
