@@ -106,9 +106,7 @@ do
         end
     end
     mobListInsert()
-    local FarmMobTitle = Tabs.pageMain:AddParagraph({
-        Title = "FarmMob"
-    })
+    local FarmMobTitle = Tabs.pageMain:AddSection("FarmMob")
     local SelectMobs = Tabs.pageMain:AddDropdown("SelectMob", {
         Title = "Select Mob",
         Values = MobList,
@@ -132,7 +130,5 @@ do
     })
     local FarmMob = Tabs.pageMain:AddToggle("FarmMob", {Title = "FarmMob", Default = false })
 
-    local FarmMoss = Tabs.pageMain:AddParagraph({
-        Title = "FarmBoss [Wait Update]"
-    })
+    local FarmBossTitle = Tabs.pageMain:AddSection("FarmBoss [Wait Update]")
 end
