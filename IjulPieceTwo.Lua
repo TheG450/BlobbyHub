@@ -268,7 +268,6 @@ do
         task.spawn(function()
             local players = game:GetService("Players")
             local workspace = game:GetService("Workspace")
-            local replicatedStorage = game:GetService("ReplicatedStorage")
             local localPlayer = players.LocalPlayer
             local playerCharacter = localPlayer.Character
             local playerHumanoid = playerCharacter and playerCharacter:FindFirstChild("Humanoid")
@@ -284,16 +283,16 @@ do
                             v.Humanoid.JumpPower = 0
                             for _, tool in pairs(localPlayer.Backpack:GetChildren()) do
                                 if tool.Name == _G.Settings.SettingsFarm.SelectWeapon and tool:IsA("Tool") then
-                                    tool.Parent = playerCharacter
+                                    playerHumanoid:EquipTool(tool)
                                 end
                             end
     
                             playerCharacter.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0, 0, _G.Settings.SettingsFarm.Distance)
-                            replicatedStorage.Events.Punch:FireServer(localPlayer.comboPunch)
-                            replicatedStorage.Events.PunchSpec:FireServer(localPlayer.comboPunch)
+                            game:GetService("ReplicatedStorage"):WaitForChild("Events"):WaitForChild("Punch"):FireServer(game:GetService("Players").LocalPlayer:WaitForChild("comboPunch"))
+                            game:GetService("ReplicatedStorage"):WaitForChild("Events"):WaitForChild("PunchSpec"):FireServer(game:GetService("Players").LocalPlayer:WaitForChild("comboPunch"))
     
                             if v.Humanoid.Health < v.Humanoid.MaxHealth then
-                                v.Humanoid.Health = -math.huge
+                                v.Humanoid.Health = -899999999
                             end
                         end
                     end
