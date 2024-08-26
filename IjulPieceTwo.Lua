@@ -70,10 +70,11 @@ do
         Callback = function()
             weaponListRemove()
             weaponListInsert()
-            SelectWeapons:Clear()
-            wait(0.2)
-            SelectWeapons:AddItems(WeaponList)
+            SelectWeapons:SetValues(WeaponList)
+            if #WeaponList > 0 then
+                SelectWeapons:SetValue(WeaponList[#WeaponList])
+            end
         end
     })
-    local AutoFarm = Tabs.Main:AddToggle("AutoFarm", {Title = "AutoFarm", Default = false })
+    local AutoFarm = Tabs.pageMain:AddToggle("AutoFarm", {Title = "AutoFarm", Default = false })
 end
