@@ -258,30 +258,50 @@ do
         _G.Settings.Teleport.SelectNPC = Value
     end)
 
+    -------------[[Set Value]]-------------------------------------------------------------------------------------------------------------------
+    SelectWeapons:SetValue(_G.Settings.SettingsFarm.SelectWeapon ~= nil and _G.Settings.SettingsFarm.SelectWeapon or WeaponList[1])
 
     -------------[[SCRIPTS]]---------------------------------------------------------------------------------------------------------------------
     FarmMob:OnChanged(function()
         _G.Settings.Main.FarmMobState = FarmMob.Value
+        
         task.spawn(function()
-            while wait() do
-                if FarmMob.Value then
-                    for i,v in pairs(game:GetService("Workspace").Npcs:GetDescendants()) do
-                        if v.Name == _G.Settings.Main.SelectMob and v:FindFirstChild("AI") and v.Humanoid.Health > 0 and game.Players.LocalPlayer.Character.Humanoid.Health > 0 then
-                            for _,tool in pairs(game:GetService("Players").LocalPlayer.Backpack:GetChildren()) do
+            local players = game:GetService("Players")
+            local workspace = game:GetService("Workspace")
+            local replicatedStorage = game:GetService("ReplicatedStorage")
+            local localPlayer = players.LocalPlayer
+            local playerCharacter = localPlayer.Character
+            local playerHumanoid = playerCharacter and playerCharacter:FindFirstChild("Humanoid")
+            local toolEquipped = false
+    
+            while FarmMob.Value do
+                wait()
+    
+                if playerHumanoid and playerHumanoid.Health > 0 then
+                    for _, v in pairs(workspace.Npcs:GetChildren()) do
+                        if v.Name == _G.Settings.Main.SelectMob and v:FindFirstChild("AI") and v.Humanoid.Health > 0 then
+    
+                            for _, tool in pairs(localPlayer.Backpack:GetChildren()) do
                                 if tool.Name == _G.Settings.SettingsFarm.SelectWeapon and tool:IsA("Tool") then
-                                    tool.Parent = game.Players.LocalPlayer.Character
+                                    tool.Parent = playerCharacter
                                 end
                             end
-                            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0,0,_G.Settings.SettingsFarm.Distance)
+    
+                            playerCharacter.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0, 0, _G.Settings.SettingsFarm.Distance)
+                            replicatedStorage.Events.Punch:FireServer(localPlayer.comboPunch)
+                            replicatedStorage.Events.PunchSpec:FireServer(localPlayer.comboPunch)
+    
                             if v.Humanoid.Health < v.Humanoid.MaxHealth then
                                 v.Humanoid.Health = 0
                             end
                         end
                     end
+                else
+                    break
                 end
             end
         end)
-    end)
+    end)    
 end
 
 Window:SelectTab(1)
