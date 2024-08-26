@@ -33,7 +33,7 @@ local Tabs = {
 }
 
 do
-    --[[SettingFarm]]
+    --[[SettingFarm]]---------------------------------------------------------------------------------------------------------------------
     local WeaponList = {}
     local function weaponListInsert()
         for i,v in pairs(game:GetService("Players").LocalPlayer.Backpack:GetDescendants())do
@@ -54,7 +54,7 @@ do
         Title = "Distance",
         Default = 4,
         Min = 0,
-        Max = 10,
+        Max = 20,
         Rounding = 0,
         Callback = function(Value)
             _G.Settings.SettingsFarm.Distance = Value
@@ -64,22 +64,75 @@ do
         Title = "Select Weapon",
         Values = WeaponList,
         Multi = false,
-        Default = _G.Settings.SettingsFarm.SelectWeapon ~= nil and _G.Settings.SettingsFarm.SelectWeapon or WeaponList[1],
     })
     local RefreshWeapon = Tabs.pageSettingFarm:AddButton({
         Title = "Refresh Weapon",
         Callback = function()
+            local currentSelection = SelectWeapons.Value
+            
             weaponListRemove()
             weaponListInsert()
             SelectWeapons:SetValues(WeaponList)
-            if #WeaponList > 0 then
+            
+            if table.find(WeaponList, currentSelection) then
+                SelectWeapons:SetValue(currentSelection)
+            else
                 SelectWeapons:SetValue(WeaponList[#WeaponList])
             end
         end
     })
-    local AutoFarm = Tabs.pageMain:AddToggle("AutoFarm", {Title = "AutoFarm", Default = false })
 
+    distanceSlider:OnChanged(function(Value)
+        _G.Settings.SettingsFarm.Distance = Value
+    end)
     SelectWeapons:OnChanged(function(Value)
         _G.Settings.SettingsFarm.SelectWeapon = Value
     end)
+
+    --[[Main]]----------------------------------------------------------------------------------------------------------------------
+    local MobList = {}
+    local function mobListInsert()
+        for i,v in pairs(game:GetService("Players").LocalPlayer.Backpack:GetDescendants())do
+            if v:IsA("Tool") and v:FindFirstChild("localType") then
+                table.insert(MobList,v.Name)
+            end
+        end
+    end
+    local function mobListRemove()
+        if MobList ~= nil then
+            for i = #MobList, 1, -1 do
+                table.remove(MobList, i)
+            end
+        end
+    end
+    mobListInsert()
+    local FarmMobTitle = Tabs.pageMain:AddParagraph({
+        Title = "FarmMob"
+    })
+    local SelectMobs = Tabs.pageMain:AddDropdown("SelectMob", {
+        Title = "Select Mob",
+        Values = MobList,
+        Multi = false,
+    })
+    local RefreshMob = Tabs.pageMain:AddButton({
+        Title = "Refresh Weapon",
+        Callback = function()
+            local currentSelection = SelectMobs.Value
+            
+            mobListRemove()
+            mobListInsert()
+            SelectMobs:SetValues(MobList)
+            
+            if table.find(MobList, currentSelection) then
+                SelectMobs:SetValue(currentSelection)
+            else
+                SelectMobs:SetValue(MobList[#MobList])
+            end
+        end
+    })
+    local FarmMob = Tabs.pageMain:AddToggle("FarmMob", {Title = "FarmMob", Default = false })
+
+    local FarmMoss = Tabs.pageMain:AddParagraph({
+        Title = "FarmBoss [Wait Update]"
+    })
 end
