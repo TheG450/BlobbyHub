@@ -7,6 +7,21 @@ _G.Settings = {
     SettingsFarm = {
         Distance = nil,
         SelectWeapon = nil,
+    },
+    Main = {
+        SelectMob = nil,
+        FarmMobState = nil,
+    },
+    Stats = {
+        Points = nil,
+        StrenghtTogglt = nil,
+        DurabilityToggle = nil,
+        SwordToggle = nil,
+        DevilFruitToggle = nil,
+        SpecialToggle = nil,
+    },
+    Teleport = {
+        SelectIsland = nil,
     }
 }
 
@@ -39,6 +54,11 @@ do
         for i,v in pairs(game:GetService("Players").LocalPlayer.Backpack:GetDescendants())do
             if v:IsA("Tool") and v:FindFirstChild("localType") then
                 table.insert(WeaponList,v.Name)
+            end
+        end
+        for i, v in pairs(game:GetService("Players").LocalPlayer.Character:GetDescendants()) do
+            if v:IsA("Tool") and v:FindFirstChild("localType") then
+                table.insert(WeaponList, v.Name)
             end
         end
     end
@@ -106,7 +126,7 @@ do
         end
     end
     mobListInsert()
-    local FarmMobTitle = Tabs.pageMain:AddSection("FarmMob")
+    local FarmMobTitle = Tabs.pageMain:AddSection("FarmMob") --Section FarmMob
     local SelectMobs = Tabs.pageMain:AddDropdown("SelectMob", {
         Title = "Select Mob",
         Values = MobList,
@@ -130,5 +150,52 @@ do
     })
     local FarmMob = Tabs.pageMain:AddToggle("FarmMob", {Title = "FarmMob", Default = false })
 
-    local FarmBossTitle = Tabs.pageMain:AddSection("FarmBoss [Wait Update]")
+    local FarmBossTitle = Tabs.pageMain:AddSection("FarmBoss [Wait Update]") --Section FarmBoss
+
+    SelectMobs:OnChanged(function(Value)
+        _G.Settings.Main.SelectMob = Value
+    end)
+    --[[Stats]]----------------------------------------------------------------------------------------------------------------------
+    local pointSlider = Tabs.pageSettingFarm:AddSlider("Point", {
+        Title = "Point",
+        Default = 1,
+        Min = 1,
+        Max = 1000,
+        Rounding = 0,
+        Callback = function(Value)
+            _G.Settings.Stats.Points = Value
+        end
+    })
+    local UpStrenght = Tabs.pageMain:AddToggle("UpStrenght", {Title = "UpStrenght", Default = false })
+    local UpDurability = Tabs.pageMain:AddToggle("UpDurability", {Title = "UpDurability", Default = false })
+    local UpSword = Tabs.pageMain:AddToggle("UpSword", {Title = "UpSword", Default = false })
+    local UpDevilFruit = Tabs.pageMain:AddToggle("UpDevilFruit", {Title = "UpDevilFruit", Default = false })
+    local UpSpecial = Tabs.pageMain:AddToggle("UpSpecial", {Title = "UpSpecial", Default = false })
+
+    --[[Teleport]]----------------------------------------------------------------------------------------------------------------------
+    local SelectIsland = Tabs.pageTeleport:AddDropdown("SelectIsland", {
+        Title = "Select Island",
+        Values = {
+            "Windmill",
+            "Boss Island",
+            "ShellsTown",
+            "Jungle",
+            "BuggyTown",
+            "DesertIsland1",
+            "Tojisland",
+            "SnowIsland",
+            "Dark Island",
+            "Hueco Mundo"
+        },
+        Multi = false
+    })
+    local Teleport = Tabs.pageMain:AddButton({
+        Title = "Teleport",
+        Callback = function()
+            print(_G.Settings.Teleport.SelectIsland)
+        end
+    })
+    SelectIsland:OnChanged(function(Value)
+        _G.Settings.Teleport.SelectIsland = Value
+    end)
 end
