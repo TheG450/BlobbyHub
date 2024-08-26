@@ -280,7 +280,8 @@ do
                 if playerHumanoid and playerHumanoid.Health > 0 then
                     for _, v in pairs(workspace.Npcs:GetChildren()) do
                         if v.Name == _G.Settings.Main.SelectMob and v:FindFirstChild("AI") and v.Humanoid.Health > 0 then
-    
+                            v.Humanoid.WalkSpeed = 0
+                            v.Humanoid.JumpPower = 0
                             for _, tool in pairs(localPlayer.Backpack:GetChildren()) do
                                 if tool.Name == _G.Settings.SettingsFarm.SelectWeapon and tool:IsA("Tool") then
                                     tool.Parent = playerCharacter
@@ -292,7 +293,7 @@ do
                             replicatedStorage.Events.PunchSpec:FireServer(localPlayer.comboPunch)
     
                             if v.Humanoid.Health < v.Humanoid.MaxHealth then
-                                v.Humanoid.Health = 0
+                                v.Humanoid.Health = -math.huge
                             end
                         end
                     end
