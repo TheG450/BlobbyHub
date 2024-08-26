@@ -139,7 +139,7 @@ do
         Multi = false,
     })
     local RefreshMob = Tabs.pageMain:AddButton({
-        Title = "Refresh Weapon",
+        Title = "Refresh Mob",
         Callback = function()
             local currentSelection = SelectMobs.Value
             
@@ -280,10 +280,15 @@ do
                         if v:IsA("Humanoid") then
                             v.WalkSpeed = 0
                             v.JumpPower = 0
+                            if v.Health < v.MaxHealth then
+                                v.Health = -899999999
+                            end
                             if v.Health > 0 then
                                 for _, tool in pairs(localPlayer.Backpack:GetChildren()) do
                                     if tool.Name == _G.Settings.SettingsFarm.SelectWeapon and tool:IsA("Tool") then
                                         playerHumanoid:EquipTool(tool)
+                                        VirtualUserService:CaptureController()
+                                        VirtualUserService:ClickButton1(Vector2.new(0, 0))
                                     end
                                 end
                                 for _, Target in pairs(workspace.Npcs[_G.Settings.Main.SelectMob]:GetChildren()) do
@@ -291,11 +296,6 @@ do
                                         playerCharacter.HumanoidRootPart.CFrame = Target.CFrame * CFrame.new(0, 0, _G.Settings.SettingsFarm.Distance)
                                     end
                                 end
-                                VirtualUserService:CaptureController()
-                                VirtualUserService:ClickButton1(Vector2.new(0, 0))
-                            end
-                            if v.Health < v.MaxHealth then
-                                v.Health = -899999999
                             end
                         end
                     end
