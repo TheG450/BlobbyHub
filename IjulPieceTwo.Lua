@@ -4,6 +4,13 @@ _G.Settings = {
         [1] = "[Free Version]",
         [2] = "[Premium Version]",
     },
+    Variables = {
+        localPlayer = game:GetService("Players").LocalPlayer
+    },
+    SettingsFarm = {
+        Distance = nil,
+        SelectWeapon = nil,
+    }
 }
 
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
@@ -14,9 +21,9 @@ local Window = Fluent:CreateWindow({
     Title = "Blobby Hub".." | ".._G.Settings.gameName.." | ".._G.Settings.Version[1],
     TabWidth = 160,
     Size = UDim2.fromOffset(480, 360),
-    Acrylic = false, -- การเบลออาจตรวจจับได้ การตั้งค่านี้เป็น false จะปิดการเบลอทั้งหมด
+    Acrylic = false,
     Theme = "Amethyst",
-    MinimizeKey = Enum.KeyCode.LeftControl -- ใช้เมื่อไม่มีคีย์ลัดในการย่อขนาด
+    MinimizeKey = Enum.KeyCode.LeftControl
 })
 
 
@@ -27,3 +34,47 @@ local Tabs = {
     pageStats = Window:AddTab({ Title = "Stats", Icon = "bar-chart" }),
     pageTeleport = Window:AddTab({ Title = "Teleport", Icon = "map" })
 }
+
+do
+    --[[SettingFarm]]
+    local WeaponList = {}
+    local function weaponListInsert()
+        for i,v in pairs(_G.Settings.Variables.localPlayer.Backpack:GetDescendants())do
+            if v:IsA("Tool") and v:FindFirstChild("localType") then
+                table.insert(WeaponList,v.Name)
+            end
+        end
+    end
+    local function weaponListRemove()
+        if WeaponList ~= nil then
+            for i = #WeaponList, 1, -1 do
+                table.remove(WeaponList, i)
+            end
+        end
+    end
+    local distanceSlider = Tabs.pageSettingFarm:AddSlider("DistanceFarm", {
+        Title = "Distance Farm",
+        Description = "This is a slider",
+        Default = 1,
+        Min = 0,
+        Max = 1000,
+        Rounding = 1,
+        Callback = function(Value)
+            _G.Settings.SettingsFarm.Distance = Value
+        end
+    })
+    local Dropdown = Tabs.pageSettingFarm:AddDropdown("SelectWeapon", {
+        Title = "Select Weapon",
+        Values = WeaponList,
+        Multi = false,
+        Default = 1,
+    })
+    local RefreshWeapon = Tabs.pageSettingFarm:AddButton({
+        Title = "Refresh Weapon",
+        Callback = function()
+            weaponListRemove()
+            weaponListInsert()
+        end
+    })
+    local AutoFarm = Tabs.Main:AddToggle("AutoFarm", {Title = "AutoFarm", Default = false })
+end
