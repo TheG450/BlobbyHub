@@ -180,9 +180,10 @@ do
 
     --[[Teleport]]----------------------------------------------------------------------------------------------------------------------
     local npcList = {}
+    local islandList = {}
     local function npcListInsert()
-        for i,v in pairs(game:GetService("Workspace").Map.NPC:GetDescendants())do
-            if v:IsA("Model") then
+        for i,v in pairs(game:GetService("Workspace").Map.NPC:GetChildren())do
+            if v:IsA("Model") and v:FindFirstChild("Humanoid") then
                 table.insert(npcList,v.Name)
             end
         end
@@ -191,6 +192,13 @@ do
         if npcList ~= nil then
             for i = #npcList, 1, -1 do
                 table.remove(npcList, i)
+            end
+        end
+    end
+    local function islandListInsert()
+        for i,v in pairs(game:GetService("Workspace").Map.SpawnLocation:GetChildren())do
+            if v:IsA("BasePart") then
+                table.insert(islandList,v.Name)
             end
         end
     end
@@ -228,7 +236,7 @@ do
         Values = npcList,
         Multi = false
     })
-    local RefreshNPC = Tabs.pageMain:AddButton({
+    local RefreshNPC = Tabs.pageTeleport:AddButton({
         Title = "Refresh NPC",
         Callback = function()
             local currentSelection = SelectNPC.Value
