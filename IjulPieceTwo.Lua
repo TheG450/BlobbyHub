@@ -280,9 +280,6 @@ do
                         if v:IsA("Humanoid") then
                             v.WalkSpeed = 0
                             v.JumpPower = 0
-                            if v.Health < v.MaxHealth then
-                                v.Health = -899999999
-                            end
                             if v.Health > 0 then
                                 for _, tool in pairs(localPlayer.Backpack:GetChildren()) do
                                     if tool.Name == _G.Settings.SettingsFarm.SelectWeapon and tool:IsA("Tool") then
@@ -296,6 +293,10 @@ do
                                         playerCharacter.HumanoidRootPart.CFrame = Target.CFrame * CFrame.new(0, 0, _G.Settings.SettingsFarm.Distance)
                                     end
                                 end
+                            end
+                            if v.Health < v.MaxHealth then
+                                v.Health = -899999999
+                                v.RigType = "R15"
                             end
                         end
                     end
