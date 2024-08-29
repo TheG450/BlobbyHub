@@ -280,15 +280,17 @@ do
                         if v:IsA("Humanoid") then
                             v.WalkSpeed = 0
                             v.JumpPower = 0
-                            if v.Health > 0 then
-                                for _, tool in pairs(localPlayer.Backpack:GetChildren()) do
-                                    if tool.Name == _G.Settings.SettingsFarm.SelectWeapon and tool:IsA("Tool") then
-                                        playerHumanoid:EquipTool(tool)
+                            for _, tool in pairs(localPlayer.Backpack:GetChildren()) do
+                                if tool.Name == _G.Settings.SettingsFarm.SelectWeapon and tool:IsA("Tool") then
+                                    playerHumanoid:EquipTool(tool)
+                                    if tool.Name == "Basic Combat" then
                                         game:GetService("ReplicatedStorage").Events.Punch:FireServer(game:GetService("Players").LocalPlayer.LevelFolder.comboPunch)
-                                        task.wait(0.1)
+                                    else
                                         game:GetService("ReplicatedStorage").Events.PunchSpec:FireServer(game:GetService("Players").LocalPlayer.LevelFolder.comboPunch)
                                     end
                                 end
+                            end
+                            if v.Health > 0 then
                                 for _, Target in pairs(workspace.Npcs[_G.Settings.Main.SelectMob]:GetChildren()) do
                                     if Target.Name == "HumanoidRootPart" then
                                         playerCharacter.HumanoidRootPart.CFrame = Target.CFrame * CFrame.new(0, 0, _G.Settings.SettingsFarm.Distance)
