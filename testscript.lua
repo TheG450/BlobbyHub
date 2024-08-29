@@ -22,3 +22,8 @@ while wait(0.1) do
     VirtualUserService:CaptureController()
     VirtualUserService:ClickButton1(Vector2.new(0, 0))
 end
+
+
+while wait(0.1) do
+    game:GetService("ReplicatedStorage").Events.Punch:FireServer(game:GetService("Players").LocalPlayer.LevelFolder.comboPunch)
+end

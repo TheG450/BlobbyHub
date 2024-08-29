@@ -1,3 +1,4 @@
+repeat wait() until game:IsLoaded() and game.Players and game.Players.LocalPlayer and game.Players.LocalPlayer.Character
 _G.Settings = {
     gameName = "[UPDATE 4 + LIMITED SUKUNA] Ijul Piece 2",
     Version = {
@@ -271,7 +272,6 @@ do
             local localPlayer = players.LocalPlayer
             local playerCharacter = localPlayer.Character
             local playerHumanoid = playerCharacter and playerCharacter:FindFirstChild("Humanoid")
-            local VirtualUserService = game:GetService("VirtualUser")
     
             while FarmMob.Value do
                 wait()
@@ -284,8 +284,9 @@ do
                                 for _, tool in pairs(localPlayer.Backpack:GetChildren()) do
                                     if tool.Name == _G.Settings.SettingsFarm.SelectWeapon and tool:IsA("Tool") then
                                         playerHumanoid:EquipTool(tool)
-                                        VirtualUserService:CaptureController()
-                                        VirtualUserService:ClickButton1(Vector2.new(0, 0))
+                                        game:GetService("ReplicatedStorage").Events.Punch:FireServer(game:GetService("Players").LocalPlayer.LevelFolder.comboPunch)
+                                        task.wait(0.1)
+                                        game:GetService("ReplicatedStorage").Events.PunchSpec:FireServer(game:GetService("Players").LocalPlayer.LevelFolder.comboPunch)
                                     end
                                 end
                                 for _, Target in pairs(workspace.Npcs[_G.Settings.Main.SelectMob]:GetChildren()) do
