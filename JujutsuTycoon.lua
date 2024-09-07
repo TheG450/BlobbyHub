@@ -11,7 +11,7 @@ _G.Settings = {
     },
     Main = {
         SelectMob = nil,
-        FarmMobState = nil,
+        SelectBoss = nil,
     },
     Teleport = {
         SelectIsland = nil,
@@ -77,6 +77,7 @@ do
         Title = "Select Weapon",
         Values = WeaponList,
         Multi = false,
+        Default =  _G.Settings.SettingsFarm.SelectWeapon or WeaponList[1]
     })
     local RefreshWeapon = Tabs.pageSettingFarm:AddButton({
         Title = "Refresh Weapon",
@@ -103,15 +104,44 @@ do
     end)
 
     --[[Main]]---------------------------------------------------------------------------------------------------------------------
+    local TycoonTitle = Tabs.pageMain:AddSection("Tycoon")
     local AutoCollect = Tabs.pageMain:AddToggle("AutoCollect", {Title = "AutoCollect", Default = false })
     local AutoTycoon = Tabs.pageMain:AddToggle("AutoTycoon", {Title = "AutoTycoon", Default = false })
     local AutoRebirth = Tabs.pageMain:AddToggle("AutoRebirth", {Title = "AutoRebirth", Default = false })
+    local MobTitle = Tabs.pageMain:AddSection("Mobs")
+    local SelectMob = Tabs.pageMain:AddDropdown("SelectMob", {
+        Title = "SelectMob",
+        Values = {"Student", "Q Mercenary"},
+        Multi = false,
+        Default = _G.Settings.Main.SelectMob or "Student",
+        Callback = function(Value)
+            _G.Settings.Main.SelectMob = Value
+        end
+    })
+    SelectMob:OnChanged(function(Value)
+        _G.Settings.Main.SelectMob = Value
+    end)
+    local AutoFarmMob = Tabs.pageMain:AddToggle("AutoFarmMob", {Title = "AutoFarmMob", Default = false })
+    local BossTitle = Tabs.pageMain:AddSection("Boss")
+    local SelectBoss = Tabs.pageMain:AddDropdown("SelectBoss", {
+        Title = "SelectBoss",
+        Values = {"Idatoru", "Shoso", "Urayme", "Volcano", "Kojo"},
+        Multi = true,
+    })
+    SelectBoss:OnChanged(function(Value)
+        local Values = {}
+        for Value, State in next, Value do
+            table.insert(Values, Value)
+        end
+    end)
+    local AutoFarmBoss = Tabs.pageMain:AddToggle("AutoFarmBoss", {Title = "AutoFarmBoss", Default = false })
 
     -------------[[SCRIPTS]]---------------------------------------------------------------------------------------------------------------------
+    local character = game:GetService("Players").LocalPlayer.Character
     AutoCollect:OnChanged(function()
         task.spawn(function()
             while wait() do
-                if AutoCollect.Value then
+                if AutoCollect.Value and character.Humanoid.Health > 0 then
                     local Collect = game:GetService("Workspace")["Zednov's Tycoon Kit"].Tycoons[tostring(game:GetService("Players").LocalPlayer.Team)].Essentials.Giver
 
                     if firetouchinterest then
@@ -136,7 +166,7 @@ do
     AutoTycoon:OnChanged(function()
         task.spawn(function()
             while wait() do
-                if AutoTycoon.Value then
+                if AutoTycoon.Value and character.Humanoid.Health > 0 then
                     local Buttons = game:GetService("Workspace")["Zednov's Tycoon Kit"].Tycoons[tostring(game:GetService("Players").LocalPlayer.Team)].Buttons
                     for i,v in pairs(Buttons:GetDescendants()) do
                         local cashValueStr = game:GetService("Players").LocalPlayer.leaderstats.Cash.Value
@@ -153,7 +183,26 @@ do
                 end
             end
         end)
-    end)    
+    end)
+    AutoRebirth:OnChanged(function()
+        task.spawn(function()
+            while wait(1) do
+                if AutoRebirth.Value then
+                    game:GetService("ReplicatedStorage").Assets.Remotes.Rebirth:InvokeServer()
+                end
+            end
+        end)
+    end)
+
+    AutoFarmBoss:OnChanged(function()
+        task.spawn(function()
+            while wait() do
+                if AutoFarmBoss.Value then
+                    print(SelectBoss)
+                end
+            end
+        end)
+    end)
 end
 
 Window:SelectTab(1)
@@ -163,3 +212,8 @@ Fluent:Notify({
     Content = "The script has been loaded.",
     Duration = 5
 })
+
+--game:GetService("ReplicatedStorage").Assets.Remotes.RedeemCode:InvokeServer("Quest")
+--game:GetService("ReplicatedStorage").Assets.Remotes.Skills:FireServer("Combat","M1")
+--game:GetService("ReplicatedStorage").Assets.Remotes.Shops:FireServer("Purchase",{["Name"] = "Black Flash",["Type"] = "Abilities"})
+--game:GetService("ReplicatedStorage").Assets.Remotes.Skills:FireServer("Combat","M1")
