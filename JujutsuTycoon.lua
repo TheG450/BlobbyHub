@@ -186,7 +186,7 @@ do
     })
 
     --[[Teleport]]---------------------------------------------------------------------------------------------------------------------
-    local SelectTeleport = Tabs.pageShop:AddDropdown("SelectTeleport", {
+    local SelectTeleport = Tabs.pageTeleport:AddDropdown("SelectTeleport", {
         Title = "Select Teleport",
         Values = {"ShibuyaZone", "MetroZone", "ForestZone", "LakeZone", "SnowLakeZone"},
         Multi = false,
@@ -198,7 +198,7 @@ do
     SelectMob:OnChanged(function(Value)
         _G.Settings.Teleport.SelectIsland = Value
     end)
-    local BuySword = Tabs.pageShop:AddButton({
+    local BuySword = Tabs.pageTeleport:AddButton({
         Title = "BuySword",
         Callback = function()
             for i,v in pairs(game:GetService("Workspace").Ignore.Zones:GetChildren()) do
