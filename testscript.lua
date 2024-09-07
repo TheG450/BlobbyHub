@@ -27,3 +27,38 @@ end
 while wait(0.1) do
     game:GetService("ReplicatedStorage").Events.Punch:FireServer(game:GetService("Players").LocalPlayer.LevelFolder.comboPunch)
 end
+
+local Codes = {
+    "Fixed999",
+    "UPDATE4.5",
+    "Patched",
+    "Family",
+    "Optimized",
+    "500KVISITS",
+    "diegointhedark",
+    "Sub2ink",
+    "400KVISITS",
+    "sleep",
+    "lknkvgzc",
+    "ktydrfhjklkhfhg",
+    "1KPlaying",
+    "Mupeng2",
+    "50KVISITS",
+    "UPDATE4",
+    "25KVISITS",
+    "HaoHaki",
+    "Heian",
+    "Sub2Arthur",
+    "Sub2Sai",
+    "Sub2FazzM",
+    "Sub2YahikoDoidao"
+}
+
+for _, code in ipairs(Codes) do
+    if code ~= "" then
+        game:GetService("ReplicatedStorage").Events.RedeemCodes:FireServer(code)
+        wait(0.5)
+    end
+end
+
+
