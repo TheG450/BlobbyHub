@@ -127,6 +127,7 @@ do
         Title = "SelectBoss",
         Values = {"Idatoru", "Shoso", "Urayme", "Volcano", "Kojo"},
         Multi = true,
+        Default = {"Idatoru", "Shoso", "Urayme", "Volcano", "Kojo"},
     })
     SelectBoss:OnChanged(function(Value)
         local Values = {}
@@ -137,11 +138,10 @@ do
     local AutoFarmBoss = Tabs.pageMain:AddToggle("AutoFarmBoss", {Title = "AutoFarmBoss", Default = false })
 
     -------------[[SCRIPTS]]---------------------------------------------------------------------------------------------------------------------
-    local character = game:GetService("Players").LocalPlayer.Character
     AutoCollect:OnChanged(function()
         task.spawn(function()
             while wait() do
-                if AutoCollect.Value and character.Humanoid.Health > 0 then
+                if AutoCollect.Value and game:GetService("Players").LocalPlayer.Character.Humanoid.Health > 0 then
                     local Collect = game:GetService("Workspace")["Zednov's Tycoon Kit"].Tycoons[tostring(game:GetService("Players").LocalPlayer.Team)].Essentials.Giver
 
                     if firetouchinterest then
@@ -166,7 +166,7 @@ do
     AutoTycoon:OnChanged(function()
         task.spawn(function()
             while wait() do
-                if AutoTycoon.Value and character.Humanoid.Health > 0 then
+                if AutoTycoon.Value and game:GetService("Players").LocalPlayer.Character.Humanoid.Health > 0 then
                     local Buttons = game:GetService("Workspace")["Zednov's Tycoon Kit"].Tycoons[tostring(game:GetService("Players").LocalPlayer.Team)].Buttons
                     for i,v in pairs(Buttons:GetDescendants()) do
                         local cashValueStr = game:GetService("Players").LocalPlayer.leaderstats.Cash.Value
