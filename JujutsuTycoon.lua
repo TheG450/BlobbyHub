@@ -19,7 +19,6 @@ _G.Settings = {
     },
     Teleport = {
         SelectIsland = nil,
-        SelectNPC = nil,
     }
 }
 
@@ -186,6 +185,30 @@ do
         end
     })
 
+    --[[Teleport]]---------------------------------------------------------------------------------------------------------------------
+    local SelectTeleport = Tabs.pageShop:AddDropdown("SelectTeleport", {
+        Title = "Select Teleport",
+        Values = {"ShibuyaZone", "MetroZone", "ForestZone", "LakeZone", "SnowLakeZone"},
+        Multi = false,
+        Default = _G.Settings.Teleport.SelectIsland or "",
+        Callback = function(Value)
+            _G.Settings.Teleport.SelectIsland = Value
+        end
+    })
+    SelectMob:OnChanged(function(Value)
+        _G.Settings.Teleport.SelectIsland = Value
+    end)
+    local BuySword = Tabs.pageShop:AddButton({
+        Title = "BuySword",
+        Callback = function()
+            for i,v in pairs(game:GetService("Workspace").Ignore.Zones:GetChildren()) do
+                if v.Name == _G.Settings.Teleport.SelectIsland and v:IsA("BasePart") then
+                    game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = v.CFrame
+                end
+            end
+        end
+    })
+
     -------------[[SCRIPTS]]---------------------------------------------------------------------------------------------------------------------
     AutoCollect:OnChanged(function()
         task.spawn(function()
@@ -261,6 +284,13 @@ do
         end)
     end)
     
+    local function EquipWeapon()
+        for _, tool in pairs(game:GetService("Players").LocalPlayer.Backpack:GetChildren()) do
+            if tool.Name == _G.Settings.SettingsFarm.SelectWeapon and tool:IsA("Tool") then
+                game:GetService("Players").LocalPlayer.Character.Humanoid:EquipTool(tool)
+            end
+        end
+    end
     AutoFarmMob:OnChanged(function()
         task.spawn(function()
             while wait() do
@@ -268,11 +298,7 @@ do
                     if AutoFarmMob.Value and game:GetService("Players").LocalPlayer.Character.Humanoid.Health > 0 then
                         for i,v in pairs(game:GetService("Workspace").LivingBeings.NPCS:GetChildren()) do
                             if v.Name == _G.Settings.Main.SelectMob and v:IsA("Model") and v.Humanoid.Health > 0 then
-                                for _, tool in pairs(game:GetService("Players").LocalPlayer.Backpack:GetChildren()) do
-                                    if tool.Name == _G.Settings.SettingsFarm.SelectWeapon and tool:IsA("Tool") then
-                                        game:GetService("Players").LocalPlayer.Character.Humanoid:EquipTool(tool)
-                                    end
-                                end
+                                EquipWeapon()
                                 game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0, 0, _G.Settings.SettingsFarm.Distance)
                                 game:GetService("ReplicatedStorage").Assets.Remotes.Skills:FireServer("Combat","M1")
                             end
@@ -289,11 +315,7 @@ do
                     if AutoFarmBoss.Value and game:GetService("Players").LocalPlayer.Character.Humanoid.Health > 0 then
                         for i, v in pairs(game:GetService("Workspace").LivingBeings.NPCS:GetChildren()) do
                             if table.find(_G.Settings.Main.SelectBoss, v.Name) and v:IsA("Model") and v.Humanoid.Health > 0 then
-                                for _, tool in pairs(game:GetService("Players").LocalPlayer.Backpack:GetChildren()) do
-                                    if tool.Name == _G.Settings.SettingsFarm.SelectWeapon and tool:IsA("Tool") then
-                                        game:GetService("Players").LocalPlayer.Character.Humanoid:EquipTool(tool)
-                                    end
-                                end
+                                EquipWeapon()
                                 game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0, 0, _G.Settings.SettingsFarm.Distance)
                                 game:GetService("ReplicatedStorage").Assets.Remotes.Skills:FireServer("Combat","M1")
                             end
