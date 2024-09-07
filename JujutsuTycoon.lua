@@ -110,16 +110,50 @@ do
     -------------[[SCRIPTS]]---------------------------------------------------------------------------------------------------------------------
     AutoCollect:OnChanged(function()
         task.spawn(function()
-            while wait(2) do
-                local Collect = game:GetService("Workspace")["Zednov's Tycoon Kit"].Tycoons[tostring(game:GetService("Players").LocalPlayer.Team)].Essentials.Giver
+            while wait() do
+                if AutoCollect.Value then
+                    local Collect = game:GetService("Workspace")["Zednov's Tycoon Kit"].Tycoons[tostring(game:GetService("Players").LocalPlayer.Team)].Essentials.Giver
 
-                if firetouchinterest then
-                    firetouchinterest(game:GetService("Players").LocalPlayer.Character.HumanoidRootPart, Collect, 0)
-                    firetouchinterest(game:GetService("Players").LocalPlayer.Character.HumanoidRootPart, Collect, 1)
+                    if firetouchinterest then
+                        firetouchinterest(game:GetService("Players").LocalPlayer.Character.HumanoidRootPart, Collect, 0)
+                        firetouchinterest(game:GetService("Players").LocalPlayer.Character.HumanoidRootPart, Collect, 1)
+                    end
+                    wait(5)
                 end
             end
         end)
     end)
+    local function convertValue(valueStr)
+        local number = tonumber(string.match(valueStr, "%d+%.?%d*"))
+        if string.find(valueStr, "K") then
+            return number * 1000
+        elseif string.find(valueStr, "M") then
+            return number * 1000000
+        else
+            return number
+        end
+    end
+    AutoTycoon:OnChanged(function()
+        task.spawn(function()
+            while wait() do
+                if AutoTycoon.Value then
+                    local Buttons = game:GetService("Workspace")["Zednov's Tycoon Kit"].Tycoons[tostring(game:GetService("Players").LocalPlayer.Team)].Buttons
+                    for i,v in pairs(Buttons:GetDescendants()) do
+                        local cashValueStr = game:GetService("Players").LocalPlayer.leaderstats.Cash.Value
+                        local cashValue = convertValue(cashValueStr)
+
+                        if v:IsA("Model") and v.Price.Value <= cashValue and not v:FindFirstChild("Gamepass") and v.Head.Transparency == 0 then
+                            local Target = v.Head
+                            if firetouchinterest then
+                                firetouchinterest(game:GetService("Players").LocalPlayer.Character.HumanoidRootPart, Target, 0)
+                                firetouchinterest(game:GetService("Players").LocalPlayer.Character.HumanoidRootPart, Target, 1)
+                            end
+                        end
+                    end
+                end
+            end
+        end)
+    end)    
 end
 
 Window:SelectTab(1)
