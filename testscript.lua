@@ -23,42 +23,13 @@ while wait(0.1) do
     VirtualUserService:ClickButton1(Vector2.new(0, 0))
 end
 
+-- loadstring(game:HttpGet("https://raw.githubusercontent.com/TheG450/BlobbyHub/main/IjulPieceTwo.Lua"))()
+local Part = game:GetService("Workspace")["Zednov's Tycoon Kit"].Tycoons["East School Kyoto"].Essentials.Giver
 
-while wait(0.1) do
-    game:GetService("ReplicatedStorage").Events.Punch:FireServer(game:GetService("Players").LocalPlayer.LevelFolder.comboPunch)
+if firetouchinterest then
+    firetouchinterest(game:GetService("Players").LocalPlayer.Character.HumanoidRootPart, Part, 0)
+    firetouchinterest(game:GetService("Players").LocalPlayer.Character.HumanoidRootPart, Part, 1)
+else
+    warn("Missing firetouchinterest")
 end
-
-local Codes = {
-    "Fixed999",
-    "UPDATE4.5",
-    "Patched",
-    "Family",
-    "Optimized",
-    "500KVISITS",
-    "diegointhedark",
-    "Sub2ink",
-    "400KVISITS",
-    "sleep",
-    "lknkvgzc",
-    "ktydrfhjklkhfhg",
-    "1KPlaying",
-    "Mupeng2",
-    "50KVISITS",
-    "UPDATE4",
-    "25KVISITS",
-    "HaoHaki",
-    "Heian",
-    "Sub2Arthur",
-    "Sub2Sai",
-    "Sub2FazzM",
-    "Sub2YahikoDoidao"
-}
-
-for _, code in ipairs(Codes) do
-    if code ~= "" then
-        game:GetService("ReplicatedStorage").Events.RedeemCodes:FireServer(code)
-        wait(0.5)
-    end
-end
-
 
