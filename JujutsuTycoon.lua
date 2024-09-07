@@ -107,9 +107,6 @@ do
     SelectWeapons:OnChanged(function(Value)
         _G.Settings.SettingsFarm.SelectWeapon = Value
     end)
-    SelectAngle:OnChanged(function(Value)
-        _G.Settings.SettingsFarm.Angle = Value
-    end)
 
     --[[Main]]---------------------------------------------------------------------------------------------------------------------
     local TycoonTitle = Tabs.pageMain:AddSection("Tycoon")
