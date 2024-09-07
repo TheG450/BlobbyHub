@@ -8,7 +8,6 @@ _G.Settings = {
     SettingsFarm = {
         Distance = nil,
         SelectWeapon = nil,
-        Angle = nil,
     },
     Main = {
         SelectMob = nil,
@@ -78,12 +77,6 @@ do
         Callback = function(Value)
             _G.Settings.SettingsFarm.Distance = Value
         end
-    })
-    local SelectAngle = Tabs.pageSettingFarm:AddDropdown("SelectAngle", {
-        Title = "Select Angle",
-        Values = {"Above", "Under", "Behide"},
-        Multi = false,
-        Default =  _G.Settings.SettingsFarm.Angle or "Above"
     })
     local SelectWeapons = Tabs.pageSettingFarm:AddDropdown("SelectWeapon", {
         Title = "Select Weapon",
@@ -157,7 +150,8 @@ do
     --[[Shop]]---------------------------------------------------------------------------------------------------------------------
     local TechniqueTitle = Tabs.pageShop:AddSection("Techniques")
     local SelectTechnique = Tabs.pageShop:AddDropdown("SelectTechnique", {
-        Title = "SelectTechnique",
+        Title = "Select Technique",
+        Description = "All items Locked Technique can be purchased except with Gamepass.",
         Values = {"Lava Bees", "Blood Cyclone", "Divergent Fist", "Cursed Speech:Twist", "Boogie Woogie", "Supernova", "Moon Dregs", "Triple Wood", "Cursed Speech:Stop", "Bird Strike", "Clones", "Basic RCT", "Piranha Fury", "Crimson Bind", "Cursed Speech:Explode", "Energy Beam", "Piercing Blood", "Axe Kick", "Ice Spikes", "Collapse", "Aqua Beam", "Black Flash", "Roots", "Triple Kicks", "Energy Vortex", "Flower Field", "Advanced RCT", "Molten Palm", "Blood Strike", "Nue", "Lapse Blue", "Reversal Red", "Serpent", "Ice Barrage", "Tidal Wave", "Ice Age", "Volcano Mine", "Cursed Flower", "Max Elephant", "Max Red", "Max Blue", "Max Meteor", "Summon", "Hollow Purple"},
         Multi = false,
         Default = _G.Settings.Shop.SelectTechnique or "",
@@ -168,22 +162,34 @@ do
     SelectMob:OnChanged(function(Value)
         _G.Settings.Shop.SelectTechnique = Value
     end)
+    local BuyTechnique = Tabs.pageShop:AddButton({
+        Title = "BuyTechnique",
+        Callback = function()
+            game:GetService("ReplicatedStorage").Assets.Remotes.Shops:FireServer("Purchase",{["Name"] = _G.Settings.Shop.SelectTechnique,["Type"] = "Abilities"})
+        end
+    })
     local SwordTitle = Tabs.pageShop:AddSection("Swords")
+    local SelectSword = Tabs.pageShop:AddDropdown("SelectSword", {
+        Title = "Select Sword",
+        Description = "All items Locked Sword can be purchased except with Gamepass.",
+        Values = {"Knife", "Cursed Bow", "Revolver", "Katana", "Cursed Hammer", "Broom", "Slaughter Demon", "Golden Hilt", "Cursed Guitar", "Eternal Chain", "BattleAxe", "Inverted Spear", "Split Soul Katana"},
+        Multi = false,
+        Default = _G.Settings.Shop.SelectSword or "",
+        Callback = function(Value)
+            _G.Settings.Shop.SelectSword = Value
+        end
+    })
+    SelectSword:OnChanged(function(Value)
+        _G.Settings.Shop.SelectSword = Value
+    end)
+    local BuySword = Tabs.pageShop:AddButton({
+        Title = "BuySword",
+        Callback = function()
+            game:GetService("ReplicatedStorage").Assets.Remotes.Shops:FireServer("Purchase",{["Name"] = _G.Settings.Shop.SelectSword,["Type"] = "Swords"})
+        end
+    })
 
     -------------[[SCRIPTS]]---------------------------------------------------------------------------------------------------------------------
-    --ANTI AFK
-    task.spawn(function()
-        while wait() do
-            pcall(function()
-                local anti = game:GetService("VirtualUser")
-                    game:GetService("Players").LocalPlayer.Idled:connect(function()
-                    anti:Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
-                    wait(1)
-                    anti:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
-                end)
-            end)
-        end
-    end)
     AutoCollect:OnChanged(function()
         task.spawn(function()
             while wait() do
@@ -212,21 +218,23 @@ do
     AutoTycoon:OnChanged(function()
         task.spawn(function()
             while wait() do
-                if AutoTycoon.Value and game:GetService("Players").LocalPlayer.Character.Humanoid.Health > 0 then
-                    local Buttons = game:GetService("Workspace")["Zednov's Tycoon Kit"].Tycoons[tostring(game:GetService("Players").LocalPlayer.Team)].Buttons
-                    for i,v in pairs(Buttons:GetDescendants()) do
-                        local cashValueStr = game:GetService("Players").LocalPlayer.leaderstats.Cash.Value
-                        local cashValue = convertValue(cashValueStr)
-
-                        if v:IsA("Model") and v.Price.Value <= cashValue and not v:FindFirstChild("Gamepass") and v.Head.Transparency == 0 then
-                            local Target = v.Head
-                            if firetouchinterest then
-                                firetouchinterest(game:GetService("Players").LocalPlayer.Character.HumanoidRootPart, Target, 0)
-                                firetouchinterest(game:GetService("Players").LocalPlayer.Character.HumanoidRootPart, Target, 1)
+                pcall(function()
+                    if AutoTycoon.Value and game:GetService("Players").LocalPlayer.Character.Humanoid.Health > 0 then
+                        local Buttons = game:GetService("Workspace")["Zednov's Tycoon Kit"].Tycoons[tostring(game:GetService("Players").LocalPlayer.Team)].Buttons
+                        for i,v in pairs(Buttons:GetDescendants()) do
+                            local cashValueStr = game:GetService("Players").LocalPlayer.leaderstats.Cash.Value
+                            local cashValue = convertValue(cashValueStr)
+    
+                            if v:IsA("Model") and v.Price.Value <= cashValue and not v:FindFirstChild("Gamepass") and v.Head.Transparency == 0 then
+                                local Target = v.Head
+                                if firetouchinterest then
+                                    firetouchinterest(game:GetService("Players").LocalPlayer.Character.HumanoidRootPart, Target, 0)
+                                    firetouchinterest(game:GetService("Players").LocalPlayer.Character.HumanoidRootPart, Target, 1)
+                                end
                             end
                         end
                     end
-                end
+                end)
             end
         end)
     end)
@@ -257,44 +265,42 @@ do
     AutoFarmMob:OnChanged(function()
         task.spawn(function()
             while wait() do
-                if AutoFarmMob.Value and game:GetService("Players").LocalPlayer.Character.Humanoid.Health > 0 then
-                    for i,v in pairs(game:GetService("Workspace").LivingBeings.NPCS:GetChildren()) do
-                        if v.Name == _G.Settings.Main.SelectMob and v:IsA("Model") and v.Humanoid.Health > 0 then
-                            for _, tool in pairs(game:GetService("Players").LocalPlayer.Backpack:GetChildren()) do
-                                if tool.Name == _G.Settings.SettingsFarm.SelectWeapon and tool:IsA("Tool") then
-                                    game:GetService("Players").LocalPlayer.Character.Humanoid:EquipTool(tool)
+                pcall(function()
+                    if AutoFarmMob.Value and game:GetService("Players").LocalPlayer.Character.Humanoid.Health > 0 then
+                        for i,v in pairs(game:GetService("Workspace").LivingBeings.NPCS:GetChildren()) do
+                            if v.Name == _G.Settings.Main.SelectMob and v:IsA("Model") and v.Humanoid.Health > 0 then
+                                for _, tool in pairs(game:GetService("Players").LocalPlayer.Backpack:GetChildren()) do
+                                    if tool.Name == _G.Settings.SettingsFarm.SelectWeapon and tool:IsA("Tool") then
+                                        game:GetService("Players").LocalPlayer.Character.Humanoid:EquipTool(tool)
+                                    end
                                 end
+                                game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0, 0, _G.Settings.SettingsFarm.Distance)
+                                game:GetService("ReplicatedStorage").Assets.Remotes.Skills:FireServer("Combat","M1")
                             end
-                            game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0, 0, _G.Settings.SettingsFarm.Distance)
-                            game:GetService("ReplicatedStorage").Assets.Remotes.Skills:FireServer("Combat","M1")
                         end
                     end
-                end
+                end)
             end
         end)
     end)
     AutoFarmBoss:OnChanged(function()
         task.spawn(function()
             while wait() do
-                if AutoFarmBoss.Value and game:GetService("Players").LocalPlayer.Character.Humanoid.Health > 0 then
-                    for i, v in pairs(game:GetService("Workspace").LivingBeings.NPCS:GetChildren()) do
-                        if table.find(_G.Settings.Main.SelectBoss, v.Name) and v:IsA("Model") and v.Humanoid.Health > 0 then
-                            for _, tool in pairs(game:GetService("Players").LocalPlayer.Backpack:GetChildren()) do
-                                if tool.Name == _G.Settings.SettingsFarm.SelectWeapon and tool:IsA("Tool") then
-                                    game:GetService("Players").LocalPlayer.Character.Humanoid:EquipTool(tool)
+                pcall(function()
+                    if AutoFarmBoss.Value and game:GetService("Players").LocalPlayer.Character.Humanoid.Health > 0 then
+                        for i, v in pairs(game:GetService("Workspace").LivingBeings.NPCS:GetChildren()) do
+                            if table.find(_G.Settings.Main.SelectBoss, v.Name) and v:IsA("Model") and v.Humanoid.Health > 0 then
+                                for _, tool in pairs(game:GetService("Players").LocalPlayer.Backpack:GetChildren()) do
+                                    if tool.Name == _G.Settings.SettingsFarm.SelectWeapon and tool:IsA("Tool") then
+                                        game:GetService("Players").LocalPlayer.Character.Humanoid:EquipTool(tool)
+                                    end
                                 end
+                                game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0, 0, _G.Settings.SettingsFarm.Distance)
+                                game:GetService("ReplicatedStorage").Assets.Remotes.Skills:FireServer("Combat","M1")
                             end
-                            if _G.Settings.SettingsFarm.Angle == "Above" then
-                                game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0, _G.Settings.SettingsFarm.Distance, 0) * CFrame.Angles(-1.5,0,0)
-                            elseif _G.Settings.SettingsFarm.Angle == "Under" then
-                                game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0, -_G.Settings.SettingsFarm.Distance, 0) * CFrame.Angles(1.5,0,0)
-                            elseif _G.Settings.SettingsFarm.Angle == "Behide" then
-                                game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0, 0, _G.Settings.SettingsFarm.Distance) * CFrame.Angles(0,0,0)
-                            end
-                            game:GetService("ReplicatedStorage").Assets.Remotes.Skills:FireServer("Combat","M1")
                         end
                     end
-                end
+                end)
             end
         end)
     end)
@@ -308,6 +314,18 @@ Fluent:Notify({
     Duration = 5
 })
 
+--ANTI AFK
+task.spawn(function()
+    while wait(320) do
+        pcall(function()
+            local anti = game:GetService("VirtualUser")
+                game:GetService("Players").LocalPlayer.Idled:connect(function()
+                anti:Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+                wait(1)
+                anti:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+            end)
+        end)
+    end
+end)
+
 --game:GetService("ReplicatedStorage").Assets.Remotes.RedeemCode:InvokeServer("Quest")
---game:GetService("ReplicatedStorage").Assets.Remotes.Shops:FireServer("Purchase",{["Name"] = "Hollow Purple",["Type"] = "Abilities"})
---game:GetService("ReplicatedStorage").Assets.Remotes.Shops:FireServer("Purchase",{["Name"] = "Katana",["Type"] = "Swords"})
