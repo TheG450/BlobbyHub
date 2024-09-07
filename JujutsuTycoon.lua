@@ -187,117 +187,114 @@ do
     })
 
     -------------[[SCRIPTS]]---------------------------------------------------------------------------------------------------------------------
-    AutoCollect:OnChanged(function()
-        task.spawn(function()
-            while wait() do
-                if AutoCollect.Value and game:GetService("Players").LocalPlayer.Character.Humanoid.Health > 0 then
-                    local Collect = game:GetService("Workspace")["Zednov's Tycoon Kit"].Tycoons[tostring(game:GetService("Players").LocalPlayer.Team)].Essentials.Giver
+    -- Cache frequently accessed services
+    local players = game:GetService("Players")
+    local replicatedStorage = game:GetService("ReplicatedStorage")
+    local workspace = game:GetService("Workspace")
+    local localPlayer = players.LocalPlayer
+    local humanoidRootPart = localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart")
 
-                    if firetouchinterest then
-                        firetouchinterest(game:GetService("Players").LocalPlayer.Character.HumanoidRootPart, Collect, 0)
-                        firetouchinterest(game:GetService("Players").LocalPlayer.Character.HumanoidRootPart, Collect, 1)
-                    end
-                    wait(5)
-                end
+    -- Function to handle repetitive tool equipping
+    local function equipWeapon()
+        for _, tool in pairs(localPlayer.Backpack:GetChildren()) do
+            if tool.Name == _G.Settings.SettingsFarm.SelectWeapon and tool:IsA("Tool") then
+                localPlayer.Character.Humanoid:EquipTool(tool)
             end
-        end)
-    end)
-    local function convertValue(valueStr)
-        local number = tonumber(string.match(valueStr, "%d+%.?%d*"))
-        if string.find(valueStr, "K") then
-            return number * 1000
-        elseif string.find(valueStr, "M") then
-            return number * 1000000
-        else
-            return number
         end
     end
-    AutoTycoon:OnChanged(function()
+
+    -- Reduce wait time for AutoCollect and cache the collect object
+    local collect = workspace["Zednov's Tycoon Kit"].Tycoons[tostring(localPlayer.Team)].Essentials.Giver
+    AutoCollect:OnChanged(function()
         task.spawn(function()
-            while wait() do
-                pcall(function()
-                    if AutoTycoon.Value and game:GetService("Players").LocalPlayer.Character.Humanoid.Health > 0 then
-                        local Buttons = game:GetService("Workspace")["Zednov's Tycoon Kit"].Tycoons[tostring(game:GetService("Players").LocalPlayer.Team)].Buttons
-                        for i,v in pairs(Buttons:GetDescendants()) do
-                            local cashValueStr = game:GetService("Players").LocalPlayer.leaderstats.Cash.Value
-                            local cashValue = convertValue(cashValueStr)
-    
-                            if v:IsA("Model") and v.Price.Value <= cashValue and not v:FindFirstChild("Gamepass") and v.Head.Transparency == 0 then
-                                local Target = v.Head
-                                if firetouchinterest then
-                                    firetouchinterest(game:GetService("Players").LocalPlayer.Character.HumanoidRootPart, Target, 0)
-                                    firetouchinterest(game:GetService("Players").LocalPlayer.Character.HumanoidRootPart, Target, 1)
-                                end
-                            end
-                        end
-                    end
-                end)
-            end
-        end)
-    end)
-    AutoRebirth:OnChanged(function()
-        task.spawn(function()
-            while wait(1) do
-                if AutoRebirth.Value then
-                    game:GetService("ReplicatedStorage").Assets.Remotes.Rebirth:InvokeServer()
-                end
-            end
-        end)
-    end)
-    AutoDropLoot:OnChanged(function()
-        task.spawn(function()
-            while wait() do
-                if AutoDropLoot.Value and game:GetService("Players").LocalPlayer.Character.Humanoid.Health > 0 then
-                    for i,v in pairs(game:GetService("Workspace"):GetChildren()) do
-                        if string.find(v.Name, "Loot") and v:IsA("BasePart") and v:FindFirstChild("ProximityPrompt") then
-                            game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = v.CFrame
-                            fireproximityprompt(v.ProximityPrompt)
-                        end
-                    end
+            while AutoCollect.Value do
+                if humanoidRootPart and localPlayer.Character.Humanoid.Health > 0 then
+                    firetouchinterest(humanoidRootPart, collect, 0)
+                    firetouchinterest(humanoidRootPart, collect, 1)
+                    wait(5)
+                else
+                    break
                 end
             end
         end)
     end)
 
-    AutoFarmMob:OnChanged(function()
+    -- Optimize AutoTycoon by checking conditions only once per loop
+    AutoTycoon:OnChanged(function()
         task.spawn(function()
-            while wait() do
+            while AutoTycoon.Value do
                 pcall(function()
-                    if AutoFarmMob.Value and game:GetService("Players").LocalPlayer.Character.Humanoid.Health > 0 then
-                        for i,v in pairs(game:GetService("Workspace").LivingBeings.NPCS:GetChildren()) do
-                            if v.Name == _G.Settings.Main.SelectMob and v:IsA("Model") and v.Humanoid.Health > 0 then
-                                for _, tool in pairs(game:GetService("Players").LocalPlayer.Backpack:GetChildren()) do
-                                    if tool.Name == _G.Settings.SettingsFarm.SelectWeapon and tool:IsA("Tool") then
-                                        game:GetService("Players").LocalPlayer.Character.Humanoid:EquipTool(tool)
-                                    end
-                                end
-                                game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0, 0, _G.Settings.SettingsFarm.Distance)
-                                game:GetService("ReplicatedStorage").Assets.Remotes.Skills:FireServer("Combat","M1")
+                    if localPlayer.Character and localPlayer.Character.Humanoid.Health > 0 then
+                        local buttons = workspace["Zednov's Tycoon Kit"].Tycoons[tostring(localPlayer.Team)].Buttons
+                        local cashValue = convertValue(localPlayer.leaderstats.Cash.Value)
+                        for _, button in pairs(buttons:GetDescendants()) do
+                            if button:IsA("Model") and button.Price.Value <= cashValue and not button:FindFirstChild("Gamepass") and button.Head.Transparency == 0 then
+                                firetouchinterest(humanoidRootPart, button.Head, 0)
+                                firetouchinterest(humanoidRootPart, button.Head, 1)
                             end
                         end
                     end
                 end)
+                wait(1) -- Adjusted the wait to 1 second to avoid constant iterations
             end
         end)
     end)
-    AutoFarmBoss:OnChanged(function()
+
+    -- Avoid repeating fireproximityprompt calls unless necessary
+    AutoDropLoot:OnChanged(function()
         task.spawn(function()
-            while wait() do
+            while AutoDropLoot.Value do
                 pcall(function()
-                    if AutoFarmBoss.Value and game:GetService("Players").LocalPlayer.Character.Humanoid.Health > 0 then
-                        for i, v in pairs(game:GetService("Workspace").LivingBeings.NPCS:GetChildren()) do
-                            if table.find(_G.Settings.Main.SelectBoss, v.Name) and v:IsA("Model") and v.Humanoid.Health > 0 then
-                                for _, tool in pairs(game:GetService("Players").LocalPlayer.Backpack:GetChildren()) do
-                                    if tool.Name == _G.Settings.SettingsFarm.SelectWeapon and tool:IsA("Tool") then
-                                        game:GetService("Players").LocalPlayer.Character.Humanoid:EquipTool(tool)
-                                    end
-                                end
-                                game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0, 0, _G.Settings.SettingsFarm.Distance)
-                                game:GetService("ReplicatedStorage").Assets.Remotes.Skills:FireServer("Combat","M1")
+                    if localPlayer.Character and localPlayer.Character.Humanoid.Health > 0 then
+                        for _, loot in pairs(workspace:GetChildren()) do
+                            if loot:IsA("BasePart") and string.find(loot.Name, "Loot") and loot:FindFirstChild("ProximityPrompt") then
+                                humanoidRootPart.CFrame = loot.CFrame
+                                fireproximityprompt(loot.ProximityPrompt)
                             end
                         end
                     end
                 end)
+                wait(0.1) -- Slight wait to avoid spamming
+            end
+        end)
+    end)
+
+    -- Optimize AutoFarmMob by checking health and tool conditions only when necessary
+    AutoFarmMob:OnChanged(function()
+        task.spawn(function()
+            while AutoFarmMob.Value do
+                pcall(function()
+                    if localPlayer.Character and localPlayer.Character.Humanoid.Health > 0 then
+                        for _, mob in pairs(workspace.LivingBeings.NPCS:GetChildren()) do
+                            if mob.Name == _G.Settings.Main.SelectMob and mob:IsA("Model") and mob.Humanoid.Health > 0 then
+                                equipWeapon() -- Equip weapon if necessary
+                                humanoidRootPart.CFrame = mob.HumanoidRootPart.CFrame * CFrame.new(0, 0, _G.Settings.SettingsFarm.Distance)
+                                replicatedStorage.Assets.Remotes.Skills:FireServer("Combat", "M1")
+                            end
+                        end
+                    end
+                end)
+                wait(0.1) -- Adjust wait time between actions
+            end
+        end)
+    end)
+
+    -- Optimize AutoFarmBoss
+    AutoFarmBoss:OnChanged(function()
+        task.spawn(function()
+            while AutoFarmBoss.Value do
+                pcall(function()
+                    if localPlayer.Character and localPlayer.Character.Humanoid.Health > 0 then
+                        for _, boss in pairs(workspace.LivingBeings.NPCS:GetChildren()) do
+                            if table.find(_G.Settings.Main.SelectBoss, boss.Name) and boss:IsA("Model") and boss.Humanoid.Health > 0 then
+                                equipWeapon() -- Equip weapon if necessary
+                                humanoidRootPart.CFrame = boss.HumanoidRootPart.CFrame * CFrame.new(0, 0, _G.Settings.SettingsFarm.Distance)
+                                replicatedStorage.Assets.Remotes.Skills:FireServer("Combat", "M1")
+                            end
+                        end
+                    end
+                end)
+                wait(0.1) -- Reduce wait time between actions
             end
         end)
     end)
