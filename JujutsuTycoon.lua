@@ -171,6 +171,19 @@ do
     local SwordTitle = Tabs.pageShop:AddSection("Swords")
 
     -------------[[SCRIPTS]]---------------------------------------------------------------------------------------------------------------------
+    --ANTI AFK
+    task.spawn(function()
+        while wait() do
+            pcall(function()
+                local anti = game:GetService("VirtualUser")
+                    game:GetService("Players").LocalPlayer.Idled:connect(function()
+                    anti:Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+                    wait(1)
+                    anti:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+                end)
+            end)
+        end
+    end)
     AutoCollect:OnChanged(function()
         task.spawn(function()
             while wait() do
@@ -229,7 +242,7 @@ do
     AutoDropLoot:OnChanged(function()
         task.spawn(function()
             while wait() do
-                if AutoDropLoot.Value then
+                if AutoDropLoot.Value and game:GetService("Players").LocalPlayer.Character.Humanoid.Health > 0 then
                     for i,v in pairs(game:GetService("Workspace"):GetChildren()) do
                         if string.find(v.Name, "Loot") and v:IsA("BasePart") and v:FindFirstChild("ProximityPrompt") then
                             game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = v.CFrame
@@ -244,9 +257,9 @@ do
     AutoFarmMob:OnChanged(function()
         task.spawn(function()
             while wait() do
-                if AutoFarmMob.Value then
+                if AutoFarmMob.Value and game:GetService("Players").LocalPlayer.Character.Humanoid.Health > 0 then
                     for i,v in pairs(game:GetService("Workspace").LivingBeings.NPCS:GetChildren()) do
-                        if v.Name == _G.Settings.Main.SelectMob and v:IsA("Model") and v.Humanoid.Health > 0 and game:GetService("Players").LocalPlayer.Character.Humanoid.Health > 0 then
+                        if v.Name == _G.Settings.Main.SelectMob and v:IsA("Model") and v.Humanoid.Health > 0 then
                             for _, tool in pairs(game:GetService("Players").LocalPlayer.Backpack:GetChildren()) do
                                 if tool.Name == _G.Settings.SettingsFarm.SelectWeapon and tool:IsA("Tool") then
                                     game:GetService("Players").LocalPlayer.Character.Humanoid:EquipTool(tool)
@@ -263,9 +276,9 @@ do
     AutoFarmBoss:OnChanged(function()
         task.spawn(function()
             while wait() do
-                if AutoFarmBoss.Value then
+                if AutoFarmBoss.Value and game:GetService("Players").LocalPlayer.Character.Humanoid.Health > 0 then
                     for i, v in pairs(game:GetService("Workspace").LivingBeings.NPCS:GetChildren()) do
-                        if table.find(_G.Settings.Main.SelectBoss, v.Name) and v:IsA("Model") and v.Humanoid.Health > 0 and game:GetService("Players").LocalPlayer.Character.Humanoid.Health > 0 then
+                        if table.find(_G.Settings.Main.SelectBoss, v.Name) and v:IsA("Model") and v.Humanoid.Health > 0 then
                             for _, tool in pairs(game:GetService("Players").LocalPlayer.Backpack:GetChildren()) do
                                 if tool.Name == _G.Settings.SettingsFarm.SelectWeapon and tool:IsA("Tool") then
                                     game:GetService("Players").LocalPlayer.Character.Humanoid:EquipTool(tool)
