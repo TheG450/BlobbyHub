@@ -23,7 +23,7 @@ while wait(0.1) do
     VirtualUserService:ClickButton1(Vector2.new(0, 0))
 end
 
--- loadstring(game:HttpGet("https://raw.githubusercontent.com/TheG450/BlobbyHub/main/IjulPieceTwo.Lua"))()
+-- loadstring(game:HttpGet("https://raw.githubusercontent.com/TheG450/BlobbyHub/main/JujutsuTycoon.lua"))()
 local Part = game:GetService("Workspace")["Zednov's Tycoon Kit"].Tycoons["East School Kyoto"].Essentials.Giver
 
 if firetouchinterest then

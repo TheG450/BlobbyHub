@@ -13,14 +13,6 @@ _G.Settings = {
         SelectMob = nil,
         FarmMobState = nil,
     },
-    Stats = {
-        Points = nil,
-        StrenghtTogglt = nil,
-        DurabilityToggle = nil,
-        SwordToggle = nil,
-        DevilFruitToggle = nil,
-        SpecialToggle = nil,
-    },
     Teleport = {
         SelectIsland = nil,
         SelectNPC = nil,
@@ -45,7 +37,6 @@ local Tabs = {
     --[[ Tabs --]]
     pageSettingFarm = Window:AddTab({ Title = "Settings Farm", Icon = "settings" }),
     pageMain = Window:AddTab({ Title = "Main", Icon = "home" }),
-    pageStats = Window:AddTab({ Title = "Stats", Icon = "bar-chart" }),
     pageTeleport = Window:AddTab({ Title = "Teleport", Icon = "map" })
 }
 
@@ -53,12 +44,12 @@ do
     --[[SettingFarm]]---------------------------------------------------------------------------------------------------------------------
     local WeaponList = {}
     local function weaponListInsert()
-        for i,v in pairs(game:GetService("Players").LocalPlayer.Backpack:GetDescendants())do
+        for i,v in pairs(game:GetService("Players").LocalPlayer.Backpack:GetChildren())do
             if v:IsA("Tool") then
                 table.insert(WeaponList,v.Name)
             end
         end
-        for i, v in pairs(game:GetService("Players").LocalPlayer.Character:GetDescendants()) do
+        for i, v in pairs(game:GetService("Players").LocalPlayer.Character:GetChildren()) do
             if v:IsA("Tool") then
                 table.insert(WeaponList, v.Name)
             end
@@ -74,7 +65,7 @@ do
     weaponListInsert()
     local distanceSlider = Tabs.pageSettingFarm:AddSlider("DistanceFarm", {
         Title = "Distance",
-        Default = 4,
+        Default = 5,
         Min = 0,
         Max = 20,
         Rounding = 0,
@@ -110,4 +101,31 @@ do
     SelectWeapons:OnChanged(function(Value)
         _G.Settings.SettingsFarm.SelectWeapon = Value
     end)
+
+    --[[Main]]---------------------------------------------------------------------------------------------------------------------
+    local AutoCollect = Tabs.pageMain:AddToggle("AutoCollect", {Title = "AutoCollect", Default = false })
+    local AutoTycoon = Tabs.pageMain:AddToggle("AutoTycoon", {Title = "AutoTycoon", Default = false })
+    local AutoRebirth = Tabs.pageMain:AddToggle("AutoRebirth", {Title = "AutoRebirth", Default = false })
+
+    -------------[[SCRIPTS]]---------------------------------------------------------------------------------------------------------------------
+    AutoCollect:OnChanged(function()
+        task.spawn(function()
+            while wait(2) do
+                local Collect = game:GetService("Workspace")["Zednov's Tycoon Kit"].Tycoons[tostring(game:GetService("Players").LocalPlayer.Team)].Essentials.Giver
+
+                if firetouchinterest then
+                    firetouchinterest(game:GetService("Players").LocalPlayer.Character.HumanoidRootPart, Collect, 0)
+                    firetouchinterest(game:GetService("Players").LocalPlayer.Character.HumanoidRootPart, Collect, 1)
+                end
+            end
+        end)
+    end)
 end
+
+Window:SelectTab(1)
+
+Fluent:Notify({
+    Title = "Blobby Hub",
+    Content = "The script has been loaded.",
+    Duration = 5
+})
