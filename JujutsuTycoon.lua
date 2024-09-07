@@ -8,6 +8,7 @@ _G.Settings = {
     SettingsFarm = {
         Distance = nil,
         SelectWeapon = nil,
+        Angle = nil,
     },
     Main = {
         SelectMob = nil,
@@ -65,13 +66,19 @@ do
     weaponListInsert()
     local distanceSlider = Tabs.pageSettingFarm:AddSlider("DistanceFarm", {
         Title = "Distance",
-        Default = 5,
+        Default = 4,
         Min = 0,
         Max = 20,
         Rounding = 0,
         Callback = function(Value)
             _G.Settings.SettingsFarm.Distance = Value
         end
+    })
+    local SelectAngle = Tabs.pageSettingFarm:AddDropdown("SelectAngle", {
+        Title = "Select Angle",
+        Values = {"Above", "Under", "Behide"},
+        Multi = false,
+        Default =  _G.Settings.SettingsFarm.Angle or "Above"
     })
     local SelectWeapons = Tabs.pageSettingFarm:AddDropdown("SelectWeapon", {
         Title = "Select Weapon",
@@ -102,12 +109,16 @@ do
     SelectWeapons:OnChanged(function(Value)
         _G.Settings.SettingsFarm.SelectWeapon = Value
     end)
+    SelectAngle:OnChanged(function(Value)
+        _G.Settings.SettingsFarm.Angle = Value
+    end)
 
     --[[Main]]---------------------------------------------------------------------------------------------------------------------
     local TycoonTitle = Tabs.pageMain:AddSection("Tycoon")
     local AutoCollect = Tabs.pageMain:AddToggle("AutoCollect", {Title = "AutoCollect", Default = false })
     local AutoTycoon = Tabs.pageMain:AddToggle("AutoTycoon", {Title = "AutoTycoon", Default = false })
     local AutoRebirth = Tabs.pageMain:AddToggle("AutoRebirth", {Title = "AutoRebirth", Default = false })
+    local AutoDropLoot = Tabs.pageMain:AddToggle("AutoDropLoot", {Title = "AutoDropLoot", Default = false })
     local MobTitle = Tabs.pageMain:AddSection("Mobs")
     local SelectMob = Tabs.pageMain:AddDropdown("SelectMob", {
         Title = "SelectMob",
@@ -194,6 +205,18 @@ do
             end
         end)
     end)
+    AutoDropLoot:OnChanged(function()
+        task.spawn(function()
+            while wait() do
+                for i,v in pairs(game:GetService("Workspace"):GetChildren()) do
+                    if string.find(v.Name, "Loot") and v:IsA("BasePart") and v:FindFirstChild("ProximityPrompt") then
+                        game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = v.CFrame
+                        fireproximityprompt(v.ProximityPrompt)
+                    end
+                end
+            end
+        end)
+    end)
 
     AutoFarmMob:OnChanged(function()
         task.spawn(function()
@@ -225,7 +248,13 @@ do
                                     game:GetService("Players").LocalPlayer.Character.Humanoid:EquipTool(tool)
                                 end
                             end
-                            game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0, 0, _G.Settings.SettingsFarm.Distance)
+                            if _G.Settings.SettingsFarm.Angle == "Above" then
+                                game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0, 0, _G.Settings.SettingsFarm.Distance) * CFrame.Angles(1.5,0,0)
+                            elseif _G.Settings.SettingsFarm.Angle == "Under" then
+                                game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0, 0, _G.Settings.SettingsFarm.Distance) * CFrame.Angles(-1.5,0,0)
+                            elseif _G.Settings.SettingsFarm.Angle == "Behide" then
+                                game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0, 0, _G.Settings.SettingsFarm.Distance) * CFrame.Angles(0,0,0)
+                            end
                             game:GetService("ReplicatedStorage").Assets.Remotes.Skills:FireServer("Combat","M1")
                         end
                     end
