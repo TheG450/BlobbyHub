@@ -127,13 +127,14 @@ do
         Title = "SelectBoss",
         Values = {"Idatoru", "Shoso", "Urayme", "Volcano", "Kojo"},
         Multi = true,
-        Default = {"Idatoru", "Shoso", "Urayme", "Volcano", "Kojo"},
+        Default = {},
     })
     SelectBoss:OnChanged(function(Value)
         local Values = {}
         for Value, State in next, Value do
             table.insert(Values, Value)
         end
+        _G.Settings.Main.SelectBoss = Values
     end)
     local AutoFarmBoss = Tabs.pageMain:AddToggle("AutoFarmBoss", {Title = "AutoFarmBoss", Default = false })
 
@@ -194,11 +195,40 @@ do
         end)
     end)
 
+    AutoFarmMob:OnChanged(function()
+        task.spawn(function()
+            while wait() do
+                if AutoFarmMob.Value then
+                    for i,v in pairs(game:GetService("Workspace").LivingBeings.NPCS:GetChildren()) do
+                        if v.Name == _G.Settings.Main.SelectMob and v:IsA("Model") and v.Humanoid.Health > 0 and game:GetService("Players").LocalPlayer.Character.Humanoid.Health > 0 then
+                            for _, tool in pairs(game:GetService("Players").LocalPlayer.Backpack:GetChildren()) do
+                                if tool.Name == _G.Settings.SettingsFarm.SelectWeapon and tool:IsA("Tool") then
+                                    game:GetService("Players").LocalPlayer.Character.Humanoid:EquipTool(tool)
+                                end
+                            end
+                            game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0, 0, _G.Settings.SettingsFarm.Distance)
+                            game:GetService("ReplicatedStorage").Assets.Remotes.Skills:FireServer("Combat","M1")
+                        end
+                    end
+                end
+            end
+        end)
+    end)
     AutoFarmBoss:OnChanged(function()
         task.spawn(function()
             while wait() do
                 if AutoFarmBoss.Value then
-                    print(SelectBoss)
+                    for i, v in pairs(game:GetService("Workspace").LivingBeings.NPCS:GetChildren()) do
+                        if table.find(_G.Settings.Main.SelectBoss, v.Name) and v:IsA("Model") and v.Humanoid.Health > 0 and game:GetService("Players").LocalPlayer.Character.Humanoid.Health > 0 then
+                            for _, tool in pairs(game:GetService("Players").LocalPlayer.Backpack:GetChildren()) do
+                                if tool.Name == _G.Settings.SettingsFarm.SelectWeapon and tool:IsA("Tool") then
+                                    game:GetService("Players").LocalPlayer.Character.Humanoid:EquipTool(tool)
+                                end
+                            end
+                            game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0, 0, _G.Settings.SettingsFarm.Distance)
+                            game:GetService("ReplicatedStorage").Assets.Remotes.Skills:FireServer("Combat","M1")
+                        end
+                    end
                 end
             end
         end)
@@ -214,6 +244,5 @@ Fluent:Notify({
 })
 
 --game:GetService("ReplicatedStorage").Assets.Remotes.RedeemCode:InvokeServer("Quest")
---game:GetService("ReplicatedStorage").Assets.Remotes.Skills:FireServer("Combat","M1")
 --game:GetService("ReplicatedStorage").Assets.Remotes.Shops:FireServer("Purchase",{["Name"] = "Black Flash",["Type"] = "Abilities"})
---game:GetService("ReplicatedStorage").Assets.Remotes.Skills:FireServer("Combat","M1")
+--game:GetService("ReplicatedStorage").Assets.Remotes.Shops:FireServer("Purchase",{["Name"] = "Katana",["Type"] = "Swords"})
