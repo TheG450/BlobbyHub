@@ -14,6 +14,10 @@ _G.Settings = {
         SelectMob = nil,
         SelectBoss = nil,
     },
+    Shop = {
+        SelectTechnique = nil,
+        SelectSword = nil,
+    },
     Teleport = {
         SelectIsland = nil,
         SelectNPC = nil,
@@ -38,6 +42,7 @@ local Tabs = {
     --[[ Tabs --]]
     pageSettingFarm = Window:AddTab({ Title = "Settings Farm", Icon = "settings" }),
     pageMain = Window:AddTab({ Title = "Main", Icon = "home" }),
+    pageShop = Window:AddTab({ Title = "Shop", Icon = "shopping-cart" }),
     pageTeleport = Window:AddTab({ Title = "Teleport", Icon = "map" })
 }
 
@@ -149,6 +154,22 @@ do
     end)
     local AutoFarmBoss = Tabs.pageMain:AddToggle("AutoFarmBoss", {Title = "AutoFarmBoss", Default = false })
 
+    --[[Shop]]---------------------------------------------------------------------------------------------------------------------
+    local TechniqueTitle = Tabs.pageShop:AddSection("Techniques")
+    local SelectTechnique = Tabs.pageShop:AddDropdown("SelectTechnique", {
+        Title = "SelectTechnique",
+        Values = {"Lava Bees", "Blood Cyclone", "Divergent Fist", "Cursed Speech:Twist", "Boogie Woogie", "Supernova", "Moon Dregs", "Triple Wood", "Cursed Speech:Stop", "Bird Strike", "Clones", "Basic RCT", "Piranha Fury", "Crimson Bind", "Cursed Speech:Explode", "Energy Beam", "Piercing Blood", "Axe Kick", "Ice Spikes", "Collapse", "Aqua Beam", "Black Flash", "Roots", "Triple Kicks", "Energy Vortex", "Flower Field", "Advanced RCT", "Molten Palm", "Blood Strike", "Nue", "Lapse Blue", "Reversal Red", "Serpent", "Ice Barrage", "Tidal Wave", "Ice Age", "Volcano Mine", "Cursed Flower", "Max Elephant", "Max Red", "Max Blue", "Max Meteor", "Summon", "Hollow Purple"},
+        Multi = false,
+        Default = _G.Settings.Shop.SelectTechnique or "",
+        Callback = function(Value)
+            _G.Settings.Shop.SelectTechnique = Value
+        end
+    })
+    SelectMob:OnChanged(function(Value)
+        _G.Settings.Shop.SelectTechnique = Value
+    end)
+    local SwordTitle = Tabs.pageShop:AddSection("Swords")
+
     -------------[[SCRIPTS]]---------------------------------------------------------------------------------------------------------------------
     AutoCollect:OnChanged(function()
         task.spawn(function()
@@ -208,10 +229,12 @@ do
     AutoDropLoot:OnChanged(function()
         task.spawn(function()
             while wait() do
-                for i,v in pairs(game:GetService("Workspace"):GetChildren()) do
-                    if string.find(v.Name, "Loot") and v:IsA("BasePart") and v:FindFirstChild("ProximityPrompt") then
-                        game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = v.CFrame
-                        fireproximityprompt(v.ProximityPrompt)
+                if AutoDropLoot.Value then
+                    for i,v in pairs(game:GetService("Workspace"):GetChildren()) do
+                        if string.find(v.Name, "Loot") and v:IsA("BasePart") and v:FindFirstChild("ProximityPrompt") then
+                            game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = v.CFrame
+                            fireproximityprompt(v.ProximityPrompt)
+                        end
                     end
                 end
             end
@@ -249,9 +272,9 @@ do
                                 end
                             end
                             if _G.Settings.SettingsFarm.Angle == "Above" then
-                                game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0, 0, _G.Settings.SettingsFarm.Distance) * CFrame.Angles(1.5,0,0)
+                                game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0, _G.Settings.SettingsFarm.Distance, 0) * CFrame.Angles(-1.5,0,0)
                             elseif _G.Settings.SettingsFarm.Angle == "Under" then
-                                game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0, 0, _G.Settings.SettingsFarm.Distance) * CFrame.Angles(-1.5,0,0)
+                                game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0, -_G.Settings.SettingsFarm.Distance, 0) * CFrame.Angles(1.5,0,0)
                             elseif _G.Settings.SettingsFarm.Angle == "Behide" then
                                 game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0, 0, _G.Settings.SettingsFarm.Distance) * CFrame.Angles(0,0,0)
                             end
@@ -273,5 +296,5 @@ Fluent:Notify({
 })
 
 --game:GetService("ReplicatedStorage").Assets.Remotes.RedeemCode:InvokeServer("Quest")
---game:GetService("ReplicatedStorage").Assets.Remotes.Shops:FireServer("Purchase",{["Name"] = "Black Flash",["Type"] = "Abilities"})
+--game:GetService("ReplicatedStorage").Assets.Remotes.Shops:FireServer("Purchase",{["Name"] = "Hollow Purple",["Type"] = "Abilities"})
 --game:GetService("ReplicatedStorage").Assets.Remotes.Shops:FireServer("Purchase",{["Name"] = "Katana",["Type"] = "Swords"})
