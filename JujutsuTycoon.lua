@@ -130,7 +130,7 @@ do
     local BossTitle = Tabs.pageMain:AddSection("Boss")
     local SelectBoss = Tabs.pageMain:AddDropdown("SelectBoss", {
         Title = "SelectBoss",
-        Values = {"Idatoru", "Shoso", "Urayme", "Volcano", "Kojo"},
+        Values = {"Idatoru", "Shoso", "Urayme", "Jogo", "Kojo"},
         Multi = true,
         Default = {},
     })
