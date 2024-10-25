@@ -27,7 +27,7 @@ local Tabs = {
 }
 
 do
-    --[[ MAIN ]]
+    --[[ SETTINGS ]]
     local RodList = {}
     local function GetRodList()
         for i,v in pairs(game:GetService("Players").LocalPlayer.Backpack:GetChildren()) do
@@ -84,6 +84,7 @@ do
         getgenv().Settings.RealFinish = value
     end)
 
+    --[[ MAIN ]]
     local AutoFishing = Tabs.pageMain:AddToggle("AutoFishing", {Title = "Auto Fishing", Default = false })
 
 
@@ -97,6 +98,7 @@ do
 
             local casting = false
             over.ChildAdded:Connect(function()
+                wait(.5)
                 casting = false
             end)
             while AutoFishing.Value do
@@ -118,15 +120,13 @@ do
                         casting = true
                         wait(1)
                     elseif character[getgenv().Settings.Rod].values.casted.Value == true and character[getgenv().Settings.Rod].values.bite.Value == false and character[getgenv().Settings.Rod]:FindFirstChild("bobber") and character[getgenv().Settings.Rod].values.bobberzone.Value ~= "" then
-                        pcall(function()
-                            if game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("shakeui") then
-                                game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("shakeui").Enabled = false
-                                local button = game:GetService("Players").LocalPlayer.PlayerGui.shakeui.safezone.button
-                                for i, v in pairs(getconnections(button.MouseButton1Click)) do
-                                    v:Fire()
-                                end
+                        local shakeui = game:GetService("Players").LocalPlayer.PlayerGui:WaitForChild("shakeui")
+                        if shakeui then
+                            local button = game:GetService("Players").LocalPlayer.PlayerGui.shakeui.safezone.button
+                            for i, v in pairs(getconnections(button.MouseButton1Click)) do
+                                v:Fire()
                             end
-                        end)
+                        end
                         wait(.5)
                     elseif character[getgenv().Settings.Rod].values.bite.Value == true and character[getgenv().Settings.Rod].values.casted.Value == true and character[getgenv().Settings.Rod]:FindFirstChild("bobber") and character[getgenv().Settings.Rod].values.bobberzone.Value ~= "" then
                         if getgenv().Settings.RealFinish == true then
@@ -159,7 +159,7 @@ task.spawn(function()
     while wait(320) do
         pcall(function()
             local anti = game:GetService("VirtualUser")
-                game:GetService("Players").LocalPlayer.Idled:connect(function()
+            game:GetService("Players").LocalPlayer.Idled:connect(function()
                 anti:Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
                 wait(1)
                 anti:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
@@ -167,3 +167,7 @@ task.spawn(function()
         end)
     end
 end)
+
+
+game:GetService("Workspace").world.npcs["Marc Merchant"].merchant.sell:InvokeServer()
+game:GetService("Workspace").world.npcs["Marc Merchant"].merchant.sellall:InvokeServer()
