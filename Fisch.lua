@@ -1,6 +1,7 @@
 repeat wait() until game:IsLoaded() and game.Players and game.Players.LocalPlayer and game.Players.LocalPlayer.Character
 getgenv().Settings = {
     Rod = nil,
+    RealFinish = nil,
 }
 
 game:GetService("ReplicatedStorage").events.finishedloading:FireServer()
@@ -19,7 +20,7 @@ local Window = Fluent:CreateWindow({
 
 local Tabs = {
     --[[ Tabs --]]
-    pageSettingFarm = Window:AddTab({ Title = "Settings Farm", Icon = "settings" }),
+    pageSetting = Window:AddTab({ Title = "Settings", Icon = "settings" }),
     pageMain = Window:AddTab({ Title = "Main", Icon = "home" }),
     pageShop = Window:AddTab({ Title = "Shop", Icon = "shopping-cart" }),
     pageTeleport = Window:AddTab({ Title = "Teleport", Icon = "map" })
@@ -32,27 +33,25 @@ do
         for i,v in pairs(game:GetService("Players").LocalPlayer.Backpack:GetChildren()) do
             if string.find(v.Name, "Rod") then
                 table.insert(RodList, v.Name)
-                table.insert(RodList, "Equipment Bag")
-                table.insert(RodList, "Bestiary")
             end
         end
         for i,v in pairs(game:GetService("Players").LocalPlayer.Character:GetChildren()) do
-            if string.find(v.Name, "Rod") then
+            if string.find(v.Name, "Rod") and v.Name ~= "RodBodyModel" then
                 table.insert(RodList, v.Name)
-                table.insert(RodList, "Equipment Bag")
-                table.insert(RodList, "Bestiary")
             end
         end
+        table.insert(RodList, "Equipment Bag")
+        table.insert(RodList, "Bestiary")
     end
     local function RodListRemove()
         if RodList ~= nil then
             for i = #RodList, 1, -1 do
-                table.remove(npRodListcList, i)
+                table.remove(RodList, i)
             end
         end
     end
     GetRodList()
-    local SelectRod = Tabs.pageMain:AddDropdown("SelectRod", {
+    local SelectRod = Tabs.pageSetting:AddDropdown("SelectRod", {
         Title = "Select Rod",
         Values = RodList,
         Multi = false,
@@ -61,13 +60,13 @@ do
             getgenv().Settings.Rod = Value
         end
     })
-    local RefreshRod = Tabs.pageMain:AddButton({
+    local RefreshRod = Tabs.pageSetting:AddButton({
         Title = "Refresh Weapon",
         Callback = function()
             local currentSelection = SelectRod.Value
             
-            GetRodList()
             RodListRemove()
+            GetRodList()
             SelectRod:SetValues(RodList)
             
             if table.find(RodList, currentSelection) then
@@ -79,6 +78,10 @@ do
     })
     SelectRod:OnChanged(function(Value)
         getgenv().Settings.Rod = Value
+    end)
+    local InstantReel = Tabs.pageSetting:AddToggle("InstantReel", {Title = "Instant ReelFinish", Default = false })
+    InstantReel:OnChanged(function(value)
+        getgenv().Settings.RealFinish = value
     end)
 
     local AutoFishing = Tabs.pageMain:AddToggle("AutoFishing", {Title = "Auto Fishing", Default = false })
@@ -93,11 +96,13 @@ do
             local humanoid = character:FindFirstChild("Humanoid")
 
             local casting = false
+            over.ChildAdded:Connect(function()
+                casting = false
+            end)
             while AutoFishing.Value do
                 wait(.1)
                 character.HumanoidRootPart.Anchored = true
-                if #over:GetChildren() > 1 then
-                    casting = false
+                if #over:GetChildren() > 2 then
                     return
                 else
                     if not character:FindFirstChild(getgenv().Settings.Rod) then
@@ -110,8 +115,8 @@ do
                         wait(1)
                         local ohNumber1 = 100
                         character[getgenv().Settings.Rod].events.cast:FireServer(ohNumber1)
+                        casting = true
                         wait(1)
-                        castings = true
                     elseif character[getgenv().Settings.Rod].values.casted.Value == true and character[getgenv().Settings.Rod].values.bite.Value == false and character[getgenv().Settings.Rod]:FindFirstChild("bobber") and character[getgenv().Settings.Rod].values.bobberzone.Value ~= "" then
                         pcall(function()
                             if game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("shakeui") then
@@ -122,10 +127,16 @@ do
                                 end
                             end
                         end)
-                        wait(.1)
+                        wait(.5)
                     elseif character[getgenv().Settings.Rod].values.bite.Value == true and character[getgenv().Settings.Rod].values.casted.Value == true and character[getgenv().Settings.Rod]:FindFirstChild("bobber") and character[getgenv().Settings.Rod].values.bobberzone.Value ~= "" then
-                        wait(1)
-                        game:GetService("ReplicatedStorage").events.reelfinished:FireServer(100, false)
+                        if getgenv().Settings.RealFinish == true then
+                            wait(1)
+                            game:GetService("ReplicatedStorage").events.reelfinished:FireServer(100, false)
+                        else
+                            if game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("reel") then
+                                game:GetService("Players").LocalPlayer.PlayerGui.reel.bar.playerbar.Size = UDim2.new(1, 0, 1, 0)
+                            end
+                        end
                         wait(1)
                     end
                 end
@@ -142,3 +153,17 @@ Fluent:Notify({
     Content = "The script has been loaded.",
     Duration = 8
 })
+
+--ANTI AFK
+task.spawn(function()
+    while wait(320) do
+        pcall(function()
+            local anti = game:GetService("VirtualUser")
+                game:GetService("Players").LocalPlayer.Idled:connect(function()
+                anti:Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+                wait(1)
+                anti:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+            end)
+        end)
+    end
+end)
