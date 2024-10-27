@@ -5,6 +5,7 @@ getgenv().Settings = {
     FarmPosition = nil,
     Bait = nil,
     Event = nil,
+    Sell = nil,
 }
 
 game:GetService("ReplicatedStorage").events.finishedloading:FireServer()
@@ -92,6 +93,35 @@ do
     --[[ MAIN ]]--------------------------------------------------------
     local General = Tabs.pageMain:AddSection("General")
     local AutoFishing = Tabs.pageMain:AddToggle("AutoFishing", {Title = "Auto Fishing", Default = false })
+    local SellList = {}
+    local function GetSellList()
+        for i,v in pairs(game:GetService("ReplicatedStorage").resources.items.fish:GetChildren()) do
+            if v:IsA("Folder") then
+                table.insert(SellList, v.Name)
+            end
+        end
+    end
+    GetSellList()
+    local SelectSell = Tabs.pageMain:AddDropdown("SelectSell", {
+        Title = "Select Sell",
+        Values = SellList,
+        Multi = false,
+        Default = getgenv().Settings.Sell or SellList[1],
+        Callback = function(Value)
+            getgenv().Settings.Sell = Value
+        end
+    })
+    SelectSell:OnChanged(function(Value)
+        getgenv().Settings.Sell = Value
+    end)
+    local AutoSelectSelled = Tabs.pageMain:AddToggle("AutoSelectSell", {Title = "Auto Selected Sell", Default = false })
+    local SellAll = Tabs.pageMain:AddButton({
+        Title = "Sell All",
+        Description = "Sell All Fishs",
+        Callback = function()
+            game:GetService("Workspace").world.npcs["Marc Merchant"].merchant.sellall:InvokeServer()
+        end
+    })
     local AutoEquipBait = Tabs.pageMain:AddToggle("AutoEquipBait", {Title = "Auto Equip Bait", Default = false })
     local BaitList = {}
     local BaitEquiped = false
@@ -152,6 +182,30 @@ do
                         Title = "Confirm",
                         Callback = function()
                             getgenv().Settings.FarmPosition = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+                        end
+                    },
+                    {
+                        Title = "Cancel",
+                        Callback = function()
+                            return
+                        end
+                    }
+                }
+            })
+        end
+    })
+    local ResetPosition = Tabs.pageMain:AddButton({
+        Title = "Reset Farm Position",
+        Description = "Reset Farm Position",
+        Callback = function()
+            Window:Dialog({
+                Title = "Reset Farm Position",
+                Content = "Are You Sure To Reset Position?",
+                Buttons = {
+                    {
+                        Title = "Confirm",
+                        Callback = function()
+                            getgenv().Settings.FarmPosition = nil
                         end
                     },
                     {
@@ -279,9 +333,13 @@ do
         end
     })
     local AutoIngredients = Tabs.pageEvent:AddToggle("AutoIngredients", {Title = "Auto Ingredients", Default = false })
+    local AutoUseIngredients = Tabs.pageEvent:AddToggle("AutoUseIngredients", {Title = "Auto Use Ingredients", Default = false })
+
+    --[[ MISCELLANEOUS ]]--------------------------------------------------------
+    local AntiDrowning = Tabs.pageMiscellaneous:AddToggle("AntiDrowning", {Title = "Anti Drowning", Default = false })
 
 
-    --[[ SCRIPTS ]]
+    --[[ SCRIPTS ]]--------------------------------------------------------
     AutoFishing:OnChanged(function()
         task.spawn(function()
             local GuiService = game:GetService('GuiService')
@@ -505,6 +563,56 @@ do
         end)
     end)
 
+    AutoUseIngredients:OnChanged(function()
+        task.spawn(function()
+            local plr = game.Players.LocalPlayer
+            local character = plr.Character
+            while AutoUseIngredients.Value do
+                wait(.1)
+                if plr.Backpack:FindFirstChild("Witches Ingredient") or character:FindFirstChild("Witches Ingredient") then
+                    if not character:FindFirstChild("Witches Ingredient") then
+                        for i,v in pairs(plr.Backpack:GetChildren()) do
+                            if v.Name == "Witches Ingredient" and v:IsA("Tool") then
+                                character.Humanoid:EquipTool(v)
+                            end
+                        end
+                    else
+                        for i,v in pairs(game:GetService("Workspace").world.map.halloween.witch.WitchesPot.AcidTop:GetChildren()) do
+                            if v.Name == "Prompt" then
+                                character.HumanoidRootPart.CFrame = CFrame.new(404.780884, 134.500015, 317.74054, 0.661333382, -3.8419202e-08, -0.750092089, 7.82599141e-09, 1, -4.43193748e-08, 0.750092089, 2.3439668e-08, 0.661333382)
+                                fireproximityprompt(v)
+                            end
+                        end
+                    end
+                end
+            end
+        end)
+    end)
+
+    AntiDrowning:OnChanged(function()
+        task.spawn(function()
+            local working = false
+            while AntiDrowning.Value do
+                wait(.1)
+                if working == false then
+                    game:GetService("Players").LocalPlayer.Character.client.oxygen.Disabled = AntiDrowning.Value
+                    working = true
+                else
+                    return
+                end
+            end
+            working = false
+        end)
+    end)
+
+    AutoSelectSelled:OnChanged(function()
+        task.spawn(function()
+            while AutoSelectSelled.Value do
+                wait(.1)
+                
+            end
+        end)
+    end)
 
 end
 
@@ -532,5 +640,3 @@ Window:SelectTab(1)
 
 
 game:GetService("Workspace").world.npcs["Marc Merchant"].merchant.sell:InvokeServer()
-game:GetService("Workspace").world.npcs["Marc Merchant"].merchant.sellall:InvokeServer()
-game:GetService("Players").LocalPlayer.Character.client.oxygen.Disabled = true
