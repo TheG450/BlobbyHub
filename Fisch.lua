@@ -351,14 +351,12 @@ do
 
             local Casted = false
             local Teleported = false
-            local Finish = false
             over.ChildAdded:Connect(function()
                 wait(.1)
                 Casted = false
             end)
             plr.Backpack.ChildAdded:Connect(function()
                 Casted = false
-                Finish = false
             end)
             while AutoFishing.Value do
                 wait(.1)
@@ -398,15 +396,17 @@ do
                         end)
                     elseif character[getgenv().Settings.Rod].values.bite.Value == true and character[getgenv().Settings.Rod].values.casted.Value == true and character[getgenv().Settings.Rod]:FindFirstChild("bobber") and character[getgenv().Settings.Rod].values.bobberzone.Value ~= "" then
                         pcall(function()
-                            if getgenv().Settings.RealFinish == true and Finish == false then
+                            if getgenv().Settings.RealFinish == true then
+                                local fish = game:GetService("Players").LocalPlayer.PlayerGui.reel.bar:WaitForChild("fish")
                                 local playerbar = game:GetService("Players").LocalPlayer.PlayerGui.reel.bar:WaitForChild("playerbar")
-                                playerbar:GetPropertyChangedSignal('Position'):Wait()
-                                game:GetService("ReplicatedStorage").events.reelfinished:FireServer(100, true)
-                                Finish = true
+                                local function onPositionChanged()
+                                    game:GetService("ReplicatedStorage").events.reelfinished:FireServer(100, true)
+                                end
+                                fish:GetPropertyChangedSignal('Position'):Connect(onPositionChanged)
+                                playerbar:GetPropertyChangedSignal('Position'):Connect(onPositionChanged)
                             else
-                                if game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("reel") and Finish == false then
+                                if game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("reel") then
                                     game:GetService("Players").LocalPlayer.PlayerGui.reel.bar.playerbar.Size = UDim2.new(1, 0, 1, 0)
-                                    Finish = true
                                 end
                             end
                             wait(.1)
@@ -506,7 +506,7 @@ do
 
     AutoReel:OnChanged(function()
         task.spawn(function()
-            while AutoShake.Value do
+            while AutoReel.Value do
                 wait()
                 local GuiService = game:GetService('GuiService')
                 local VirtualInputManager = game:GetService('VirtualInputManager')
@@ -516,6 +516,8 @@ do
                     if character[getgenv().Settings.Rod].values.bite.Value == true and character[getgenv().Settings.Rod].values.casted.Value == true and character[getgenv().Settings.Rod]:FindFirstChild("bobber") and character[getgenv().Settings.Rod].values.bobberzone.Value ~= "" then
                         pcall(function()
                             if getgenv().Settings.RealFinish == true then
+                                local fish = game:GetService("Players").LocalPlayer.PlayerGui.reel.bar:WaitForChild("fish")
+                                fish:GetPropertyChangedSignal('Position'):Wait()
                                 game:GetService("ReplicatedStorage").events.reelfinished:FireServer(100, true)
                             else
                                 if game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("reel") then
@@ -613,10 +615,18 @@ do
 
     AutoSelectSelled:OnChanged(function()
         task.spawn(function()
+            local plr = game:GetService("Players").LocalPlayer
+            local character = plr.Character or plr.CharacterAdded:Wait()
+            local humanoid = character:WaitForChild("Humanoid")
+            local backpack = plr:WaitForChild("Backpack")
+            
             while AutoSelectSelled.Value do
-                wait(.1)
-                for i,v in pairs(AutoSelectSelled.Value) do
-                    game:GetService("Workspace").world.npcs["Marc Merchant"].merchant.sell:InvokeServer()
+                wait(0.1)
+                for _, item in pairs(backpack:GetChildren()) do
+                    if SelectSell.Value[item.Name] then
+                        humanoid:EquipTool(item)
+                        game:GetService("Workspace").world.npcs["Marc Merchant"].merchant.sell:InvokeServer()
+                    end
                 end
             end
         end)
