@@ -326,3 +326,8 @@ Fluent:Notify({
 -- คุณสามารถใช้ SaveManager:LoadAutoloadConfig() เพื่อโหลดการกำหนดค่า
 -- ที่ถูกทำเครื่องหมายว่าเป็นการกำหนดค่าอัตโนมัติ!
 SaveManager:LoadAutoloadConfig()
+
+-----------------Script
+-- for i, v in pairs(getconnections(button.MouseButton1Click)) do
+--     v:Fire()
+-- end

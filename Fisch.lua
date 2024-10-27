@@ -91,15 +91,17 @@ do
     --[[ SCRIPTS ]]
     AutoFishing:OnChanged(function()
         task.spawn(function()
+            local GuiService = game:GetService('GuiService')
+            local VirtualInputManager = game:GetService('VirtualInputManager')
             local over = game:GetService("Players").LocalPlayer.PlayerGui:WaitForChild("over")
             local plr = game:GetService("Players").LocalPlayer
             local character = plr.Character
             local humanoid = character:FindFirstChild("Humanoid")
 
-            local casting = false
+            local Casted = false
             over.ChildAdded:Connect(function()
-                wait(.5)
-                casting = false
+                wait(.1)
+                Casted = false
             end)
             while AutoFishing.Value do
                 wait(.1)
@@ -113,34 +115,39 @@ do
                                 humanoid:EquipTool(v)
                             end
                         end
-                    elseif character[getgenv().Settings.Rod].values.casted.Value == false and casting == false then
+                    elseif character[getgenv().Settings.Rod].values.casted.Value == false and Casted == false then
                         wait(1)
                         local ohNumber1 = 100
+                        character[getgenv().Settings.Rod].events.reset:FireServer()
+                        wait(.1)
                         character[getgenv().Settings.Rod].events.cast:FireServer(ohNumber1)
-                        casting = true
+                        Casted = true
                         wait(1)
                     elseif character[getgenv().Settings.Rod].values.casted.Value == true and character[getgenv().Settings.Rod].values.bite.Value == false and character[getgenv().Settings.Rod]:FindFirstChild("bobber") and character[getgenv().Settings.Rod].values.bobberzone.Value ~= "" then
-                        local shakeui = game:GetService("Players").LocalPlayer.PlayerGui:WaitForChild("shakeui")
-                        if shakeui then
-                            local button = game:GetService("Players").LocalPlayer.PlayerGui.shakeui.safezone.button
-                            for i, v in pairs(getconnections(button.MouseButton1Click)) do
-                                v:Fire()
+                        pcall(function()
+                            local shakeui = game:GetService("Players").LocalPlayer.PlayerGui:WaitForChild("shakeui")
+                            if shakeui then
+                                local button = game:GetService("Players").LocalPlayer.PlayerGui.shakeui.safezone:FindFirstChild("button")
+                                GuiService.SelectedObject = button
+                                VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
+                                VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
                             end
-                        end
-                        wait(.5)
+                        end)
                     elseif character[getgenv().Settings.Rod].values.bite.Value == true and character[getgenv().Settings.Rod].values.casted.Value == true and character[getgenv().Settings.Rod]:FindFirstChild("bobber") and character[getgenv().Settings.Rod].values.bobberzone.Value ~= "" then
-                        if getgenv().Settings.RealFinish == true then
-                            wait(1)
-                            game:GetService("ReplicatedStorage").events.reelfinished:FireServer(100, false)
-                        else
-                            if game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("reel") then
-                                game:GetService("Players").LocalPlayer.PlayerGui.reel.bar.playerbar.Size = UDim2.new(1, 0, 1, 0)
+                        pcall(function()
+                            if getgenv().Settings.RealFinish == true then
+                                game:GetService("ReplicatedStorage").events.reelfinished:FireServer(100, true)
+                            else
+                                if game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("reel") then
+                                    game:GetService("Players").LocalPlayer.PlayerGui.reel.bar.playerbar.Size = UDim2.new(1, 0, 1, 0)
+                                end
                             end
-                        end
-                        wait(1)
+                            wait(.5)
+                        end)
                     end
                 end
             end
+            Casted = false
             character.HumanoidRootPart.Anchored = false
         end)
     end)
