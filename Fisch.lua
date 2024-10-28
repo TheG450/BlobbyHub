@@ -625,31 +625,33 @@ do
             local Players, RService = game:GetService("Players"), game:GetService("RunService");
             local LocalP, Mouse = Players.LocalPlayer, Players.LocalPlayer:GetMouse();
             local Rm, Index, NIndex, NCall, Caller = getrawmetatable(game), getrawmetatable(game).__index, getrawmetatable(game).__newindex, getrawmetatable(game).__namecall, checkcaller or is_protosmasher_caller
-            local NoClipEnable = false
-            if Noclip.Value == true then
-                NoClipEnable = true
-                setreadonly(Rm, false)
 
-                Rm.__newindex = newcclosure(function(self, Meme, Value)
-                    if Caller() then return NIndex(self, Meme, Value) end 
-                    if tostring(self) == "HumanoidRootPart" or tostring(self) == "Torso" then 
-                        if Meme == "CFrame" and self:IsDescendantOf(LocalP.Character) then 
-                            return true
-                        end
-                    end
-                    return NIndex(self, Meme, Value)
-                end)
-                setreadonly(Rm, true)
+            setreadonly(Rm, false)
 
-                RService.Stepped:Connect(function()
-                    if NoClipEnable == true and LocalP and LocalP.Character and LocalP.Character:FindFirstChild("Humanoid") then 
-                        pcall(function()
-                            LocalP.Character.Head.CanCollide = false 
-                            LocalP.Character.Torso.CanCollide = false
-                        end)
+            Rm.__newindex = newcclosure(function(self, Meme, Value)
+                if Caller() then return NIndex(self, Meme, Value) end 
+                if tostring(self) == "HumanoidRootPart" or tostring(self) == "Torso" then 
+                    if Meme == "CFrame" and self:IsDescendantOf(LocalP.Character) then 
+                        return true
                     end
-                end)
-            end
+                end
+                return NIndex(self, Meme, Value)
+            end)
+            setreadonly(Rm, true)
+
+            RService.Stepped:Connect(function()
+                if Noclip.Value == true and LocalP and LocalP.Character and LocalP.Character:FindFirstChild("Humanoid") then 
+                    pcall(function()
+                        LocalP.Character.Head.CanCollide = false 
+                        LocalP.Character.Torso.CanCollide = false
+                    end)
+                elseif Noclip.Value == false and LocalP and LocalP.Character and LocalP.Character:FindFirstChild("Humanoid") then
+                    pcall(function()
+                        LocalP.Character.Head.CanCollide = true
+                        LocalP.Character.Torso.CanCollide = true
+                    end)
+                end
+            end)
         end)
     end)
 end
