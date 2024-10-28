@@ -6,6 +6,8 @@ getgenv().Settings = {
     Bait = nil,
     Event = nil,
     Sell = nil,
+    Teleport = nil,
+    FastShake = nil,
 }
 
 game:GetService("ReplicatedStorage").events.finishedloading:FireServer()
@@ -87,6 +89,10 @@ do
     local InstantReel = Tabs.pageSetting:AddToggle("InstantReel", {Title = "Instant ReelFinish", Default = false })
     InstantReel:OnChanged(function(value)
         getgenv().Settings.RealFinish = value
+    end)
+    local FastShake = Tabs.pageSetting:AddToggle("FastShake", {Title = "Fast Shake", Default = false })
+    FastShake:OnChanged(function(value)
+        getgenv().Settings.FastShake = value
     end)
 
     --[[ MAIN ]]--------------------------------------------------------
@@ -333,13 +339,61 @@ do
     local AutoUseIngredients = Tabs.pageEvent:AddToggle("AutoUseIngredients", {Title = "Auto Use Ingredients", Default = false })
 
     --[[ MISCELLANEOUS ]]--------------------------------------------------------
+    local BypassAfk = Tabs.pageMiscellaneous:AddButton({
+        Title = "Disable AFK Title",
+        Description = "Disable AFK Title (Bypass)",
+        Callback = function()
+            local Remote = game:GetService("ReplicatedStorage").events:WaitForChild("afk")
+            local namecall
+            namecall = hookmetamethod(game,"__namecall",function(self,...)
+                local args = {...}
+                local method = getnamecallmethod()
+                if not checkcaller() and self == Remote and method == "FireServer" then
+                    args[1] = false
+                    return namecall(self,unpack(args))
+                end
+                return namecall(self,...)
+            end)
+        end
+    })
     local Noclip = Tabs.pageMiscellaneous:AddToggle("Noclip", {Title = "Noclip", Default = false })
     local AntiDrowning = Tabs.pageMiscellaneous:AddToggle("AntiDrowning", {Title = "Anti Drowning", Default = false })
     local AutoDeleteFlags = Tabs.pageMiscellaneous:AddToggle("AutoDeleteFlags", {Title = "Auto Delete Flags", Default = false })
     local AutoDeleteCrabCage = Tabs.pageMiscellaneous:AddToggle("AutoDeleteCrabCage", {Title = "Auto Delete CrabCage", Default = false })
 
     --[[ TELEPORT ]]--------------------------------------------------------
-
+    local TeleportList = {}
+    local function GetTeleportList()
+        for i,v in pairs(game:GetService("Workspace").world.spawns.TpSpots:GetChildren()) do
+            if v:IsA("BasePart") then
+                table.insert(TeleportList, v.Name)
+            end
+        end
+    end
+    GetTeleportList()
+    local SelectTeleport = Tabs.pageTeleport:AddDropdown("SelectTeleport", {
+        Title = "Select Teleport",
+        Values = TeleportList,
+        Multi = false,
+        Default = getgenv().Settings.Teleport or TeleportList[1],
+        Callback = function(Value)
+            getgenv().Settings.Teleport = Value
+        end
+    })
+    SelectTeleport:OnChanged(function(Value)
+        getgenv().Settings.Teleport = Value
+    end)
+    local TeleportIsland = Tabs.pageTeleport:AddButton({
+        Title = "Teleport To Island",
+        Description = "Teleport To Island",
+        Callback = function()
+            for i,v in pairs(game:GetService("Workspace").world.spawns.TpSpots:GetChildren()) do
+                if v.Name == getgenv().Settings.Teleport and v:IsA("BasePart") then
+                    game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.CFrame     
+                end
+            end
+        end
+    })
 
     --[[ SCRIPTS ]]--------------------------------------------------------
     AutoFishing:OnChanged(function()
@@ -387,10 +441,22 @@ do
                         pcall(function()
                             local shakeui = game:GetService("Players").LocalPlayer.PlayerGui:WaitForChild("shakeui")
                             if shakeui then
-                                local button = game:GetService("Players").LocalPlayer.PlayerGui.shakeui.safezone:FindFirstChild("button")
-                                GuiService.SelectedObject = button
-                                VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
-                                VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
+                                if getgenv().Settings.FastShake == true then
+                                    local Button = game:GetService("Players").LocalPlayer.PlayerGui.shakeui.safezone.button:FindFirstChild("ripple")
+
+                                    local X = Button.AbsolutePosition.X
+                                    local Y = Button.AbsolutePosition.Y
+                                    local XS = Button.AbsoluteSize.X
+                                    local YS = Button.AbsoluteSize.Y
+
+                                    VirtualInputManager:SendMouseButtonEvent(X + XS, Y + YS, 0, true, Button, 1)
+                                    VirtualInputManager:SendMouseButtonEvent(X + XS, Y + YS, 0, false, Button, 1)
+                                else
+                                    local button = game:GetService("Players").LocalPlayer.PlayerGui.shakeui.safezone:FindFirstChild("button")
+                                    GuiService.SelectedObject = button
+                                    VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
+                                    VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
+                                end
                             end
                         end)
                     else
@@ -490,17 +556,30 @@ do
                         pcall(function()
                             local shakeui = game:GetService("Players").LocalPlayer.PlayerGui:WaitForChild("shakeui")
                             if shakeui then
-                                local button = game:GetService("Players").LocalPlayer.PlayerGui.shakeui.safezone:FindFirstChild("button")
-                                GuiService.SelectedObject = button
-                                VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
-                                VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
+                                if getgenv().Settings.FastShake == true then
+                                    local Button = game:GetService("Players").LocalPlayer.PlayerGui.shakeui.safezone.button:FindFirstChild("ripple")
+
+                                    local X = Button.AbsolutePosition.X
+                                    local Y = Button.AbsolutePosition.Y
+                                    local XS = Button.AbsoluteSize.X
+                                    local YS = Button.AbsoluteSize.Y
+
+                                    VirtualInputManager:SendMouseButtonEvent(X + XS, Y + YS, 0, true, Button, 1)
+                                    VirtualInputManager:SendMouseButtonEvent(X + XS, Y + YS, 0, false, Button, 1)
+                                else
+                                    local button = game:GetService("Players").LocalPlayer.PlayerGui.shakeui.safezone:FindFirstChild("button")
+                                    GuiService.SelectedObject = button
+                                    VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
+                                    VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
+                                end
                             end
                         end)
                     else
                         task.wait()
                     end
                 else
-                    GuiService.SelectedObject = nil
+                    --GuiService.SelectedObject = nil
+                    wait(.1)
                 end
             end
         end)
@@ -542,7 +621,7 @@ do
                     if v:FindFirstChild("PickupPrompt") then
                         for i2, v2 in pairs(v:GetChildren()) do
                             if v2:IsA("BasePart") then
-                                game.Players.LocalPlayer.Character.HumanoidRootPart.Position = v2.Position
+                                game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v2.CFrame
                                 fireproximityprompt(v.PickupPrompt)
                                 wait(.2)
                             end
