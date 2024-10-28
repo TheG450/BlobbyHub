@@ -28,7 +28,6 @@ local Tabs = {
     pageMain = Window:AddTab({ Title = "Main", Icon = "home" }),
     pageEvent = Window:AddTab({ Title = "Event", Icon = "clock" }),
     pageMiscellaneous = Window:AddTab({ Title = "Miscellaneous", Icon = "component" }),
-    pageShop = Window:AddTab({ Title = "Shop", Icon = "shopping-cart" }),
     pageTeleport = Window:AddTab({ Title = "Teleport", Icon = "map" })
 }
 
@@ -93,33 +92,31 @@ do
     --[[ MAIN ]]--------------------------------------------------------
     local General = Tabs.pageMain:AddSection("General")
     local AutoFishing = Tabs.pageMain:AddToggle("AutoFishing", {Title = "Auto Fishing", Default = false })
-    local SellList = {}
-    local function GetSellList()
-        for i,v in pairs(game:GetService("ReplicatedStorage").resources.items.fish:GetChildren()) do
-            if v:IsA("Folder") then
-                table.insert(SellList, v.Name)
-            end
-        end
-    end
-    GetSellList()
-    local SelectSell = Tabs.pageMain:AddDropdown("SelectSell", {
-        Title = "Select Sell",
-        Values = SellList,
-        Multi = false,
-        Default = getgenv().Settings.Sell or SellList[1],
-        Callback = function(Value)
-            getgenv().Settings.Sell = Value
-        end
-    })
-    SelectSell:OnChanged(function(Value)
-        getgenv().Settings.Sell = Value
-    end)
-    local AutoSelectSelled = Tabs.pageMain:AddToggle("AutoSelectSell", {Title = "Auto Selected Sell", Default = false })
     local SellAll = Tabs.pageMain:AddButton({
         Title = "Sell All",
         Description = "Sell All Fishs",
         Callback = function()
-            game:GetService("Workspace").world.npcs["Marc Merchant"].merchant.sellall:InvokeServer()
+            task.spawn(function()
+                if game:GetService("Workspace").world.npcs:FindFirstChild("Marc Merchant") then
+                    game:GetService("Workspace").world.npcs["Marc Merchant"].merchant.sellall:InvokeServer()
+                    return
+                elseif game:GetService("Workspace").world.npcs:FindFirstChild("Matt Merchant") then
+                    game:GetService("Workspace").world.npcs["Matt Merchant"].merchant.sellall:InvokeServer()
+                    return
+                elseif game:GetService("Workspace").world.npcs:FindFirstChild("Mike Merchant") then
+                    game:GetService("Workspace").world.npcs["Mike Merchant"].merchant.sellall:InvokeServer()
+                    return
+                elseif game:GetService("Workspace").world.npcs:FindFirstChild("Max Merchant") then
+                    game:GetService("Workspace").world.npcs["Max Merchant"].merchant.sellall:InvokeServer()
+                    return
+                else
+                    Fluent:Notify({
+                        Title = "WARNING",
+                        Content = "Not Found Merchant Near",
+                        Duration = 5
+                    })
+                end
+            end)
         end
     })
     local AutoEquipBait = Tabs.pageMain:AddToggle("AutoEquipBait", {Title = "Auto Equip Bait", Default = false })
@@ -336,7 +333,12 @@ do
     local AutoUseIngredients = Tabs.pageEvent:AddToggle("AutoUseIngredients", {Title = "Auto Use Ingredients", Default = false })
 
     --[[ MISCELLANEOUS ]]--------------------------------------------------------
+    local Noclip = Tabs.pageMiscellaneous:AddToggle("Noclip", {Title = "Noclip", Default = false })
     local AntiDrowning = Tabs.pageMiscellaneous:AddToggle("AntiDrowning", {Title = "Anti Drowning", Default = false })
+    local AutoDeleteFlags = Tabs.pageMiscellaneous:AddToggle("AutoDeleteFlags", {Title = "Auto Delete Flags", Default = false })
+    local AutoDeleteCrabCage = Tabs.pageMiscellaneous:AddToggle("AutoDeleteCrabCage", {Title = "Auto Delete CrabCage", Default = false })
+
+    --[[ TELEPORT ]]--------------------------------------------------------
 
 
     --[[ SCRIPTS ]]--------------------------------------------------------
@@ -349,77 +351,73 @@ do
             local character = plr.Character
             local humanoid = character:FindFirstChild("Humanoid")
 
+            local plr = game:GetService("Players").LocalPlayer
+            local character = plr.Character
             local Casted = false
             local Teleported = false
-            over.ChildAdded:Connect(function()
-                wait(.1)
-                Casted = false
-            end)
-            plr.Backpack.ChildAdded:Connect(function()
-                Casted = false
-            end)
+            if getgenv().Settings.FarmPosition ~= nil and not Teleported and AutoFishing.Value then
+                character.HumanoidRootPart.CFrame = getgenv().Settings.FarmPosition
+                Teleported = true
+                wait(.5)
+            end
             while AutoFishing.Value do
-                wait(.1)
-                pcall(function()
-                    if getgenv().Settings.FarmPosition ~= nil and not Teleported then
-                        character.HumanoidRootPart.CFrame = getgenv().Settings.FarmPosition
-                        Teleported = true
-                        wait(.5)
-                    end
-                    character.HumanoidRootPart.Anchored = true
-                    if not character:FindFirstChild(getgenv().Settings.Rod) then
-                        for i,v in pairs(plr.Backpack:GetChildren()) do
-                            if v.Name == getgenv().Settings.Rod and v:IsA("Tool") then
-                                humanoid:EquipTool(v)
-                            end
+                wait()
+                if not character:FindFirstChild(getgenv().Settings.Rod) then
+                    for i,v in pairs(plr.Backpack:GetChildren()) do
+                        if v.Name == getgenv().Settings.Rod and v:IsA("Tool") then
+                            character.Humanoid:EquipTool(v)
                         end
-                    elseif character[getgenv().Settings.Rod].values.casted.Value == false and Casted == false then
+                    end
+                end
+                if character[getgenv().Settings.Rod].values.casted.Value == false and Casted == false then
+                    pcall(function()
+                        wait(1)
+                        local ohNumber1 = 100
+                        character[getgenv().Settings.Rod].events.reset:FireServer()
+                        wait(.1)
+                        character[getgenv().Settings.Rod].events.cast:FireServer(ohNumber1)
+                        Casted = true
+                        wait(1)
+                    end)
+                elseif character[getgenv().Settings.Rod].values.bite.Value == true then
+                    Casted = false
+                end
+                if character:FindFirstChildOfClass("Tool") then
+                    if character[getgenv().Settings.Rod].values.casted.Value == true and character[getgenv().Settings.Rod].values.bite.Value == false and character[getgenv().Settings.Rod]:FindFirstChild("bobber") and character[getgenv().Settings.Rod].values.bobberzone.Value ~= "" then
                         pcall(function()
-                            wait(1)
-                            local ohNumber1 = 100
-                            character[getgenv().Settings.Rod].events.reset:FireServer()
-                            wait(.1)
-                            character[getgenv().Settings.Rod].events.cast:FireServer(ohNumber1)
-                            Casted = true
-                            wait(1)
-                        end)
-                    elseif character[getgenv().Settings.Rod].values.casted.Value == true and character[getgenv().Settings.Rod].values.bite.Value == false and character[getgenv().Settings.Rod]:FindFirstChild("bobber") and character[getgenv().Settings.Rod].values.bobberzone.Value ~= "" then
-                        pcall(function()
-                            local shakeui = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("shakeui")
+                            local shakeui = game:GetService("Players").LocalPlayer.PlayerGui:WaitForChild("shakeui")
                             if shakeui then
                                 local button = game:GetService("Players").LocalPlayer.PlayerGui.shakeui.safezone:FindFirstChild("button")
                                 GuiService.SelectedObject = button
                                 VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
                                 VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
-                                wait(.2)
                             end
                         end)
-                    elseif character[getgenv().Settings.Rod].values.bite.Value == true and character[getgenv().Settings.Rod].values.casted.Value == true and character[getgenv().Settings.Rod]:FindFirstChild("bobber") and character[getgenv().Settings.Rod].values.bobberzone.Value ~= "" then
+                    else
+                        task.wait()
+                    end
+                else
+                    GuiService.SelectedObject = nil
+                end
+                if character:FindFirstChildOfClass("Tool") then
+                    if character[getgenv().Settings.Rod].values.bite.Value == true and character[getgenv().Settings.Rod].values.casted.Value == true and character[getgenv().Settings.Rod]:FindFirstChild("bobber") and character[getgenv().Settings.Rod].values.bobberzone.Value ~= "" then
                         pcall(function()
                             if getgenv().Settings.RealFinish == true then
-                                local fish = game:GetService("Players").LocalPlayer.PlayerGui.reel.bar:WaitForChild("fish")
-                                local playerbar = game:GetService("Players").LocalPlayer.PlayerGui.reel.bar:WaitForChild("playerbar")
-                                local function onPositionChanged()
-                                    game:GetService("ReplicatedStorage").events.reelfinished:FireServer(100, true)
-                                end
-                                fish:GetPropertyChangedSignal('Position'):Connect(onPositionChanged)
-                                playerbar:GetPropertyChangedSignal('Position'):Connect(onPositionChanged)
                                 GuiService.SelectedObject = nil
+                                local fish = game:GetService("Players").LocalPlayer.PlayerGui.reel.bar:WaitForChild("fish")
+                                fish:GetPropertyChangedSignal('Position'):Wait()
+                                game:GetService("ReplicatedStorage").events.reelfinished:FireServer(100, true)
                             else
                                 if game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("reel") then
                                     game:GetService("Players").LocalPlayer.PlayerGui.reel.bar.playerbar.Size = UDim2.new(1, 0, 1, 0)
                                 end
-                                GuiService.SelectedObject = nil
                             end
-                            wait(.1)
+                            wait(.5)
                         end)
                     end
-                end)
+                end
             end
-            Teleported = false
-            Casted = false
             GuiService.SelectedObject = nil
-            character.HumanoidRootPart.Anchored = false
         end)
     end)
 
@@ -450,6 +448,8 @@ do
 
     AutoCatch:OnChanged(function()
         task.spawn(function()
+            local GuiService = game:GetService('GuiService')
+            local VirtualInputManager = game:GetService('VirtualInputManager')
             local plr = game:GetService("Players").LocalPlayer
             local character = plr.Character
             local Casted = false
@@ -582,38 +582,76 @@ do
     AntiDrowning:OnChanged(function()
         task.spawn(function()
             local working = false
-            while AntiDrowning.Value do
-                wait(.1)
-                if working == false then
-                    game:GetService("Players").LocalPlayer.Character.client.oxygen.Disabled = AntiDrowning.Value
-                    working = true
-                else
-                    return
-                end
+            if AntiDrowning.Value then
+                game:GetService("Players").LocalPlayer.Character.client.oxygen.Disabled = true
+            else
+                game:GetService("Players").LocalPlayer.Character.client.oxygen.Disabled = false
             end
-            working = false
         end)
     end)
 
-    AutoSelectSelled:OnChanged(function()
+    AutoDeleteFlags:OnChanged(function()
         task.spawn(function()
-            local plr = game:GetService("Players").LocalPlayer
-            local character = plr.Character or plr.CharacterAdded:Wait()
-            local humanoid = character:WaitForChild("Humanoid")
-            local backpack = plr:WaitForChild("Backpack")
-            
-            while AutoSelectSelled.Value do
-                wait(0.1)
-                for _, item in pairs(backpack:GetChildren()) do
-                    if SelectSell.Value[item.Name] then
-                        humanoid:EquipTool(item)
-                        game:GetService("Workspace").world.npcs["Marc Merchant"].merchant.sell:InvokeServer()
+            while AutoDeleteFlags.Value do
+                wait()
+                local Flags = game:GetService("Workspace").active.flags:GetChildren()
+                if #Flags > 0 then
+                    for i,v in pairs(game:GetService("Workspace").active.flags:GetChildren()) do
+                        v:Destroy()
+                    end
+                else
+                    wait(.5)
+                end
+            end
+        end)
+    end)
+
+    AutoDeleteCrabCage:OnChanged(function()
+        task.spawn(function()
+            while AutoDeleteCrabCage.Value do
+                wait()
+                for i,v in pairs(game:GetService("Workspace").active:GetDescendants()) do
+                    if v.Name == "Cage" and v:IsA("Model") then
+                        local Cages = v.Parent
+                        Cages:Destroy()
                     end
                 end
             end
         end)
     end)
 
+    Noclip:OnChanged(function()
+        task.spawn(function()
+            local Players, RService = game:GetService("Players"), game:GetService("RunService");
+            local LocalP, Mouse = Players.LocalPlayer, Players.LocalPlayer:GetMouse();
+            local Rm, Index, NIndex, NCall, Caller = getrawmetatable(game), getrawmetatable(game).__index, getrawmetatable(game).__newindex, getrawmetatable(game).__namecall, checkcaller or is_protosmasher_caller
+            local NoClipEnable = false
+            if Noclip.Value == true then
+                NoClipEnable = true
+                setreadonly(Rm, false)
+
+                Rm.__newindex = newcclosure(function(self, Meme, Value)
+                    if Caller() then return NIndex(self, Meme, Value) end 
+                    if tostring(self) == "HumanoidRootPart" or tostring(self) == "Torso" then 
+                        if Meme == "CFrame" and self:IsDescendantOf(LocalP.Character) then 
+                            return true
+                        end
+                    end
+                    return NIndex(self, Meme, Value)
+                end)
+                setreadonly(Rm, true)
+
+                RService.Stepped:Connect(function()
+                    if NoClipEnable == true and LocalP and LocalP.Character and LocalP.Character:FindFirstChild("Humanoid") then 
+                        pcall(function()
+                            LocalP.Character.Head.CanCollide = false 
+                            LocalP.Character.Torso.CanCollide = false
+                        end)
+                    end
+                end)
+            end
+        end)
+    end)
 end
 
 Fluent:Notify({
