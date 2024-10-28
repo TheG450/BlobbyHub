@@ -385,7 +385,7 @@ do
                         end)
                     elseif character[getgenv().Settings.Rod].values.casted.Value == true and character[getgenv().Settings.Rod].values.bite.Value == false and character[getgenv().Settings.Rod]:FindFirstChild("bobber") and character[getgenv().Settings.Rod].values.bobberzone.Value ~= "" then
                         pcall(function()
-                            local shakeui = game:GetService("Players").LocalPlayer.PlayerGui:WaitForChild("shakeui")
+                            local shakeui = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("shakeui")
                             if shakeui then
                                 local button = game:GetService("Players").LocalPlayer.PlayerGui.shakeui.safezone:FindFirstChild("button")
                                 GuiService.SelectedObject = button
@@ -404,10 +404,12 @@ do
                                 end
                                 fish:GetPropertyChangedSignal('Position'):Connect(onPositionChanged)
                                 playerbar:GetPropertyChangedSignal('Position'):Connect(onPositionChanged)
+                                GuiService.SelectedObject = nil
                             else
                                 if game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("reel") then
                                     game:GetService("Players").LocalPlayer.PlayerGui.reel.bar.playerbar.Size = UDim2.new(1, 0, 1, 0)
                                 end
+                                GuiService.SelectedObject = nil
                             end
                             wait(.1)
                         end)
@@ -540,28 +542,8 @@ do
                     if v:FindFirstChild("PickupPrompt") then
                         for i2, v2 in pairs(v:GetChildren()) do
                             if v2:IsA("BasePart") then
-                                local TweenService = game:GetService("TweenService")
-
-                                local player = game.Players.LocalPlayer
-                                local targetPosition = v2.Position
-
-                                local tweenInfo = TweenInfo.new(
-                                    1, -- Time in seconds
-                                    Enum.EasingStyle.Quad, -- Easing style (you can try others like Linear, Sine, etc.)
-                                    Enum.EasingDirection.Out, -- Easing direction (Out makes it smooth at the end)
-                                    0, -- Repeat count (0 means no repeat)
-                                    false, -- Reverse (false means it won't go back and forth)
-                                    0 -- Delay time before tween starts
-                                )
-
-                                local goal = {}
-                                goal.Position = targetPosition
-
-                                local tween = TweenService:Create(player.Character.HumanoidRootPart, tweenInfo, goal)
-                                tween:Play()
-                                tween.Completed:Connect(function()
-                                    fireproximityprompt(v.PickupPrompt)
-                                end)
+                                game.Players.LocalPlayer.Character.HumanoidRootPart.Position = v2.Position
+                                fireproximityprompt(v.PickupPrompt)
                                 wait(.2)
                             end
                         end
