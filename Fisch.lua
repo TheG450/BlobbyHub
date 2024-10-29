@@ -8,6 +8,9 @@ getgenv().Settings = {
     Sell = nil,
     Teleport = nil,
     FastShake = nil,
+    Zone = nil,
+    ZoneE = nil,
+    UseZone = nil,
 }
 
 game:GetService("ReplicatedStorage").events.finishedloading:FireServer()
@@ -94,6 +97,53 @@ do
     FastShake:OnChanged(function(value)
         getgenv().Settings.FastShake = value
     end)
+    local Zone = Tabs.pageSetting:AddSection("Zone")
+    local HowToUse = Tabs.pageSetting:AddParagraph({
+        Title = "How To Use Zone",
+        Content = "1.Select Zone.\n2.Enable Select Zone.\n3.Enable Safe Mode.\n4.Enable Auto Fishing"
+    })
+    local ZoneList = {}
+    local function zoneListInsert()
+        local uniqueZone = {}
+        for i, v in pairs(game:GetService("Workspace").zones.fishing:GetChildren()) do
+            if v:IsA("BasePart") then
+                if not uniqueZone[v.Name] then
+                    table.insert(ZoneList, v.Name)
+                    uniqueZone[v.Name] = true
+                end
+            end
+        end
+    end
+    zoneListInsert()
+    local SelectDefaultZone = Tabs.pageSetting:AddDropdown("SelectDefaultZone", {
+        Title = "Select Default Zone",
+        Values = ZoneList,
+        Multi = false,
+        Default = getgenv().Settings.Zone or "",
+        Callback = function(Value)
+            getgenv().Settings.Zone = Value
+        end
+    })
+    local SelectEventZone = Tabs.pageSetting:AddDropdown("SelectEventZone", {
+        Title = "Select Event Zone",
+        Values = {"Isonde", "Moon Pool", "FischFright24", "Whale Shark", "Great White Shark", "Great Hammerhead Shark"},
+        Multi = false,
+        Default = getgenv().Settings.ZoneE or "",
+        Callback = function(Value)
+            getgenv().Settings.ZoneE = Value
+        end
+    })
+    SelectDefaultZone:OnChanged(function(Value)
+        getgenv().Settings.Zone = Value
+    end)
+    SelectEventZone:OnChanged(function(Value)
+        getgenv().Settings.ZoneE = Value
+    end)
+    local UseZone = Tabs.pageSetting:AddToggle("UseZone", {Title = "Use Zone", Default = false })
+    UseZone:OnChanged(function(value)
+        getgenv().Settings.UseZone = value
+    end)
+
 
     --[[ MAIN ]]--------------------------------------------------------
     local General = Tabs.pageMain:AddSection("General")
@@ -416,85 +466,157 @@ do
                 Teleported = true
                 wait(.5)
             end
-            if SafeMode.Value then
+            if SafeMode.Value and UseZone.Value then
                 local plr = game:GetService("Players").LocalPlayer
                 local character = plr.Character
                 for i,v in pairs(game:GetService("Workspace"):GetChildren()) do
                     if v.Name == "SafePlace"..tostring(plr.Name) then
-                        character.HumanoidRootPart.CFrame = v.CFrame * CFrame.new(0, 2, 0)
+                        character.HumanoidRootPart.CFrame = v.CFrame * CFrame.new(0, 3.5, 0)
                         wait(2)
                     end
                 end
             end
             while AutoFishing.Value do
                 wait()
-                if not character:FindFirstChild(getgenv().Settings.Rod) then
-                    for i,v in pairs(plr.Backpack:GetChildren()) do
-                        if v.Name == getgenv().Settings.Rod and v:IsA("Tool") then
-                            character.Humanoid:EquipTool(v)
+                if SafeMode.Value == false or UseZone.Value == false then
+                    if not character:FindFirstChild(getgenv().Settings.Rod) then
+                        for i,v in pairs(plr.Backpack:GetChildren()) do
+                            if v.Name == getgenv().Settings.Rod and v:IsA("Tool") then
+                                character.Humanoid:EquipTool(v)
+                            end
+                        end
+                    end
+                    if character[getgenv().Settings.Rod].values.casted.Value == false and Casted == false then
+                        pcall(function()
+                            wait(1)
+                            local ohNumber1 = 100
+                            character[getgenv().Settings.Rod].events.reset:FireServer()
+                            wait(.1)
+                            character[getgenv().Settings.Rod].events.cast:FireServer(ohNumber1)
+                            --character[getgenv().Settings.Rod].bobber.CFrame = "" ----------------
+                            Casted = true
+                            wait(1)
+                        end)
+                    elseif character[getgenv().Settings.Rod].values.bite.Value == true then
+                        Casted = false
+                    end
+                    if character:FindFirstChildOfClass("Tool") then
+                        if character[getgenv().Settings.Rod].values.casted.Value == true and character[getgenv().Settings.Rod].values.bite.Value == false and character[getgenv().Settings.Rod]:FindFirstChild("bobber") and character[getgenv().Settings.Rod].values.bobberzone.Value ~= "" then
+                            pcall(function()
+                                local shakeui = game:GetService("Players").LocalPlayer.PlayerGui:WaitForChild("shakeui")
+                                if shakeui then
+                                    if getgenv().Settings.FastShake == true then
+                                        local Button = game:GetService("Players").LocalPlayer.PlayerGui.shakeui.safezone.button:FindFirstChild("ripple")
+    
+                                        local X = Button.AbsolutePosition.X
+                                        local Y = Button.AbsolutePosition.Y
+                                        local XS = Button.AbsoluteSize.X
+                                        local YS = Button.AbsoluteSize.Y
+    
+                                        VirtualInputManager:SendMouseButtonEvent(X + XS, Y + YS, 0, true, Button, 1)
+                                        VirtualInputManager:SendMouseButtonEvent(X + XS, Y + YS, 0, false, Button, 1)
+                                    else
+                                        local button = game:GetService("Players").LocalPlayer.PlayerGui.shakeui.safezone:FindFirstChild("button")
+                                        GuiService.SelectedObject = button
+                                        VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
+                                        VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
+                                    end
+                                end
+                            end)
+                        else
+                            task.wait()
+                        end
+                    else
+                        GuiService.SelectedObject = nil
+                    end
+                    if character:FindFirstChildOfClass("Tool") then
+                        if character[getgenv().Settings.Rod].values.bite.Value == true and character[getgenv().Settings.Rod].values.casted.Value == true and character[getgenv().Settings.Rod]:FindFirstChild("bobber") and character[getgenv().Settings.Rod].values.bobberzone.Value ~= "" then
+                            pcall(function()
+                                if getgenv().Settings.RealFinish == true then
+                                    GuiService.SelectedObject = nil
+                                    local fish = game:GetService("Players").LocalPlayer.PlayerGui.reel.bar:WaitForChild("fish")
+                                    fish:GetPropertyChangedSignal('Position'):Wait()
+                                    game:GetService("ReplicatedStorage").events.reelfinished:FireServer(100, true)
+                                else
+                                    if game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("reel") then
+                                        game:GetService("Players").LocalPlayer.PlayerGui.reel.bar.playerbar.Size = UDim2.new(1, 0, 1, 0)
+                                    end
+                                end
+                                wait(.5)
+                            end)
+                        end
+                    end
+                elseif SafeMode.Value == true and UseZone.Value == true then
+                    character.HumanoidRootPart.Anchored = true
+                    if not character:FindFirstChild(getgenv().Settings.Rod) then
+                        for i,v in pairs(plr.Backpack:GetChildren()) do
+                            if v.Name == getgenv().Settings.Rod and v:IsA("Tool") then
+                                character.Humanoid:EquipTool(v)
+                            end
+                        end
+                    end
+                    if character[getgenv().Settings.Rod].values.casted.Value == false and Casted == false then
+                        pcall(function()
+                            wait(1)
+                            local ohNumber1 = 100
+                            character[getgenv().Settings.Rod].events.reset:FireServer()
+                            wait(.1)
+                            character[getgenv().Settings.Rod].events.cast:FireServer(ohNumber1)
+                            Casted = true
+                            wait(1)
+                        end)
+                    elseif character[getgenv().Settings.Rod].values.bite.Value == true then
+                        Casted = false
+                    end
+                    if character:FindFirstChildOfClass("Tool") then
+                        if character[getgenv().Settings.Rod].values.casted.Value == true and character[getgenv().Settings.Rod].values.bite.Value == false and character[getgenv().Settings.Rod]:FindFirstChild("bobber") and character[getgenv().Settings.Rod].values.bobberzone.Value ~= "" then
+                            pcall(function()
+                                local shakeui = game:GetService("Players").LocalPlayer.PlayerGui:WaitForChild("shakeui")
+                                if shakeui then
+                                    if getgenv().Settings.FastShake == true then
+                                        local Button = game:GetService("Players").LocalPlayer.PlayerGui.shakeui.safezone.button:FindFirstChild("ripple")
+    
+                                        local X = Button.AbsolutePosition.X
+                                        local Y = Button.AbsolutePosition.Y
+                                        local XS = Button.AbsoluteSize.X
+                                        local YS = Button.AbsoluteSize.Y
+    
+                                        VirtualInputManager:SendMouseButtonEvent(X + XS, Y + YS, 0, true, Button, 1)
+                                        VirtualInputManager:SendMouseButtonEvent(X + XS, Y + YS, 0, false, Button, 1)
+                                    else
+                                        local button = game:GetService("Players").LocalPlayer.PlayerGui.shakeui.safezone:FindFirstChild("button")
+                                        GuiService.SelectedObject = button
+                                        VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
+                                        VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
+                                    end
+                                end
+                            end)
+                        else
+                            task.wait()
+                        end
+                    else
+                        GuiService.SelectedObject = nil
+                    end
+                    if character:FindFirstChildOfClass("Tool") then
+                        if character[getgenv().Settings.Rod].values.bite.Value == true and character[getgenv().Settings.Rod].values.casted.Value == true and character[getgenv().Settings.Rod]:FindFirstChild("bobber") and character[getgenv().Settings.Rod].values.bobberzone.Value ~= "" then
+                            pcall(function()
+                                if getgenv().Settings.RealFinish == true then
+                                    GuiService.SelectedObject = nil
+                                    local fish = game:GetService("Players").LocalPlayer.PlayerGui.reel.bar:WaitForChild("fish")
+                                    fish:GetPropertyChangedSignal('Position'):Wait()
+                                    game:GetService("ReplicatedStorage").events.reelfinished:FireServer(100, true)
+                                else
+                                    if game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("reel") then
+                                        game:GetService("Players").LocalPlayer.PlayerGui.reel.bar.playerbar.Size = UDim2.new(1, 0, 1, 0)
+                                    end
+                                end
+                                wait(.5)
+                            end)
                         end
                     end
                 end
-                if character[getgenv().Settings.Rod].values.casted.Value == false and Casted == false then
-                    pcall(function()
-                        wait(1)
-                        local ohNumber1 = 100
-                        character[getgenv().Settings.Rod].events.reset:FireServer()
-                        wait(.1)
-                        character[getgenv().Settings.Rod].events.cast:FireServer(ohNumber1)
-                        Casted = true
-                        wait(1)
-                    end)
-                elseif character[getgenv().Settings.Rod].values.bite.Value == true then
-                    Casted = false
-                end
-                if character:FindFirstChildOfClass("Tool") then
-                    if character[getgenv().Settings.Rod].values.casted.Value == true and character[getgenv().Settings.Rod].values.bite.Value == false and character[getgenv().Settings.Rod]:FindFirstChild("bobber") and character[getgenv().Settings.Rod].values.bobberzone.Value ~= "" then
-                        pcall(function()
-                            local shakeui = game:GetService("Players").LocalPlayer.PlayerGui:WaitForChild("shakeui")
-                            if shakeui then
-                                if getgenv().Settings.FastShake == true then
-                                    local Button = game:GetService("Players").LocalPlayer.PlayerGui.shakeui.safezone.button:FindFirstChild("ripple")
-
-                                    local X = Button.AbsolutePosition.X
-                                    local Y = Button.AbsolutePosition.Y
-                                    local XS = Button.AbsoluteSize.X
-                                    local YS = Button.AbsoluteSize.Y
-
-                                    VirtualInputManager:SendMouseButtonEvent(X + XS, Y + YS, 0, true, Button, 1)
-                                    VirtualInputManager:SendMouseButtonEvent(X + XS, Y + YS, 0, false, Button, 1)
-                                else
-                                    local button = game:GetService("Players").LocalPlayer.PlayerGui.shakeui.safezone:FindFirstChild("button")
-                                    GuiService.SelectedObject = button
-                                    VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
-                                    VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
-                                end
-                            end
-                        end)
-                    else
-                        task.wait()
-                    end
-                else
-                    GuiService.SelectedObject = nil
-                end
-                if character:FindFirstChildOfClass("Tool") then
-                    if character[getgenv().Settings.Rod].values.bite.Value == true and character[getgenv().Settings.Rod].values.casted.Value == true and character[getgenv().Settings.Rod]:FindFirstChild("bobber") and character[getgenv().Settings.Rod].values.bobberzone.Value ~= "" then
-                        pcall(function()
-                            if getgenv().Settings.RealFinish == true then
-                                GuiService.SelectedObject = nil
-                                local fish = game:GetService("Players").LocalPlayer.PlayerGui.reel.bar:WaitForChild("fish")
-                                fish:GetPropertyChangedSignal('Position'):Wait()
-                                game:GetService("ReplicatedStorage").events.reelfinished:FireServer(100, true)
-                            else
-                                if game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("reel") then
-                                    game:GetService("Players").LocalPlayer.PlayerGui.reel.bar.playerbar.Size = UDim2.new(1, 0, 1, 0)
-                                end
-                            end
-                            wait(.5)
-                        end)
-                    end
-                end
             end
+            character.HumanoidRootPart.Anchored = false
             GuiService.SelectedObject = nil
         end)
     end)
@@ -748,15 +870,19 @@ do
 
     WalkOnWater:OnChanged(function()
         task.spawn(function()
+            local workspace = game:GetService("Workspace")
             local player = game.Players.LocalPlayer
             local character = player.Character or player.CharacterAdded:Wait()
             local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-            
-            local float = Instance.new("Part")
-            float.Anchored = true
-            float.Name = "WATERWALKPART"
-            float.Parent = workspace
-            float.Size = Vector3.new(25, 1, 25)
+
+            if not workspace:FindFirstChild("WATERWALKPART") then
+                local float = Instance.new("Part")
+                float.Transparency = 0.1
+                float.Anchored = true
+                float.Name = "WATERWALKPART"
+                float.Parent = workspace
+                float.Size = Vector3.new(25, 1, 25)
+            end
             
             local waterLevelY = 127.5
 
@@ -783,10 +909,38 @@ do
                     Safe.Anchored = true
                     Safe.Name = "SafePlace"..tostring(player.Name)
                     Safe.Parent = workspace
-                    Safe.Size = Vector3.new(35, 1, 35)
+                    Safe.Size = Vector3.new(25, 1, 25)
                     Safe.Position = Vector3.new(471.196 + math.random(-50,50), 824.246, 324.262 + math.random(-50,50))
                 else
                     return
+                end
+            end
+        end)
+    end)
+
+    UseZone:OnChanged(function()
+        task.spawn(function()
+            local character = game.Players.LocalPlayer.Character
+            while UseZone.Value do
+                wait()
+                for i,v in pairs(game:GetService("Workspace").zones.fishing:GetChildren()) do
+                    if v.Name == getgenv().Settings.ZoneE and v:IsA("BasePart") then
+                        pcall(function()
+                            local bobber = character[getgenv().Settings.Rod]:WaitForChild("bobber")
+                            bobber.RopeConstraint.Length = 1e1000
+                            bobber.CFrame = v.CFrame
+                            wait(.5)
+                            bobber.Anchored = true
+                        end)
+                    elseif v.Name == getgenv().Settings.Zone and v:IsA("BasePart") then
+                        pcall(function()
+                            local bobber = character[getgenv().Settings.Rod]:WaitForChild("bobber")
+                            bobber.RopeConstraint.Length = 1e1000
+                            bobber.CFrame = v.CFrame
+                            wait(.5)
+                            bobber.Anchored = true
+                        end)
+                    end
                 end
             end
         end)
