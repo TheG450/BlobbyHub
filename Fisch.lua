@@ -98,6 +98,7 @@ do
     --[[ MAIN ]]--------------------------------------------------------
     local General = Tabs.pageMain:AddSection("General")
     local AutoFishing = Tabs.pageMain:AddToggle("AutoFishing", {Title = "Auto Fishing", Default = false })
+    local SafeMode = Tabs.pageMain:AddToggle("SafeMode", {Title = "Safe Mode", Default = false })
     local SellAll = Tabs.pageMain:AddButton({
         Title = "Sell All",
         Description = "Sell All Fishs",
@@ -360,6 +361,7 @@ do
     local AntiDrowning = Tabs.pageMiscellaneous:AddToggle("AntiDrowning", {Title = "Anti Drowning", Default = false })
     local AutoDeleteFlags = Tabs.pageMiscellaneous:AddToggle("AutoDeleteFlags", {Title = "Auto Delete Flags", Default = false })
     local AutoDeleteCrabCage = Tabs.pageMiscellaneous:AddToggle("AutoDeleteCrabCage", {Title = "Auto Delete CrabCage", Default = false })
+    local WalkOnWater = Tabs.pageMiscellaneous:AddToggle("WalkOnWater", {Title = "Walk On Water", Default = false })
 
     --[[ TELEPORT ]]--------------------------------------------------------
     local TeleportList = {}
@@ -409,10 +411,20 @@ do
             local character = plr.Character
             local Casted = false
             local Teleported = false
-            if getgenv().Settings.FarmPosition ~= nil and not Teleported and AutoFishing.Value then
+            if getgenv().Settings.FarmPosition ~= nil and not Teleported and AutoFishing.Value and not SafeMode.Value then
                 character.HumanoidRootPart.CFrame = getgenv().Settings.FarmPosition
                 Teleported = true
                 wait(.5)
+            end
+            if SafeMode.Value then
+                local plr = game:GetService("Players").LocalPlayer
+                local character = plr.Character
+                for i,v in pairs(game:GetService("Workspace"):GetChildren()) do
+                    if v.Name == "SafePlace"..tostring(plr.Name) then
+                        character.HumanoidRootPart.CFrame = v.CFrame * CFrame.new(0, 2, 0)
+                        wait(2)
+                    end
+                end
             end
             while AutoFishing.Value do
                 wait()
@@ -731,6 +743,52 @@ do
                     end)
                 end
             end)
+        end)
+    end)
+
+    WalkOnWater:OnChanged(function()
+        task.spawn(function()
+            local player = game.Players.LocalPlayer
+            local character = player.Character or player.CharacterAdded:Wait()
+            local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+            
+            local float = Instance.new("Part")
+            float.Anchored = true
+            float.Name = "WATERWALKPART"
+            float.Parent = workspace
+            float.Size = Vector3.new(25, 1, 25)
+            
+            local waterLevelY = 127.5
+
+                while WalkOnWater.Value do
+                    wait()
+                    local playerY = humanoidRootPart.Position.Y
+
+                    if playerY <= waterLevelY + 2 and playerY >= waterLevelY - 2 then
+                        float.CFrame = humanoidRootPart.CFrame + Vector3.new(0, -3.5, 0)
+                    else
+                    float.CFrame = float.CFrame
+                end
+            end
+        end)
+    end)
+
+    SafeMode:OnChanged(function()
+        task.spawn(function()
+            local workspace = game:GetService("Workspace")
+            local player = game:GetService("Players").LocalPlayer
+            if SafeMode.Value then
+                if not workspace:FindFirstChild("SafePlace"..tostring(player.Name)) then
+                    local Safe = Instance.new("Part")
+                    Safe.Anchored = true
+                    Safe.Name = "SafePlace"..tostring(player.Name)
+                    Safe.Parent = workspace
+                    Safe.Size = Vector3.new(35, 1, 35)
+                    Safe.Position = Vector3.new(471.196 + math.random(-50,50), 824.246, 324.262 + math.random(-50,50))
+                else
+                    return
+                end
+            end
         end)
     end)
 end
