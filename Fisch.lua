@@ -12,6 +12,24 @@ getgenv().Settings = {
     ZoneE = nil,
     UseZone = nil,
 }
+local Device;
+
+local Players = game:GetService("Players")
+local function checkDevice()
+    local player = Players.LocalPlayer
+    if player then
+        local UserInputService = game:GetService("UserInputService")
+        
+        if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then
+            Device = UDim2.fromOffset(480, 360)
+        else
+            Device = UDim2.fromOffset(580, 460)
+        end
+    end
+end
+
+checkDevice()
+
 
 game:GetService("ReplicatedStorage").events.finishedloading:FireServer()
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
@@ -19,9 +37,9 @@ local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/d
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
 local Window = Fluent:CreateWindow({
-    Title = "BLOBBY HUB " .. "Fisch",
+    Title = "Blobby Hub" .. " | ".."Fisch".." | ".."[Free Version]",
     TabWidth = 160,
-    Size = UDim2.fromOffset(480, 360), --default size (580, 460)
+    Size =  Device, --UDim2.fromOffset(480, 360), --default size (580, 460)
     Acrylic = false, -- การเบลออาจตรวจจับได้ การตั้งค่านี้เป็น false จะปิดการเบลอทั้งหมด
     Theme = "Amethyst", --Amethyst
     MinimizeKey = Enum.KeyCode.LeftControl
@@ -464,24 +482,24 @@ do
             
             task.spawn(function()
                 while AutoFishing.Value do
-                    wait(2)
+                    wait()
                     if getgenv().Settings.FarmPosition ~= nil and AutoFishing.Value and not SafeMode.Value then
                         character.HumanoidRootPart.CFrame = getgenv().Settings.FarmPosition
                         --Teleported = true
-                        wait()
+                        wait(2)
                     end
                 end
             end)
             task.spawn(function()
                 while AutoFishing.Value do
-                    wait(2)
+                    wait()
                     if SafeMode.Value and UseZone.Value then
                         local plr = game:GetService("Players").LocalPlayer
                         local character = plr.Character
                         for i,v in pairs(game:GetService("Workspace"):GetChildren()) do
                             if v.Name == "SafePlace"..tostring(plr.Name) then
                                 character.HumanoidRootPart.CFrame = v.CFrame * CFrame.new(0, 3.5, 0)
-                                wait()
+                                wait(2)
                             end
                         end
                     end
