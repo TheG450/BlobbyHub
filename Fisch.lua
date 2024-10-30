@@ -144,7 +144,7 @@ do
     })
     local SelectEventZone = Tabs.pageSetting:AddDropdown("SelectEventZone", {
         Title = "Select Event Zone",
-        Values = {"Isonde", "Moon Pool", "FischFright24", "Whale Shark", "Great White Shark", "Great Hammerhead Shark"},
+        Values = {"Isonade", "Moon Pool", "FischFright24", "Whale Shark", "Great White Shark", "Great Hammerhead Shark"},
         Multi = false,
         Default = getgenv().Settings.ZoneE or "",
         Callback = function(Value)
@@ -158,9 +158,6 @@ do
         getgenv().Settings.ZoneE = Value
     end)
     local UseZone = Tabs.pageSetting:AddToggle("UseZone", {Title = "Use Zone", Default = false })
-    UseZone:OnChanged(function(value)
-        getgenv().Settings.UseZone = value
-    end)
 
 
     --[[ MAIN ]]--------------------------------------------------------
@@ -523,7 +520,6 @@ do
                                 character[getgenv().Settings.Rod].events.reset:FireServer()
                                 wait(.1)
                                 character[getgenv().Settings.Rod].events.cast:FireServer(ohNumber1)
-                                --character[getgenv().Settings.Rod].bobber.CFrame = "" ----------------
                                 Casted = true
                                 wait(1)
                             end)
@@ -563,8 +559,18 @@ do
                                     if getgenv().Settings.RealFinish == true then
                                         GuiService.SelectedObject = nil
                                         local fish = game:GetService("Players").LocalPlayer.PlayerGui.reel.bar:WaitForChild("fish")
-                                        fish:GetPropertyChangedSignal('Position'):Wait()
-                                        game:GetService("ReplicatedStorage").events.reelfinished:FireServer(100, true)
+                                        local playerbar = game:GetService("Players").LocalPlayer.PlayerGui.reel.bar:WaitForChild("playerbar")
+                                        local function fireReelFinished()
+                                            game:GetService("ReplicatedStorage").events.reelfinished:FireServer(100, true)
+                                        end
+                                        coroutine.wrap(function()
+                                            fish:GetPropertyChangedSignal("Position"):Wait()
+                                            fireReelFinished()
+                                        end)()
+                                        coroutine.wrap(function()
+                                            playerbar:GetPropertyChangedSignal("Position"):Wait()
+                                            fireReelFinished()
+                                        end)()
                                     else
                                         if game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("reel") then
                                             game:GetService("Players").LocalPlayer.PlayerGui.reel.bar.playerbar.Size = UDim2.new(1, 0, 1, 0)
@@ -616,25 +622,39 @@ do
                                             VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
                                             VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
                                         end
+                                        character.HumanoidRootPart.Anchored = true
                                     end
-                                    character.HumanoidRootPart.Anchored = true
                                 end)
                             else
-                                task.wait()
+                                wait()
                             end
                         end
                         if character:FindFirstChildOfClass("Tool") then
                             if character[getgenv().Settings.Rod].values.bite.Value == true and character[getgenv().Settings.Rod].values.casted.Value == true and character[getgenv().Settings.Rod]:FindFirstChild("bobber") and character[getgenv().Settings.Rod].values.bobberzone.Value ~= "" then
                                 pcall(function()
+                                    GuiService.SelectedObject = nil
+                                    local fish = game:GetService("Players").LocalPlayer.PlayerGui.reel.bar:WaitForChild("fish")
+                                    local playerbar = game:GetService("Players").LocalPlayer.PlayerGui.reel.bar:WaitForChild("playerbar")
+                                    playerbar.Position = fish.Position
+                                    -- local function fireReelFinished()
+                                    --     game:GetService("ReplicatedStorage").events.reelfinished:FireServer(100, true)
+                                    --     wait(.1)
+                                    --     character.HumanoidRootPart.Anchored = false
+                                    -- end
+                                    -- coroutine.wrap(function()
+                                    --     fish:GetPropertyChangedSignal("Position"):Wait()
+                                    --     fireReelFinished()
+                                    -- end)()
+                                    -- coroutine.wrap(function()
+                                    --     playerbar:GetPropertyChangedSignal("Position"):Wait()
+                                    --     fireReelFinished()
+                                    -- end)()
                                     if getgenv().Settings.RealFinish == true then
-                                        GuiService.SelectedObject = nil
-                                        local fish = game:GetService("Players").LocalPlayer.PlayerGui.reel.bar:WaitForChild("fish")
-                                        fish:GetPropertyChangedSignal('Position'):Wait()
+                                        fish:GetPropertyChangedSignal("Position"):Wait()
                                         game:GetService("ReplicatedStorage").events.reelfinished:FireServer(100, true)
                                     else
-                                        if game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("reel") then
-                                            game:GetService("Players").LocalPlayer.PlayerGui.reel.bar.playerbar.Size = UDim2.new(1, 0, 1, 0)
-                                        end
+                                        fish:GetPropertyChangedSignal("Position"):Wait()
+                                        game:GetService("ReplicatedStorage").events.reelfinished:FireServer(100, true)
                                     end
                                     character.HumanoidRootPart.Anchored = false
                                     wait(.5)
@@ -951,34 +971,42 @@ do
         task.spawn(function()
             local character = game.Players.LocalPlayer.Character
             local characterPosition = character.HumanoidRootPart.Position
-            local closestPart = nil
-            local shortestDistance = math.huge
+
+            local function getClosest(position, zoneName)
+                local closestPart = nil
+                local shortestDistance = math.huge
+                
+                for _, zonePart in pairs(game:GetService("Workspace").zones.fishing:GetChildren()) do
+                    if zonePart.Name == zoneName and zonePart:IsA("BasePart") then
+                        local distance = (position - zonePart.Position).Magnitude
+                        if distance < shortestDistance then
+                            shortestDistance = distance
+                            closestPart = zonePart
+                        end
+                    end
+                end
+                
+                return closestPart
+            end
+            
             while UseZone.Value do
                 wait()
-                for i,v in pairs(game:GetService("Workspace").zones.fishing:GetChildren()) do
-                    if v.Name == getgenv().Settings.ZoneE and v:IsA("BasePart") then
+                if SafeMode.Value then
+                    local Closest = getClosest(character.HumanoidRootPart.Position, getgenv().Settings.Zone)
+                    local ClosestEvent = getClosest(character.HumanoidRootPart.Position, getgenv().Settings.ZoneE)
+                    if ClosestEvent ~= nil then
                         pcall(function()
-                            local distance = (v.Position - characterPosition).Magnitude
-                            if distance < shortestDistance then
-                                shortestDistance = distance
-                                closestPart = v
-                            end
                             local bobber = character[getgenv().Settings.Rod]:WaitForChild("bobber")
                             bobber.RopeConstraint.Length = math.huge
-                            bobber.CFrame = closestPart.CFrame
+                            bobber.CFrame = ClosestEvent.CFrame
                             wait(.5)
                             bobber.Anchored = true
                         end)
-                    elseif v.Name == getgenv().Settings.Zone and v:IsA("BasePart") then
+                    else
                         pcall(function()
-                            local distance = (v.Position - characterPosition).Magnitude
-                            if distance < shortestDistance then
-                                shortestDistance = distance
-                                closestPart = v
-                            end
                             local bobber = character[getgenv().Settings.Rod]:WaitForChild("bobber")
                             bobber.RopeConstraint.Length = math.huge
-                            bobber.CFrame = closestPart.CFrame
+                            bobber.CFrame = Closest.CFrame
                             wait(.5)
                             bobber.Anchored = true
                         end)
