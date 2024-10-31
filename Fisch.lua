@@ -940,11 +940,14 @@ do
                 while WalkOnWater.Value do
                     wait()
                     local playerY = humanoidRootPart.Position.Y
-
-                    if playerY <= waterLevelY + 2 and playerY >= waterLevelY - 2 then
-                        float.CFrame = humanoidRootPart.CFrame + Vector3.new(0, -3.5, 0)
-                    else
-                    float.CFrame = float.CFrame
+                    for i,v in pairs(game.Workspace:GetChilren()) do
+                        if v.Name == "WATERWALKPART" and v:IsA("BasePart") then
+                            if playerY <= waterLevelY + 2 and playerY >= waterLevelY - 2 then
+                                v.CFrame = humanoidRootPart.CFrame + Vector3.new(0, -3.5, 0)
+                            else
+                            v.CFrame = v.CFrame
+                        end
+                    end
                 end
             end
         end)
