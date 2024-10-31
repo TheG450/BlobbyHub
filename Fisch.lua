@@ -9,7 +9,7 @@ getgenv().Settings = {
     Teleport = nil,
     FastShake = nil,
     Zone = nil,
-    ZoneE = nil,
+    ZoneE = {},
     UseZone = nil,
 }
 local Device;
@@ -145,17 +145,19 @@ do
     local SelectEventZone = Tabs.pageSetting:AddDropdown("SelectEventZone", {
         Title = "Select Event Zone",
         Values = {"Isonade", "Moon Pool", "FischFright24", "Whale Shark", "Great White Shark", "Great Hammerhead Shark"},
-        Multi = false,
-        Default = getgenv().Settings.ZoneE or "",
-        Callback = function(Value)
-            getgenv().Settings.ZoneE = Value
-        end
+        Multi = true,
+        Default = getgenv().Settings.ZoneE,
     })
     SelectDefaultZone:OnChanged(function(Value)
         getgenv().Settings.Zone = Value
     end)
     SelectEventZone:OnChanged(function(Value)
-        getgenv().Settings.ZoneE = Value
+        local Values = {}
+        for Value, State in next, Value do
+            table.insert(Values, Value)
+        end
+        getgenv().Settings.ZoneE = Values
+        print(unpack(getgenv().Settings.ZoneE))
     end)
     local UseZone = Tabs.pageSetting:AddToggle("UseZone", {Title = "Use Zone", Default = false })
 
@@ -940,7 +942,7 @@ do
                 while WalkOnWater.Value do
                     wait()
                     local playerY = humanoidRootPart.Position.Y
-                    for i,v in pairs(game.Workspace:GetChilren()) do
+                    for i,v in pairs(game:GetService("Workspace"):GetChildren()) do
                         if v.Name == "WATERWALKPART" and v:IsA("BasePart") then
                             if playerY <= waterLevelY + 2 and playerY >= waterLevelY - 2 then
                                 v.CFrame = humanoidRootPart.CFrame + Vector3.new(0, -3.5, 0)
@@ -977,12 +979,12 @@ do
             local character = game.Players.LocalPlayer.Character
             local characterPosition = character.HumanoidRootPart.Position
 
-            local function getClosest(position, zoneName)
+            local function getClosest(position, zoneNames)
                 local closestPart = nil
                 local shortestDistance = math.huge
                 
                 for _, zonePart in pairs(game:GetService("Workspace").zones.fishing:GetChildren()) do
-                    if zonePart.Name == zoneName and zonePart:IsA("BasePart") then
+                    if table.find(zoneNames, zonePart.Name) and zonePart:IsA("BasePart") then
                         local distance = (position - zonePart.Position).Magnitude
                         if distance < shortestDistance then
                             shortestDistance = distance
@@ -993,26 +995,28 @@ do
                 
                 return closestPart
             end
-            
+
             while UseZone.Value do
                 wait()
                 if SafeMode.Value then
-                    local Closest = getClosest(character.HumanoidRootPart.Position, getgenv().Settings.Zone)
+                    -- Find the closest event zone or regular zone
+                    local Closest = getClosest(character.HumanoidRootPart.Position, {getgenv().Settings.Zone})
                     local ClosestEvent = getClosest(character.HumanoidRootPart.Position, getgenv().Settings.ZoneE)
+                    
                     if ClosestEvent ~= nil then
                         pcall(function()
                             local bobber = character[getgenv().Settings.Rod]:WaitForChild("bobber")
                             bobber.RopeConstraint.Length = math.huge
                             bobber.CFrame = ClosestEvent.CFrame
-                            wait(.5)
+                            wait(0.5)
                             bobber.Anchored = true
                         end)
-                    else
+                    elseif Closest ~= nil then
                         pcall(function()
                             local bobber = character[getgenv().Settings.Rod]:WaitForChild("bobber")
                             bobber.RopeConstraint.Length = math.huge
                             bobber.CFrame = Closest.CFrame
-                            wait(.5)
+                            wait(0.5)
                             bobber.Anchored = true
                         end)
                     end
