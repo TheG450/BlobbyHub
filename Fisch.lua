@@ -635,7 +635,9 @@ do
                                     GuiService.SelectedObject = nil
                                     local fish = game:GetService("Players").LocalPlayer.PlayerGui.reel.bar:WaitForChild("fish")
                                     local playerbar = game:GetService("Players").LocalPlayer.PlayerGui.reel.bar:WaitForChild("playerbar")
-                                    playerbar.Position = fish.Position
+                                    coroutine.wrap(function()
+                                        playerbar.Position = fish.Position
+                                    end)()
                                     -- local function fireReelFinished()
                                     --     game:GetService("ReplicatedStorage").events.reelfinished:FireServer(100, true)
                                     --     wait(.1)
@@ -650,10 +652,10 @@ do
                                     --     fireReelFinished()
                                     -- end)()
                                     if getgenv().Settings.RealFinish == true then
-                                        fish:GetPropertyChangedSignal("Position"):Wait()
+                                        playerbar:GetPropertyChangedSignal("Position"):Wait()
                                         game:GetService("ReplicatedStorage").events.reelfinished:FireServer(100, true)
                                     else
-                                        fish:GetPropertyChangedSignal("Position"):Wait()
+                                        playerbar:GetPropertyChangedSignal("Position"):Wait()
                                         game:GetService("ReplicatedStorage").events.reelfinished:FireServer(100, true)
                                     end
                                     character.HumanoidRootPart.Anchored = false
@@ -1036,5 +1038,27 @@ task.spawn(function()
         end)
     end
 end)
+
+local mt = getrawmetatable(game)
+setreadonly(mt, false)
+
+local oldNamecall = mt.__namecall
+
+mt.__namecall = newcclosure(function(self, ...)
+    local args = {...}
+    local method = getnamecallmethod()
+    
+    if method == "FireServer" and self.Name == "reelfinished" then
+        local A1 = args[1]
+        if A1 < 1 then
+            args[1] = 100
+            args[2] = true
+            return oldNamecall(self, unpack(args))
+        end
+    end
+    return oldNamecall(self, ...)
+end)
+
+setreadonly(mt, true)
 
 Window:SelectTab(1)
