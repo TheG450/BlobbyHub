@@ -157,7 +157,6 @@ do
             table.insert(Values, Value)
         end
         getgenv().Settings.ZoneE = Values
-        print(unpack(getgenv().Settings.ZoneE))
     end)
     local UseZone = Tabs.pageSetting:AddToggle("UseZone", {Title = "Use Zone", Default = false })
 
