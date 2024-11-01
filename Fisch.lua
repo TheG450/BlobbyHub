@@ -477,6 +477,23 @@ do
             local character = plr.Character
             local Casted = false
             local Teleported = false
+
+            local function getClosest(position, zoneNames)
+                local closestPart = nil
+                local shortestDistance = math.huge
+                
+                for _, zonePart in pairs(game:GetService("Workspace").zones.fishing:GetChildren()) do
+                    if table.find(zoneNames, zonePart.Name) and zonePart:IsA("BasePart") then
+                        local distance = (position - zonePart.Position).Magnitude
+                        if distance < shortestDistance then
+                            shortestDistance = distance
+                            closestPart = zonePart
+                        end
+                    end
+                end
+                
+                return closestPart
+            end
             
             task.spawn(function()
                 while AutoFishing.Value do
@@ -530,7 +547,7 @@ do
                         if character:FindFirstChildOfClass("Tool") then
                             if character[getgenv().Settings.Rod].values.casted.Value == true and character[getgenv().Settings.Rod].values.bite.Value == false and character[getgenv().Settings.Rod]:FindFirstChild("bobber") and character[getgenv().Settings.Rod].values.bobberzone.Value ~= "" then
                                 pcall(function()
-                                    local shakeui = game:GetService("Players").LocalPlayer.PlayerGui:WaitForChild("shakeui")
+                                    local shakeui = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("shakeui") or game:GetService("Players").LocalPlayer.PlayerGui:WaitForChild("shakeui", 5)
                                     if shakeui then
                                         if getgenv().Settings.FastShake == true then
                                             local Button = game:GetService("Players").LocalPlayer.PlayerGui.shakeui.safezone.button:FindFirstChild("ripple")
@@ -998,28 +1015,34 @@ do
             while UseZone.Value do
                 wait()
                 if SafeMode.Value then
-                    -- Find the closest event zone or regular zone
                     local Closest = getClosest(character.HumanoidRootPart.Position, {getgenv().Settings.Zone})
                     local ClosestEvent = getClosest(character.HumanoidRootPart.Position, getgenv().Settings.ZoneE)
-                    local bobber = character[getgenv().Settings.Rod]:WaitForChild("bobber")
-
-                    if ClosestEvent ~= nil then
-                        pcall(function()
-                            bobber.RopeConstraint.Length = math.huge
-                            bobber.CFrame = ClosestEvent.CFrame
-                            wait(0.5)
-                            bobber.Anchored = true
-                        end)
-                    elseif Closest ~= nil then
-                        pcall(function()
-                            bobber.RopeConstraint.Length = math.huge
-                            bobber.CFrame = Closest.CFrame
-                            wait(0.5)
-                            bobber.Anchored = true
-                        end)
+                    
+                    local rod = character:FindFirstChild(getgenv().Settings.Rod)
+                    if rod then
+                        local bobber = rod:FindFirstChild("bobber") or rod:WaitForChild("bobber", 5)
+                        
+                        if bobber then
+                            if ClosestEvent ~= nil then
+                                pcall(function()
+                                    bobber.RopeConstraint.Length = math.huge
+                                    bobber.CFrame = ClosestEvent.CFrame
+                                    wait(0.5)
+                                    bobber.Anchored = true
+                                end)
+                            elseif Closest ~= nil then
+                                pcall(function()
+                                    bobber.RopeConstraint.Length = math.huge
+                                    bobber.CFrame = Closest.CFrame
+                                    wait(0.5)
+                                    bobber.Anchored = true
+                                end)
+                            end
+                        end
                     end
                 end
             end
+            
         end)
     end)
 end
