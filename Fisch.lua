@@ -1001,10 +1001,10 @@ do
                     -- Find the closest event zone or regular zone
                     local Closest = getClosest(character.HumanoidRootPart.Position, {getgenv().Settings.Zone})
                     local ClosestEvent = getClosest(character.HumanoidRootPart.Position, getgenv().Settings.ZoneE)
-                    
+                    local bobber = character[getgenv().Settings.Rod]:WaitForChild("bobber")
+
                     if ClosestEvent ~= nil then
                         pcall(function()
-                            local bobber = character[getgenv().Settings.Rod]:WaitForChild("bobber")
                             bobber.RopeConstraint.Length = math.huge
                             bobber.CFrame = ClosestEvent.CFrame
                             wait(0.5)
@@ -1012,7 +1012,6 @@ do
                         end)
                     elseif Closest ~= nil then
                         pcall(function()
-                            local bobber = character[getgenv().Settings.Rod]:WaitForChild("bobber")
                             bobber.RopeConstraint.Length = math.huge
                             bobber.CFrame = Closest.CFrame
                             wait(0.5)
