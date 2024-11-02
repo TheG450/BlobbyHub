@@ -3,16 +3,35 @@ repeat wait() until game:IsLoaded() and game.Players and game.Players.LocalPlaye
 getgenv().Settings = {
   SelectedBlackList = {},
   SelectedFarmList = {},
+  SelectedTarget = nil,
 }
+
+local Device;
+
+local Players = game:GetService("Players")
+local function checkDevice()
+    local player = Players.LocalPlayer
+    if player then
+        local UserInputService = game:GetService("UserInputService")
+        
+        if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then
+            Device = UDim2.fromOffset(480, 360)
+        else
+            Device = UDim2.fromOffset(580, 460)
+        end
+    end
+end
+
+checkDevice()
 
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
 local Window = Fluent:CreateWindow({
-    Title = "Blobby Hub" .. " | ".."Beady City".." | ".."[Free Version]",
+    Title = "Blobby Hub" .. " | ".."Beady City 3.1".." | ".."[Test Version]",
     TabWidth = 160,
-    Size =  UDim2.fromOffset(480, 360),
+    Size =  Device,
     Acrylic = false,
     Theme = "Amethyst",
     MinimizeKey = Enum.KeyCode.LeftControl
@@ -84,6 +103,53 @@ do
   local ShowHS = Tabs.pageMain:AddToggle("ShowHS", {Title = "ShowHS", Default = false })
   local AutoArmorT = Tabs.pageMain:AddToggle("AutoArmorT", {Title = "AutoArmor(Training)", Default = false })
   local AutoArmor = Tabs.pageMain:AddToggle("AutoArmor", {Title = "AutoArmor(Real)", Default = false })
+  local SilentAimTitle = Tabs.pageMain:AddSection("Silent Aim(Gun)")
+  local HowToUse = Tabs.pageMain:AddParagraph({
+    Title = "How To Use SilentAim",
+    Content = "1.Select TargetPlayer.\n2.Enable SilentAim).\n3.Use A Gun(Revolver.\n4.Shot Air(If you hit a player, you may be kicked out of the game [Use Own Risk])"
+  })
+  local TargetList = {}
+  local function GetTargetList()
+    for i,v in pairs(game:GetService("Players"):GetChildren()) do
+        if v.Name ~= game.Players.LocalPlayer.Name then
+            table.insert(TargetList, v.Name)
+        end
+    end
+  end
+  local function TargetListRemove()
+    if TargetList ~= nil then
+        for i = #TargetList, 1, -1 do
+            table.remove(TargetList, i)
+        end
+    end
+  end
+  GetTargetList()
+  local SelectTarget = Tabs.pageMain:AddDropdown("SelectTarget", {
+    Title = "Select Target",
+    Values = TargetList,
+    Multi = false,
+    Default = getgenv().Settings.SelectedTarget,
+  })
+  SelectTarget:OnChanged(function(Value)
+    getgenv().Settings.SelectedTarget = Value
+  end)
+  local RefreshTarget = Tabs.pageMain:AddButton({
+    Title = "Refresh Target",
+    Callback = function()
+        local currentSelection = SelectTarget.Value
+            
+        TargetListRemove()
+        GetTargetList()
+        SelectTarget:SetValues(TargetList)
+            
+        if table.find(TargetList, currentSelection) then
+            SelectTarget:SetValue(currentSelection)
+        else
+            SelectTarget:SetValue(TargetList[#TargetList])
+        end
+    end
+  })
+  local SilentAim = Tabs.pageMain:AddToggle("SilentAim", {Title = "SilentAim", Default = false })
 
   --[[FARM]]--------------------------------------------------------
   local FarmList = {}
@@ -476,6 +542,22 @@ do
     end)
   end)
 
+  SilentAim:OnChanged(function()
+    task.spawn(function()
+        while SilentAim.Value do
+            wait()
+            Fluent:Notify({
+                Title = "คำเตือน",
+                Content = "ฟังก์ชั่นนี้ยังไม่เสร็จสมบูรณ์มีความเสี่ยงทางเราจึงปิดไว้ก่อน >:(",
+                Duration = 8
+            })
+            wait(3)
+            SilentAim:SetValue(false)
+            wait(1)
+        end
+    end)
+  end)
+
   ---------------------------------------------------------------------
   local function CreateESP(Target, PlayerName)
     local billboardGui = Instance.new("BillboardGui")
@@ -720,34 +802,44 @@ do
             end
         end
     end
+  end
+
+
+    RunService.Heartbeat:Connect(function()
+        task.spawn(UpdateStatusBars)
+        task.spawn(UpdateESP)
+    end)
+    task.spawn(function()
+        
+    end)
+    -- local mt = getrawmetatable(game)
+    -- setreadonly(mt, false)
+
+    -- local oldNamecall = mt.__namecall
+
+    -- mt.__namecall = newcclosure(function(self, ...)
+    --     local args = {...}
+    --     local method = getnamecallmethod()
+        
+    --     if method == "FireServer" and self.Name == "." then
+    --     args[1] = game.Workspace.tooj1239.Humanoid
+    --     args[2] = "Hit"
+    --     return oldNamecall(self, unpack(args))
+    --     end
+    --     return oldNamecall(self, ...)
+    -- end)
+
+    -- setreadonly(mt, true)
 end
 
+Fluent:Notify({
+    Title = "BLOBBY HUB",
+    Content = "The script has been loaded. Enjoy :>",
+    Duration = 8
+})
 
-  RunService.Heartbeat:Connect(function()
-      task.spawn(UpdateStatusBars)
-      task.spawn(UpdateESP)
-  end)
-end
+Window:SelectTab(1)
 
---------------------------------------------------------
--- local mt = getrawmetatable(game)
--- setreadonly(mt, false)
-
--- local oldNamecall = mt.__namecall
-
--- mt.__namecall = newcclosure(function(self, ...)
---     local args = {...}
---     local method = getnamecallmethod()
-    
---     if method == "FireServer" and self.Name == "." then
---       args[1] = game.Workspace.tooj1239.Humanoid
---       args[2] = "Hit"
---       return oldNamecall(self, unpack(args))
---     end
---     return oldNamecall(self, ...)
--- end)
-
--- setreadonly(mt, true)
 --------------------------------------------------------
 -- local mt = getrawmetatable(game)
 -- setreadonly(mt, false)
