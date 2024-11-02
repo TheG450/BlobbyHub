@@ -560,7 +560,7 @@ do
                                             VirtualInputManager:SendMouseButtonEvent(X + XS, Y + YS, 0, true, Button, 1)
                                             VirtualInputManager:SendMouseButtonEvent(X + XS, Y + YS, 0, false, Button, 1)
                                         else
-                                            local button = game:GetService("Players").LocalPlayer.PlayerGui.shakeui.safezone:FindFirstChild("button")
+                                            local button = game:GetService("Players").LocalPlayer.PlayerGui.shakeui.safezone:FindFirstChild("button") or game:GetService("Players").LocalPlayer.PlayerGui.shakeui.safezone:WaitForChild("button", 5)
                                             GuiService.SelectedObject = button
                                             VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
                                             VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Return, false, game)

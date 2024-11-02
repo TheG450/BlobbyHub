@@ -2,6 +2,7 @@ repeat wait() until game:IsLoaded() and game.Players and game.Players.LocalPlaye
 
 getgenv().Settings = {
   SelectedBlackList = {},
+  SelectedFarmList = {},
 }
 
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
@@ -20,7 +21,8 @@ local Window = Fluent:CreateWindow({
 local Tabs = {
     --[[ Tabs --]]
     pageMain = Window:AddTab({ Title = "Main", Icon = "home" }),
-    pageMiscellaneous = Window:AddTab({ Title = "Miscellaneous", Icon = "component" }),
+    pageFarm = Window:AddTab({ Title = "Farm", Icon = "component" }),
+    pageTeleport = Window:AddTab({ Title = "Teleport", Icon = "map" }),
 }
 
 do
@@ -82,19 +84,41 @@ do
   local ShowHS = Tabs.pageMain:AddToggle("ShowHS", {Title = "ShowHS", Default = false })
   local AutoArmorT = Tabs.pageMain:AddToggle("AutoArmorT", {Title = "AutoArmor(Training)", Default = false })
   local AutoArmor = Tabs.pageMain:AddToggle("AutoArmor", {Title = "AutoArmor(Real)", Default = false })
-  local GotoClub = Tabs.pageMain:AddButton({
+
+  --[[FARM]]--------------------------------------------------------
+  local FarmList = {}
+  local function GetFarmList()
+    for i,v in pairs(game:GetService("Workspace").JOB.JOB.SCRIPT:GetChildren()) do
+        if v:IsA("Folder") then
+            table.insert(FarmList, v.Name)
+        end
+    end
+  end
+  GetFarmList()
+  local SelectJob = Tabs.pageFarm:AddDropdown("SelectJob", {
+    Title = "Select Job",
+    Values = FarmList,
+    Multi = false,
+    Default = FarmList[1],
+  })
+  SelectJob:OnChanged(function(Value)
+    getgenv().Settings.SelectedFarmList = Value
+  end)
+  local AutoFarm = Tabs.pageFarm:AddToggle("AutoFarm", {Title = "AutoFarm", Default = false })
+
+  --[[TELEPORT]]--------------------------------------------------------
+  local GotoClub = Tabs.pageTeleport:AddButton({
     Title = "Goto Club",
     Callback = function()
         game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(3103.40796, 4.45183325, 459.063568, -0.471748948, -3.39322028e-08, 0.881732941, -7.67310411e-08, 1, -2.56946864e-09, -0.881732941, -6.8868431e-08, -0.471748948)
     end
   })
-  local GotoToilet = Tabs.pageMain:AddButton({
+  local GotoToilet = Tabs.pageTeleport:AddButton({
     Title = "Goto Toilet",
     Callback = function()
         game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(416.633087, 4.44164419, -823.257507, 0.692703128, -4.09313827e-09, 0.721222818, 4.84560347e-09, 1, 1.02128395e-09, -0.721222818, 2.78731349e-09, 0.692703128)
     end
   })
-
 
 
   --[[SCRIPTS]]--------------------------------------------------------
@@ -136,6 +160,319 @@ do
               wait(1)
           end
       end
+    end)
+  end)
+
+  AutoFarm:OnChanged(function()
+    task.spawn(function()
+        while AutoFarm.Value do
+            wait()
+            local plr = game:GetService("Players").LocalPlayer
+            if getgenv().Settings.SelectedFarmList == "MangoJOB" then
+                if not plr.Character:FindFirstChild("Basket") then
+                    game:GetService("Lighting").Sky.Optimized:FireServer("Basket", "", "")
+                    wait(.1)
+                else
+                    for i,v in pairs(game:GetService("Workspace").JOB.JOB.SCRIPT.MangoJOB:GetChildren()) do
+                        if v.Name == "Mango" and v.Transparency == 0 and plr.ItemGame.Mango.Value < 30 then
+                            plr.Character.HumanoidRootPart.CFrame = v.CFrame
+                            wait(.1)
+                            game:GetService("ReplicatedStorage").Remote.Main:FireServer("FarmItemGame")
+                        elseif plr.ItemGame.Mango.Value == 30 then
+                            for i,v in pairs(game:GetService("Workspace"):GetChildren()) do
+                                if v.Name == "Stove" and v:FindFirstChild("MangoPackProcess") then
+                                    local Process = v:FindFirstChild("MangoPackProcess") or v:WaitForChild("MangoPackProcess", 5)
+                                    plr.Character.HumanoidRootPart.CFrame = Process.CFrame
+                                    fireproximityprompt(Process.Prompt)
+                                end
+                            end
+                        end
+                    end    
+                end
+            elseif getgenv().Settings.SelectedFarmList == "Coconut" then
+                if not plr.Character:FindFirstChild("Basket") then
+                    game:GetService("Lighting").Sky.Optimized:FireServer("Basket", "", "")
+                    wait(.1)
+                else
+                    for i,v in pairs(game:GetService("Workspace").JOB.JOB.SCRIPT.Coconut:GetChildren()) do
+                        if v.Name == "Coconut" and v.Transparency == 0 and plr.ItemGame.Coconut.Value < 30 then
+                            plr.Character.HumanoidRootPart.CFrame = v.CFrame
+                            wait(.1)
+                            game:GetService("ReplicatedStorage").Remote.Main:FireServer("FarmItemGame")
+                        elseif plr.ItemGame.Coconut.Value == 30 then
+                            for i,v in pairs(game:GetService("Workspace"):GetChildren()) do
+                                if v.Name == "Stove" and v:FindFirstChild("CoconutPackProcess") then
+                                    local Process = v:FindFirstChild("CoconutPackProcess") or v:WaitForChild("CoconutPackProcess", 5)
+                                    plr.Character.HumanoidRootPart.CFrame = Process.CFrame
+                                    fireproximityprompt(Process.Prompt)
+                                end
+                            end
+                        end
+                    end    
+                end
+            elseif getgenv().Settings.SelectedFarmList == "OrangeJOB" then
+                if not plr.Character:FindFirstChild("Basket") then
+                    game:GetService("Lighting").Sky.Optimized:FireServer("Basket", "", "")
+                    wait(.1)
+                else
+                    for i,v in pairs(game:GetService("Workspace").JOB.JOB.SCRIPT.OrangeJOB:GetChildren()) do
+                        if v.Name == "Orange" and v.Transparency == 0 and plr.ItemGame.Orange.Value < 30 then
+                            plr.Character.HumanoidRootPart.CFrame = v.CFrame
+                            wait(.1)
+                            game:GetService("ReplicatedStorage").Remote.Main:FireServer("FarmItemGame")
+                        elseif plr.ItemGame.Orange.Value == 30 then
+                            for i,v in pairs(game:GetService("Workspace"):GetChildren()) do
+                                if v.Name == "Stove" and v:FindFirstChild("OrangePackProcess") then
+                                    local Process = v:FindFirstChild("OrangePackProcess") or v:WaitForChild("OrangePackProcess", 5)
+                                    plr.Character.HumanoidRootPart.CFrame = Process.CFrame
+                                    fireproximityprompt(Process.Prompt)
+                                end
+                            end
+                        end
+                    end    
+                end
+            elseif getgenv().Settings.SelectedFarmList == "StrawberryJOB" then
+                if not plr.Character:FindFirstChild("Basket") then
+                    game:GetService("Lighting").Sky.Optimized:FireServer("Basket", "", "")
+                    wait(.1)
+                else
+                    for i,v in pairs(game:GetService("Workspace").JOB.JOB.SCRIPT.StrawberryJOB:GetChildren()) do
+                        if v.Name == "Strawberry" and v.Transparency == 0 and plr.ItemGame.Strawberry.Value < 30 then
+                            plr.Character.HumanoidRootPart.CFrame = v.CFrame
+                            wait(.1)
+                            game:GetService("ReplicatedStorage").Remote.Main:FireServer("FarmItemGame")
+                        elseif plr.ItemGame.Strawberry.Value == 30 then
+                            for i,v in pairs(game:GetService("Workspace"):GetChildren()) do
+                                if v.Name == "Stove" and v:FindFirstChild("StrawberryPackProcess") then
+                                    local Process = v:FindFirstChild("StrawberryPackProcess") or v:WaitForChild("StrawberryPackProcess", 5)
+                                    plr.Character.HumanoidRootPart.CFrame = Process.CFrame
+                                    fireproximityprompt(Process.Prompt)
+                                end
+                            end
+                        end
+                    end    
+                end
+            elseif getgenv().Settings.SelectedFarmList == "Cow" then
+                if not plr.Character:FindFirstChild("Knife") then
+                    game:GetService("Lighting").Sky.Optimized:FireServer("Knife", "", "")
+                    wait(.1)
+                else
+                    for i,v in pairs(game:GetService("Workspace").JOB.JOB.SCRIPT.Cow:GetChildren()) do
+                        if v.Name == "Meat" and v.Transparency == 0 and plr.ItemGame.Meat.Value < 30 then
+                            plr.Character.HumanoidRootPart.CFrame = v.CFrame
+                            wait(.1)
+                            game:GetService("ReplicatedStorage").Remote.Main:FireServer("FarmItemGame")
+                        elseif plr.ItemGame.Meat.Value == 30 then
+                            for i,v in pairs(game:GetService("Workspace"):GetChildren()) do
+                                if v.Name == "Stove" and v:FindFirstChild("Part") then
+                                    local Process = v:FindFirstChild("Part") or v:WaitForChild("Part", 5)
+                                    plr.Character.HumanoidRootPart.CFrame = Process.CFrame
+                                    fireproximityprompt(Process.MeatProcess)
+                                end
+                            end
+                        end
+                    end
+                end
+            elseif getgenv().Settings.SelectedFarmList == "Wood" then
+                for i,v in pairs(game:GetService("Workspace").JOB.JOB.SCRIPT.Wood:GetChildren()) do
+                    if v.Name == "Wood" and v.Transparency == 0 and plr.ItemGame.Wood.Value < 30 then
+                        plr.Character.HumanoidRootPart.CFrame = v.CFrame
+                        wait(.1)
+                        game:GetService("ReplicatedStorage").Remote.Main:FireServer("FarmItemGame")
+                    elseif plr.ItemGame.Wood.Value == 30 then
+                        for i,v in pairs(game:GetService("Workspace"):GetChildren()) do
+                            if v.Name == "Stove" and v:FindFirstChild("WoodPackProcess") then
+                                local Process = v:FindFirstChild("WoodPackProcess") or v:WaitForChild("WoodPackProcess", 5)
+                                plr.Character.HumanoidRootPart.CFrame = Process.CFrame
+                                fireproximityprompt(Process.Prompt)
+                            end
+                        end
+                    end
+                end
+            elseif getgenv().Settings.SelectedFarmList == "VegetableJOB" then
+                if not plr.Character:FindFirstChild("Basket") then
+                    game:GetService("Lighting").Sky.Optimized:FireServer("Basket", "", "")
+                    wait(.1)
+                else
+                    for i,v in pairs(game:GetService("Workspace").JOB.JOB.SCRIPT.VegetableJOB:GetChildren()) do
+                        if v.Name == "Vegetable" and v.Transparency == 0 and plr.ItemGame.Vegetable.Value < 30 then
+                            plr.Character.HumanoidRootPart.CFrame = v.CFrame
+                            wait(.1)
+                            game:GetService("ReplicatedStorage").Remote.Main:FireServer("FarmItemGame")
+                        elseif plr.ItemGame.Vegetable.Value == 30 then
+                            for i,v in pairs(game:GetService("Workspace"):GetChildren()) do
+                                if v.Name == "Stove" and v:FindFirstChild("VegetablePackProcess") then
+                                    local Process = v:FindFirstChild("VegetablePackProcess") or v:WaitForChild("VegetablePackProcess", 5)
+                                    plr.Character.HumanoidRootPart.CFrame = Process.CFrame
+                                    fireproximityprompt(Process.Prompt)
+                                end
+                            end
+                        end
+                    end    
+                end
+            elseif getgenv().Settings.SelectedFarmList == "Mint" then
+                if not plr.Character:FindFirstChild("Basket") then
+                    game:GetService("Lighting").Sky.Optimized:FireServer("Basket", "", "")
+                    wait(.1)
+                else
+                    for i,v in pairs(game:GetService("Workspace").JOB.JOB.SCRIPT.Mint:GetChildren()) do
+                        if v.Name == "Mint" and v.Transparency == 0 and plr.ItemGame.Mint.Value < 30 then
+                            plr.Character.HumanoidRootPart.CFrame = v.CFrame
+                            wait(.1)
+                            game:GetService("ReplicatedStorage").Remote.Main:FireServer("FarmItemGame")
+                        elseif plr.ItemGame.Mint.Value == 30 then
+                            for i,v in pairs(game:GetService("Workspace"):GetChildren()) do
+                                if v.Name == "Arrow" and v:FindFirstChild("Attachment") then
+                                    local Process = v:FindFirstChild("Attachment") or v:WaitForChild("Attachment", 5)
+                                    plr.Character.HumanoidRootPart.CFrame = Process.CFrame
+                                    fireproximityprompt(Process["Mintpack_Process"])
+                                end
+                            end
+                        end
+                    end    
+                end
+            elseif getgenv().Settings.SelectedFarmList == "Crab" then
+                for i,v in pairs(game:GetService("Workspace").JOB.JOB.SCRIPT.Crab:GetChildren()) do
+                    if v.Name == "Crab" and v.Transparency == 0 and plr.ItemGame.Crab.Value < 30 then
+                        plr.Character.HumanoidRootPart.CFrame = v.CFrame
+                        wait(.1)
+                        game:GetService("ReplicatedStorage").Remote.Main:FireServer("FarmItemGame")
+                    elseif plr.ItemGame.Crab.Value == 30 then
+                        for i,v in pairs(game:GetService("Workspace"):GetChildren()) do
+                            if v.Name == "Stove" and v:FindFirstChild("CrabStickProcess") then
+                                local Process = v:FindFirstChild("CrabStickProcess") or v:WaitForChild("CrabStickProcess", 5)
+                                plr.Character.HumanoidRootPart.CFrame = Process.CFrame
+                                fireproximityprompt(Process.Prompt)
+                            end
+                        end
+                    end
+                end
+            elseif getgenv().Settings.SelectedFarmList == "Garbage" then
+                for i,v in pairs(game:GetService("Workspace").JOB.JOB.SCRIPT.Garbage:GetChildren()) do
+                    if v.Name == "Garbage" and v.Transparency == 0 and plr.ItemGame.Garbage.Value < 30 then
+                        plr.Character.HumanoidRootPart.CFrame = v.CFrame
+                        wait(.1)
+                        game:GetService("ReplicatedStorage").Remote.Main:FireServer("FarmItemGame")
+                    elseif plr.ItemGame.Garbage.Value == 30 then
+                        for i,v in pairs(game:GetService("Workspace"):GetChildren()) do
+                            if v.Name == "Stove" and v:FindFirstChild("GarbagePackProcess") then
+                                local Process = v:FindFirstChild("GarbagePackProcess") or v:WaitForChild("GarbagePackProcess", 5)
+                                plr.Character.HumanoidRootPart.CFrame = Process.CFrame
+                                fireproximityprompt(Process.Prompt)
+                            end
+                        end
+                    end
+                end
+            elseif getgenv().Settings.SelectedFarmList == "Leaf" then
+                for i,v in pairs(game:GetService("Workspace").JOB.JOB.SCRIPT.Leaf:GetChildren()) do
+                    if v.Name == "Leaf" and v.Transparency == 0 and plr.ItemGame.Leaf.Value < 30 then
+                        plr.Character.HumanoidRootPart.CFrame = v.CFrame
+                        wait(.1)
+                        game:GetService("ReplicatedStorage").Remote.Main:FireServer("FarmItemGame")
+                    end
+                end
+            elseif getgenv().Settings.SelectedFarmList == "Miner" then
+                if not plr.Character:FindFirstChild("Pickaxe") then
+                    game:GetService("Lighting").Sky.Optimized:FireServer("Pickaxe", "", "")
+                    wait(.1)
+                else
+                    for i,v in pairs(game:GetService("Workspace").JOB.JOB.SCRIPT.Miner:GetChildren()) do
+                        if v.Name == "Rock" and v.Transparency == 0 and plr.ItemGame.Rock.Value < 30 then
+                            plr.Character.HumanoidRootPart.CFrame = v.CFrame
+                            wait(.1)
+                            game:GetService("ReplicatedStorage").Remote.Main:FireServer("FarmItemGame")
+                        elseif plr.ItemGame.Rock.Value == 30 then
+                            for i,v in pairs(game:GetService("Workspace"):GetChildren()) do
+                                if v.Name == "Process-Others" and v:IsA("BasePart") then
+                                    local Prompt = v:FindFirstChild("Prompt") or v:WaitForChild("Prompt", 5)
+                                    plr.Character.HumanoidRootPart.CFrame = v.CFrame
+                                    fireproximityprompt(Prompt)
+                                end
+                            end
+                        end
+                    end    
+                end
+            elseif getgenv().Settings.SelectedFarmList == "OilBarrel" then
+                for i,v in pairs(game:GetService("Workspace").JOB.JOB.SCRIPT.OilBarrel:GetChildren()) do
+                    if v.Name == "OilBarrel" and v.Transparency == 0 and plr.ItemGame.OilBarrel.Value < 30 then
+                        plr.Character.HumanoidRootPart.CFrame = v.CFrame
+                        wait(.1)
+                        game:GetService("ReplicatedStorage").Remote.Main:FireServer("FarmItemGame")
+                    elseif plr.ItemGame.OilBarrel.Value == 30 then
+                        for i,v in pairs(game:GetService("Workspace"):GetChildren()) do
+                            if v.Name == "Model" and v:FindFirstChild(" ") then
+                                local Process = v:FindFirstChild(" ") or v:WaitForChild(" ", 5)
+                                local Prompt = v:FindFirstChild("OilBarrelProcess") or v:WaitForChild("OilBarrelProcess", 5)
+                                plr.Character.HumanoidRootPart.CFrame = v.CFrame
+                                fireproximityprompt(Prompt)
+                            end
+                        end
+                    end
+                end
+            elseif getgenv().Settings.SelectedFarmList == "RedLeaf" then
+                for i,v in pairs(game:GetService("Workspace").JOB.JOB.SCRIPT.RedLeaf:GetChildren()) do
+                    if v.Name == "RedLeaf" and v.Transparency == 0 and plr.ItemGame.RedLeaf.Value < 30 then
+                        plr.Character.HumanoidRootPart.CFrame = v.CFrame
+                        wait(.1)
+                        game:GetService("ReplicatedStorage").Remote.Main:FireServer("FarmItemGame")
+                    end
+                end
+            elseif getgenv().Settings.SelectedFarmList == "ScrapIron" then
+                for i,v in pairs(game:GetService("Workspace").JOB.JOB.SCRIPT.ScrapIron:GetChildren()) do
+                    if v.Name == "ScrapIron" and v.Transparency == 0 and plr.ItemGame.ScrapIron.Value < 30 then
+                        plr.Character.HumanoidRootPart.CFrame = v.CFrame
+                        wait(.1)
+                        game:GetService("ReplicatedStorage").Remote.Main:FireServer("FarmItemGame")
+                    elseif plr.ItemGame.ScrapIron.Value == 30 then
+                        for i,v in pairs(game:GetService("Workspace"):GetChildren()) do
+                            if v.Name == "Model" and v:FindFirstChild(" ") then
+                                local Process = v:FindFirstChild(" ") or v:WaitForChild(" ", 5)
+                                local Prompt = v:FindFirstChild("SheetSteelProcess") or v:WaitForChild("SheetSteelProcess", 5)
+                                plr.Character.HumanoidRootPart.CFrame = v.CFrame
+                                fireproximityprompt(Prompt)
+                            end
+                        end
+                    end
+                end
+            elseif getgenv().Settings.SelectedFarmList == "Tresure" then
+                for i,v in pairs(game:GetService("Workspace").JOB.JOB.SCRIPT.Tresure:GetChildren()) do
+                    if v.Name == "Tresure" and v.Transparency == 0 and plr.ItemGame.Tresure.Value < 30 then
+                        plr.Character.HumanoidRootPart.CFrame = v.CFrame
+                        wait(.1)
+                        game:GetService("ReplicatedStorage").Remote.Main:FireServer("FarmItemGame")
+                    elseif plr.ItemGame.Tresure.Value == 30 then
+                        for i,v in pairs(game:GetService("Workspace"):GetChildren()) do
+                            if v.Name == "Process-Tresure" and v:IsA("BasePart") then
+                                local Prompt = v:FindFirstChild("Prompt") or v:WaitForChild("Prompt", 5)
+                                plr.Character.HumanoidRootPart.CFrame = Process.CFrame
+                                fireproximityprompt(Prompt)
+                            end
+                        end
+                    end
+                end
+            elseif getgenv().Settings.SelectedFarmList == "BananaJOB" then
+                if not plr.Character:FindFirstChild("Basket") then
+                    game:GetService("Lighting").Sky.Optimized:FireServer("Basket", "", "")
+                    wait(.1)
+                else
+                    for i,v in pairs(game:GetService("Workspace").JOB.JOB.SCRIPT.BananaJOB:GetChildren()) do
+                        if v.Name == "Banana" and v.Transparency == 0 and plr.ItemGame.Banana.Value < 30 then
+                            plr.Character.HumanoidRootPart.CFrame = v.CFrame
+                            wait(.1)
+                            game:GetService("ReplicatedStorage").Remote.Main:FireServer("FarmItemGame")
+                        elseif plr.ItemGame.Banana.Value == 30 then
+                            for i,v in pairs(game:GetService("Workspace"):GetChildren()) do
+                                if v.Name == "Stove" and v:FindFirstChild("BananaPackProcess") then
+                                    local Process = v:FindFirstChild("BananaPackProcess") or v:WaitForChild("BananaPackProcess", 5)
+                                    plr.Character.HumanoidRootPart.CFrame = Process.CFrame
+                                    fireproximityprompt(Process.Prompt)
+                                end
+                            end
+                        end
+                    end    
+                end
+            end
+        end
     end)
   end)
 
@@ -429,30 +766,3 @@ end
 -- end)
 
 -- setreadonly(mt, true)
-
-
--- _G.A = true
--- while _G.A == true do
---     wait()
---     local plr = game:GetService("Players").LocalPlayer
---     if not plr.Character:FindFirstChild("Basket") then
---         game:GetService("Lighting").Sky.Optimized:FireServer("Basket", "", "")
---         wait(.1)
---     else
---         for i,v in pairs(game:GetService("Workspace").JOB.JOB.SCRIPT.MangoJOB:GetChildren()) do
---             if v.Name == "Mango" and v.Transparency == 0 and plr.ItemGame.Mango.Value < 30 then
---                 plr.Character.HumanoidRootPart.CFrame = v.CFrame
---                 wait(.1)
---                 game:GetService("ReplicatedStorage").Remote.Main:FireServer("FarmItemGame")
---             elseif plr.ItemGame.Mango.Value == 30 then
---                 for i,v in pairs(game:GetService("Workspace"):GetChildren()) do
---                     if v.Name == "Stove" and v:FindFirstChild("MangoPackProcess") then
---                         local Process = v:FindFirstChild("MangoPackProcess") or v:WaitForChild("MangoPackProcess", 5)
---                         plr.Character.HumanoidRootPart.CFrame = Process.CFrame
---                         fireproximityprompt(Process.Prompt)
---                     end
---                 end
---             end
---         end    
---     end
--- end
