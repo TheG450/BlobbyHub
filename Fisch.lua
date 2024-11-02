@@ -635,7 +635,7 @@ do
                                             VirtualInputManager:SendMouseButtonEvent(X + XS, Y + YS, 0, true, Button, 1)
                                             VirtualInputManager:SendMouseButtonEvent(X + XS, Y + YS, 0, false, Button, 1)
                                         else
-                                            local button = game:GetService("Players").LocalPlayer.PlayerGui.shakeui.safezone:FindFirstChild("button")
+                                            local button = game:GetService("Players").LocalPlayer.PlayerGui.shakeui.safezone:FindFirstChild("button") or game:GetService("Players").LocalPlayer.PlayerGui.shakeui.safezone:WaitForChild("button", 5)
                                             GuiService.SelectedObject = button
                                             VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
                                             VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
@@ -651,8 +651,8 @@ do
                             if character[getgenv().Settings.Rod].values.bite.Value == true and character[getgenv().Settings.Rod].values.casted.Value == true and character[getgenv().Settings.Rod]:FindFirstChild("bobber") and character[getgenv().Settings.Rod].values.bobberzone.Value ~= "" then
                                 pcall(function()
                                     GuiService.SelectedObject = nil
-                                    local fish = game:GetService("Players").LocalPlayer.PlayerGui.reel.bar:WaitForChild("fish")
-                                    local playerbar = game:GetService("Players").LocalPlayer.PlayerGui.reel.bar:WaitForChild("playerbar")
+                                    local fish = game:GetService("Players").LocalPlayer.PlayerGui.reel.bar:FindFirstChild("fish") or game:GetService("Players").LocalPlayer.PlayerGui.reel.bar:WaitForChild("fish", 5)
+                                    local playerbar = game:GetService("Players").LocalPlayer.PlayerGui.reel.bar:FindFirstChild("playerbar") or game:GetService("Players").LocalPlayer.PlayerGui.reel.bar:WaitForChild("playerbar", 5)
                                     coroutine.wrap(function()
                                         playerbar.Position = fish.Position
                                     end)()
