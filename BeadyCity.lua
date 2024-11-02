@@ -419,14 +419,14 @@ do
                 end
             elseif getgenv().Settings.SelectedFarmList == "ScrapIron" then
                 for i,v in pairs(game:GetService("Workspace").JOB.JOB.SCRIPT.ScrapIron:GetChildren()) do
-                    if v.Name == "ScrapIron" and v.Transparency == 0 and plr.ItemGame.ScrapIron.Value < 30 then
+                    if v.Name == "ScrapIron" and v.Transparency == 0 and plr.ItemGame.ScrapIron.Value < 60 then
                         plr.Character.HumanoidRootPart.CFrame = v.CFrame
                         wait(.1)
                         game:GetService("ReplicatedStorage").Remote.Main:FireServer("FarmItemGame")
-                    elseif plr.ItemGame.ScrapIron.Value == 30 then
+                    elseif plr.ItemGame.ScrapIron.Value == 60 then
                         for i,v in pairs(game:GetService("Workspace"):GetChildren()) do
-                            if v.Name == "Model" and v:FindFirstChild(" ") then
-                                local Process = v:FindFirstChild(" ") or v:WaitForChild(" ", 5)
+                            if v.Name == "Model" and v:FindFirstChild("") then
+                                local Process = v:FindFirstChild("") or v:WaitForChild("", 5)
                                 local Prompt = v:FindFirstChild("SheetSteelProcess") or v:WaitForChild("SheetSteelProcess", 5)
                                 plr.Character.HumanoidRootPart.CFrame = v.CFrame
                                 fireproximityprompt(Prompt)
