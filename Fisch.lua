@@ -576,8 +576,8 @@ do
                                 pcall(function()
                                     if getgenv().Settings.RealFinish == true then
                                         GuiService.SelectedObject = nil
-                                        local fish = game:GetService("Players").LocalPlayer.PlayerGui.reel.bar:WaitForChild("fish")
-                                        local playerbar = game:GetService("Players").LocalPlayer.PlayerGui.reel.bar:WaitForChild("playerbar")
+                                        local fish = game:GetService("Players").LocalPlayer.PlayerGui.reel.bar:FindFirstChild("fish") or game:GetService("Players").LocalPlayer.PlayerGui.reel.bar:WaitForChild("fish", 5)
+                                        local playerbar = game:GetService("Players").LocalPlayer.PlayerGui.reel.bar:FindFirstChild("playerbar") or game:GetService("Players").LocalPlayer.PlayerGui.reel.bar:WaitForChild("playerbar", 5)
                                         local function fireReelFinished()
                                             game:GetService("ReplicatedStorage").events.reelfinished:FireServer(100, true)
                                         end
