@@ -11,8 +11,58 @@ getgenv().Settings = {
     Zone = nil,
     ZoneE = {},
     UseZone = nil,
+    CageCount = nil,
 }
+
+local function CreateMobileUI()
+    local blobbyGui = Instance.new("ScreenGui")
+    blobbyGui.Name = "BlobbyGui"
+    blobbyGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    blobbyGui.Parent = game.Players.LocalPlayer.PlayerGui
+
+    local mainFrame = Instance.new("Frame")
+    mainFrame.Name = "MainFrame"
+    mainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+    mainFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    mainFrame.BackgroundTransparency = 1
+    mainFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    mainFrame.BorderSizePixel = 0
+    mainFrame.Position = UDim2.fromScale(0.0611, 0.255)
+    mainFrame.Size = UDim2.fromScale(0.0547, 0.109)
+
+    local oCButton = Instance.new("ImageButton")
+    oCButton.Name = "OCButton"
+    oCButton.Image = "rbxassetid://125742484700391"
+    oCButton.AnchorPoint = Vector2.new(0.5, 0.5)
+    oCButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    oCButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    oCButton.BorderSizePixel = 0
+    oCButton.Position = UDim2.fromScale(0.513, 0.487)
+    oCButton.Size = UDim2.fromScale(1, 1)
+
+    local uICorner = Instance.new("UICorner")
+    uICorner.Name = "UICorner"
+    uICorner.CornerRadius = UDim.new(1, 0)
+    uICorner.Parent = oCButton
+
+    local uIStroke = Instance.new("UIStroke")
+    uIStroke.Name = "UIStroke"
+    uIStroke.Thickness = 2
+    uIStroke.Parent = oCButton
+
+    oCButton.Parent = mainFrame
+
+    local uIAspectRatioConstraint = Instance.new("UIAspectRatioConstraint")
+    uIAspectRatioConstraint.Name = "UIAspectRatioConstraint"
+    uIAspectRatioConstraint.Parent = mainFrame
+
+    mainFrame.Parent = blobbyGui
+
+    return oCButton
+end
+
 local Device;
+local oCButton
 
 local Players = game:GetService("Players")
 local function checkDevice()
@@ -21,6 +71,7 @@ local function checkDevice()
         local UserInputService = game:GetService("UserInputService")
         
         if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then
+            oCButton = CreateMobileUI()
             Device = UDim2.fromOffset(480, 360)
         else
             Device = UDim2.fromOffset(580, 460)
@@ -37,13 +88,25 @@ local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/d
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
 local Window = Fluent:CreateWindow({
-    Title = "Blobby Hub" .. " | ".."Fisch".." | ".."[Free Version]",
+    Title = "Blobby Hub" .. " | ".."[🐟] Fisch".." | ".."[Free Version]",
     TabWidth = 160,
     Size =  Device, --UDim2.fromOffset(480, 360), --default size (580, 460)
     Acrylic = false, -- การเบลออาจตรวจจับได้ การตั้งค่านี้เป็น false จะปิดการเบลอทั้งหมด
     Theme = "Amethyst", --Amethyst
     MinimizeKey = Enum.KeyCode.LeftControl
 })
+
+if oCButton then
+    oCButton.MouseButton1Click:Connect(function()
+        local fluentUi = game:GetService("CoreGui"):FindFirstChild("ScreenGui") or game:GetService("CoreGui"):WaitForChild("ScreenGui", 5)
+        for i,v in pairs(fluentUi:GetChildren()) do
+            if v.Name == "Frame" and v:FindFirstChild("CanvasGroup") then
+                local EN = not v.Visible
+                v.Visible = EN
+            end
+        end
+    end)
+end
 
 local Tabs = {
     --[[ Tabs --]]
@@ -192,6 +255,22 @@ do
             end)
         end
     })
+    local Cage = Tabs.pageMain:AddSection("Cage")
+    local InputCage = Tabs.pageMain:AddInput("InputCage", {
+        Title = "Input Cage",
+        Default = 1,
+        Placeholder = "Number Of CrabCages Required",
+        Numeric = true, -- Only allows numbers
+        Finished = false, -- Only calls callback when you press enter
+        Callback = function(Value)
+            getgenv().Settings.CageCount = Value
+        end
+    })
+    InputCage:OnChanged(function(value)
+        getgenv().Settings.CageCount = value
+    end)
+    local AutoDeepslateCage = Tabs.pageMain:AddToggle("AutoDeepslateCage", {Title = "Auto Deepslate Cage", Default = false })
+    local Bait = Tabs.pageMain:AddSection("Bait")
     local AutoEquipBait = Tabs.pageMain:AddToggle("AutoEquipBait", {Title = "Auto Equip Bait", Default = false })
     local BaitList = {}
     local BaitEquiped = false
@@ -240,6 +319,7 @@ do
             end
         end
     })
+    local Position = Tabs.pageMain:AddSection("Position")
     local SavePosition = Tabs.pageMain:AddButton({
         Title = "Save Farm Position",
         Description = "Auto Fish Farm Position",
@@ -314,6 +394,7 @@ do
             })
         end
     })
+    local Code = Tabs.pageMain:AddSection("Code")
     local Redeem = Tabs.pageMain:AddButton({
         Title = "Redeem Codes",
         Description = "Redeem All Codes",
@@ -1044,6 +1125,114 @@ do
             end
             
         end)
+    end)
+
+    AutoDeepslateCage:OnChanged(function()
+        task.spawn(function()
+            local TargetCage = tonumber(getgenv().Settings.CageCount)
+            local TargetDone, DeployCage, CollectedCage = false, false, false
+            local CageCount, Stack = 0, 0
+        
+            -- Function to fire the purchase proximity prompt
+            local function firePurchasePrompt()
+                for _, v in pairs(game:GetService("Workspace").world.interactables["Crab Cage"]:GetChildren()) do
+                    if v.Name == "Crab Cage" and v:FindFirstChild("purchaserompt") then
+                        local Prompt = v:FindFirstChild("purchaserompt") or v:WaitForChild("purchaserompt", 5)
+                        fireproximityprompt(Prompt)
+                        wait(0.1)
+                        
+                        local confirm = game.Players.LocalPlayer.PlayerGui.over:FindFirstChild("prompt") or game.Players.LocalPlayer.PlayerGui.over:WaitForChild("prompt", 5)
+                        if confirm and confirm.confirm then
+                            for _, connection in pairs(getconnections(confirm.confirm.MouseButton1Click)) do
+                                connection:Fire()
+                            end
+                        end
+                        
+                        CageCount = CageCount + 1
+                        if CageCount >= TargetCage then
+                            return true
+                        end
+                    end
+                end
+                return false
+            end
+        
+            -- Main loop
+            while AutoDeepslateCage.Value do
+                wait()
+        
+                -- Check if cages need to be purchased
+                if CageCount <= Stack and not TargetDone then
+                    -- Teleport player to the purchasing area
+                    game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(473.716766, 150.5, 233.30127, 0.94915241, 1.66443108e-08, -0.314816982, -2.53618833e-08, 1, -2.35946018e-08, 0.314816982, 3.03792227e-08, 0.94915241)
+        
+                    -- Check if player has "Crab Cage" in their backpack
+                    local Cage = game.Players.LocalPlayer.Backpack:FindFirstChild("Crab Cage")
+                    
+                    if Cage then
+                        for _, v in pairs(Cage:GetChildren()) do
+                            if v.Name == "link" and v:IsA("ObjectValue") then
+                                local link = v.Value
+                                Stack = game:GetService("ReplicatedStorage").playerstats[tostring(game.Players.LocalPlayer.Name)].Inventory[tostring(link)].Stack.Value
+        
+                                if Stack < TargetCage then
+                                    if firePurchasePrompt() then break end
+                                else
+                                    TargetDone = true
+                                end
+                            end
+                        end
+                    else
+                        firePurchasePrompt()
+                    end
+        
+                elseif TargetDone then
+                    -- Deploying cages at the target location
+                    local character = game.Players.LocalPlayer.Character
+                    character.HumanoidRootPart.CFrame = CFrame.new(-1493.62708, -234.720276, -2841.39233, 0.0534974858, 2.14500648e-08, -0.998567998, -7.62446533e-08, 1, 1.73960792e-08, 0.998567998, 7.52048237e-08, 0.0534974858)
+        
+                    if not DeployCage then
+                        -- Equip "Crab Cage" tool if not equipped
+                        if not character:FindFirstChild("Crab Cage") then
+                            for _, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+                                if v.Name == "Crab Cage" and v:IsA("Tool") then
+                                    character.Humanoid:EquipTool(v)
+                                end
+                            end
+                        else
+                            local maxCage = Stack + 100
+                            for i = 1, maxCage do
+                                pcall(function()
+                                    local deployCageData = {
+                                        ["CFrame"] = CFrame.new(-1547.14368, -240, -2889.92944, 0.960073829, -1.87343705e-08, 0.27974683, 9.54339896e-09, 1, 3.42166615e-08, -0.27974683, -3.01807859e-08, 0.960073829)
+                                    }
+                                    game:GetService("Players").LocalPlayer.Character["Crab Cage"].Deploy:FireServer(deployCageData)
+                                end)
+                            end
+                            DeployCage = true
+                        end
+                    end
+        
+                    -- Collect cages if available
+                    if not CollectedCage then
+                        for _, v in pairs(game:GetService("Workspace").active:GetChildren()) do
+                            if v.Name == game.Players.LocalPlayer.Name and v:FindFirstChild("Prompt") then
+                                local Prompt = v:FindFirstChild("Prompt") or v:WaitForChild("Prompt", 5)
+                                if v.Enabled then
+                                    fireproximityprompt(Prompt)
+                                else
+                                    wait(0.1)
+                                end
+                            else
+                                -- Reset variables for next round
+                                Stack, CageCount = 0, 0
+                                TargetDone, DeployCage, CollectedCage = false, false, false
+                            end
+                        end
+                    end
+                end
+            end
+        end)        
     end)
 end
 
