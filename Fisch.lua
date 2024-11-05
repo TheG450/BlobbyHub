@@ -276,6 +276,12 @@ do
             InputCage:SetValue(tostring(MaxCages))
         end
     })
+    local TeleportToDeepslate = Tabs.pageMain:AddButton({
+        Title = "Teleport to Deepslate",
+        Callback = function()
+            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-1655.48938, -213.679398, -2846.83496, 0.574203014, -1.61517448e-08, 0.81871295, -3.60255825e-08, 1, 4.49946995e-08, -0.81871295, -5.53307018e-08, 0.574203014)
+        end
+    })
     local AutoBuyCrabCage = Tabs.pageMain:AddToggle("AutoBuyCrabCage", {Title = "Auto Buy CrabCage", Default = false })
     local AutoDeployCage = Tabs.pageMain:AddToggle("AutoDeployCage", {Title = "Auto Deploy Cage", Default = false })
     local AutoCollectCage = Tabs.pageMain:AddToggle("AutoCollectCage", {Title = "Auto Collect Cage", Default = false })
@@ -1177,7 +1183,7 @@ do
                     if game:GetService("ReplicatedStorage").playerstats[tostring(game.Players.LocalPlayer.Name)].Stats.coins.Value >= Calculator then
                         pcall(function()
                             game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(473.716766, 150.5, 233.30127, 0.94915241, 1.66443108e-08, -0.314816982, -2.53618833e-08, 1, -2.35946018e-08, 0.314816982, 3.03792227e-08, 0.94915241)
-                            wait(.1)
+                            wait()
                             local CageShow = game:GetService("Workspace").world.interactables:FindFirstChild("Crab Cage") or game:GetService("Workspace").world.interactables:WaitForChild("Crab Cage", 5)
                             firePurchasePrompt()
                             CurrectCage = CurrectCage + 1
@@ -1230,6 +1236,7 @@ do
                             local Prompt = v.Prompt
                             if Prompt.Enabled == true then
                                 fireproximityprompt(Prompt)
+                                wait(.1)
                             else
                                 wait(.1)
                             end
