@@ -1212,14 +1212,6 @@ do
                         if v.Name == "Crab Cage" and v:IsA("Tool") then
                             game.Players.LocalPlayer.Character.Humanoid:EquipTool(v)
                             wait(.1)
-                        else
-                            Fluent:Notify({
-                                Title = "BLOBBY HUB",
-                                Content = "Your Dont have Cages!.",
-                                Duration = 5
-                            })
-                            AutoDeployCage:SetValue(false)
-                            break
                         end
                     end
                 end
@@ -1232,22 +1224,15 @@ do
             while AutoCollectCage.Value do
                 local PlayerName = game.Players.LocalPlayer.Name
                 pcall(function()
+                    local PlayerName = game.Players.LocalPlayer.Name
                     for i,v in pairs(game:GetService("Workspace").active:GetChildren()) do
                         if v.Name == PlayerName and v:FindFirstChild("Prompt") then
                             local Prompt = v.Prompt
                             if Prompt.Enabled == true then
-                                fireproximityprompt(Prompt) 
+                                fireproximityprompt(Prompt)
                             else
                                 wait(.1)
                             end
-                        else
-                            Fluent:Notify({
-                                Title = "BLOBBY HUB",
-                                Content = "Cant Find Your Cages In Map.",
-                                Duration = 5
-                            })
-                            AutoCollectCage:SetValue(false)
-                            break
                         end
                     end
                 end)
