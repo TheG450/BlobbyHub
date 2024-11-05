@@ -269,7 +269,16 @@ do
     InputCage:OnChanged(function(value)
         getgenv().Settings.CageCount = value
     end)
-    local AutoDeepslateCage = Tabs.pageMain:AddToggle("AutoDeepslateCage", {Title = "Auto Deepslate Cage", Default = false })
+    local CalculateMaxCages = Tabs.pageMain:AddButton({
+        Title = "Calculate Max Cages",
+        Callback = function()
+            local MaxCages = game:GetService("ReplicatedStorage").playerstats[tostring(game.Players.LocalPlayer.Name)].Stats.coins.Value / 45
+            InputCage:SetValue(tostring(MaxCages))
+        end
+    })
+    local AutoBuyCrabCage = Tabs.pageMain:AddToggle("AutoBuyCrabCage", {Title = "Auto Buy CrabCage", Default = false })
+    local AutoDeployCage = Tabs.pageMain:AddToggle("AutoDeployCage", {Title = "Auto Deploy Cage", Default = false })
+    local AutoCollectCage = Tabs.pageMain:AddToggle("AutoCollectCage", {Title = "Auto Collect Cage", Default = false })
     local Bait = Tabs.pageMain:AddSection("Bait")
     local AutoEquipBait = Tabs.pageMain:AddToggle("AutoEquipBait", {Title = "Auto Equip Bait", Default = false })
     local BaitList = {}
@@ -757,6 +766,9 @@ do
                                         playerbar:GetPropertyChangedSignal("Position"):Wait()
                                         game:GetService("ReplicatedStorage").events.reelfinished:FireServer(100, true)
                                     end
+                                    coroutine.wrap(function()
+                                        playerbar.Position = fish.Position
+                                    end)()
                                     character.HumanoidRootPart.Anchored = false
                                     wait(.5)
                                 end)
@@ -1127,13 +1139,11 @@ do
         end)
     end)
 
-    AutoDeepslateCage:OnChanged(function()
+    AutoBuyCrabCage:OnChanged(function()
         task.spawn(function()
             local TargetCage = tonumber(getgenv().Settings.CageCount)
-            local TargetDone, DeployCage, CollectedCage = false, false, false
-            local CageCount, Stack = 0, 0
-        
-            -- Function to fire the purchase proximity prompt
+            local CurrectCage = 0
+
             local function firePurchasePrompt()
                 for _, v in pairs(game:GetService("Workspace").world.interactables["Crab Cage"]:GetChildren()) do
                     if v.Name == "Crab Cage" and v:FindFirstChild("purchaserompt") then
@@ -1147,92 +1157,102 @@ do
                                 connection:Fire()
                             end
                         end
-                        
-                        CageCount = CageCount + 1
-                        if CageCount >= TargetCage then
-                            return true
-                        end
                     end
                 end
-                return false
             end
         
             -- Main loop
-            while AutoDeepslateCage.Value do
+            while AutoBuyCrabCage.Value do
                 wait()
-        
-                -- Check if cages need to be purchased
-                if CageCount <= Stack and not TargetDone then
-                    -- Teleport player to the purchasing area
-                    game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(473.716766, 150.5, 233.30127, 0.94915241, 1.66443108e-08, -0.314816982, -2.53618833e-08, 1, -2.35946018e-08, 0.314816982, 3.03792227e-08, 0.94915241)
-        
-                    -- Check if player has "Crab Cage" in their backpack
-                    local Cage = game.Players.LocalPlayer.Backpack:FindFirstChild("Crab Cage")
-                    
-                    if Cage then
-                        for _, v in pairs(Cage:GetChildren()) do
-                            if v.Name == "link" and v:IsA("ObjectValue") then
-                                local link = v.Value
-                                Stack = game:GetService("ReplicatedStorage").playerstats[tostring(game.Players.LocalPlayer.Name)].Inventory[tostring(link)].Stack.Value
-        
-                                if Stack < TargetCage then
-                                    if firePurchasePrompt() then break end
-                                else
-                                    TargetDone = true
-                                end
-                            end
-                        end
+                if CurrectCage >= TargetCage then
+                    Fluent:Notify({
+                        Title = "BLOBBY HUB",
+                        Content = "Bought "..TargetCage.." Cages Done!.",
+                        Duration = 5
+                    })
+                    AutoBuyCrabCage:SetValue(false)
+                    wait(1)
+                else
+                    local Calculator = TargetCage * 45
+                    if game:GetService("ReplicatedStorage").playerstats[tostring(game.Players.LocalPlayer.Name)].Stats.coins.Value >= Calculator then
+                        pcall(function()
+                            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(473.716766, 150.5, 233.30127, 0.94915241, 1.66443108e-08, -0.314816982, -2.53618833e-08, 1, -2.35946018e-08, 0.314816982, 3.03792227e-08, 0.94915241)
+                            wait(.1)
+                            local CageShow = game:GetService("Workspace").world.interactables:FindFirstChild("Crab Cage") or game:GetService("Workspace").world.interactables:WaitForChild("Crab Cage", 5)
+                            firePurchasePrompt()
+                            CurrectCage = CurrectCage + 1
+                        end)
                     else
-                        firePurchasePrompt()
-                    end
-        
-                elseif TargetDone then
-                    -- Deploying cages at the target location
-                    local character = game.Players.LocalPlayer.Character
-                    character.HumanoidRootPart.CFrame = CFrame.new(-1493.62708, -234.720276, -2841.39233, 0.0534974858, 2.14500648e-08, -0.998567998, -7.62446533e-08, 1, 1.73960792e-08, 0.998567998, 7.52048237e-08, 0.0534974858)
-        
-                    if not DeployCage then
-                        -- Equip "Crab Cage" tool if not equipped
-                        if not character:FindFirstChild("Crab Cage") then
-                            for _, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
-                                if v.Name == "Crab Cage" and v:IsA("Tool") then
-                                    character.Humanoid:EquipTool(v)
-                                end
-                            end
-                        else
-                            local maxCage = Stack + 100
-                            for i = 1, maxCage do
-                                pcall(function()
-                                    local deployCageData = {
-                                        ["CFrame"] = CFrame.new(-1547.14368, -240, -2889.92944, 0.960073829, -1.87343705e-08, 0.27974683, 9.54339896e-09, 1, 3.42166615e-08, -0.27974683, -3.01807859e-08, 0.960073829)
-                                    }
-                                    game:GetService("Players").LocalPlayer.Character["Crab Cage"].Deploy:FireServer(deployCageData)
-                                end)
-                            end
-                            DeployCage = true
-                        end
-                    end
-        
-                    -- Collect cages if available
-                    if not CollectedCage then
-                        for _, v in pairs(game:GetService("Workspace").active:GetChildren()) do
-                            if v.Name == game.Players.LocalPlayer.Name and v:FindFirstChild("Prompt") then
-                                local Prompt = v:FindFirstChild("Prompt") or v:WaitForChild("Prompt", 5)
-                                if v.Enabled then
-                                    fireproximityprompt(Prompt)
-                                else
-                                    wait(0.1)
-                                end
-                            else
-                                -- Reset variables for next round
-                                Stack, CageCount = 0, 0
-                                TargetDone, DeployCage, CollectedCage = false, false, false
-                            end
-                        end
+                        Fluent:Notify({
+                            Title = "BLOBBY HUB",
+                            Content = "Your Dont have Coins For "..TargetCage.." Cages!.",
+                            Duration = 5
+                        })
+                        AutoBuyCrabCage:SetValue(false)
+                        break
                     end
                 end
             end
         end)        
+    end)
+
+    AutoDeployCage:OnChanged(function()
+        task.spawm(function()
+            while AutoDeployCage.Value do
+                wait()
+                if game.Players.LocalPlayer.Character:FindFirstChild("Crab Cage") then
+                    pcall(function()
+                        local ohTable1 = {
+                            ["CFrame"] = CFrame.new(335.498871, 126.5, 206.808578, 0.773450553, -1.46618362e-08, 0.633856595, 1.47070112e-09, 1, 2.13365627e-08, -0.633856595, -1.55705635e-08, 0.773450553)
+                        }
+                        game.Players.LocalPlayer.Character["Crab Cage"].Deploy:FireServer(ohTable1)
+                    end)
+                else
+                    for i,v in pairs(game:GetService("Players").LocalPlayer.Backpack:GetChildren()) do
+                        if v.Name == "Crab Cage" and v:IsA("Tool") then
+                            game.Players.LocalPlayer.Character.Humanoid:EquipTool(v)
+                            wait(.1)
+                        else
+                            Fluent:Notify({
+                                Title = "BLOBBY HUB",
+                                Content = "Your Dont have Cages!.",
+                                Duration = 5
+                            })
+                            AutoDeployCage:SetValue(false)
+                            break
+                        end
+                    end
+                end
+            end
+        end)
+    end)
+
+    AutoCollectCage:OnChanged(function()
+        task.spawn(function()
+            while AutoCollectCage.Value do
+                local PlayerName = game.Players.LocalPlayer.Name
+                pcall(function()
+                    for i,v in pairs(game:GetService("Workspace").active:GetChildren()) do
+                        if v.Name == PlayerName and v:FindFirstChild("Prompt") then
+                            local Prompt = v.Prompt
+                            if Prompt.Enabled == true then
+                                fireproximityprompt(Prompt) 
+                            else
+                                wait(.1)
+                            end
+                        else
+                            Fluent:Notify({
+                                Title = "BLOBBY HUB",
+                                Content = "Cant Find Your Cages In Map.",
+                                Duration = 5
+                            })
+                            AutoCollectCage:SetValue(false)
+                            break
+                        end
+                    end
+                end)
+            end
+        end)
     end)
 end
 
