@@ -1197,7 +1197,7 @@ do
     end)
 
     AutoDeployCage:OnChanged(function()
-        task.spawm(function()
+        task.spawn(function()
             while AutoDeployCage.Value do
                 wait()
                 if game.Players.LocalPlayer.Character:FindFirstChild("Crab Cage") then
