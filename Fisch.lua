@@ -1228,6 +1228,7 @@ do
     AutoCollectCage:OnChanged(function()
         task.spawn(function()
             while AutoCollectCage.Value do
+                wait()
                 local PlayerName = game.Players.LocalPlayer.Name
                 pcall(function()
                     local PlayerName = game.Players.LocalPlayer.Name
