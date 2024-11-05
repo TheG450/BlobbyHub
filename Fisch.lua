@@ -282,6 +282,14 @@ do
             game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-1655.48938, -213.679398, -2846.83496, 0.574203014, -1.61517448e-08, 0.81871295, -3.60255825e-08, 1, 4.49946995e-08, -0.81871295, -5.53307018e-08, 0.574203014)
         end
     })
+    local BuyLuck = Tabs.pageMain:AddButton({
+        Title = "Buy Luck",
+        Callback = function()
+            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-930.627136, 223.783569, -988.325378, 0.950611174, 7.35006767e-09, -0.310384303, -2.37664355e-09, 1, 1.64016143e-08, 0.310384303, -1.48538852e-08, 0.950611174)
+            wait(2)
+            game.Workspace.world.npcs.Merlin.Merlin.luck:InvokeServer()
+        end
+    })
     local AutoBuyCrabCage = Tabs.pageMain:AddToggle("AutoBuyCrabCage", {Title = "Auto Buy CrabCage", Default = false })
     local AutoDeployCage = Tabs.pageMain:AddToggle("AutoDeployCage", {Title = "Auto Deploy Cage", Default = false })
     local AutoCollectCage = Tabs.pageMain:AddToggle("AutoCollectCage", {Title = "Auto Collect Cage", Default = false })
@@ -517,6 +525,35 @@ do
                 end
                 return namecall(self,...)
             end)
+        end
+    })
+    local LowGraphic = Tabs.pageMiscellaneous:AddButton({
+        Title = "Low Graphic",
+        Callback = function()
+            _G.Settings = {
+                Players = {
+                    ["Ignore Me"] = true,
+                    ["Ignore Others"] = true
+                },
+                Meshes = {
+                    Destroy = true,
+                    LowDetail = true
+                },
+                Images = {
+                    Invisible = true,
+                    LowDetail = true,
+                    Destroy = true,
+                },
+                ["No Particles"] = true,
+                ["No Camera Effects"] = true,
+                ["No Explosions"] = true,
+                ["No Clothes"] = true,
+                ["Low Water Graphics"] = true,
+                ["No Shadows"] = true,
+                ["Low Rendering"] = true,
+                ["Low Quality Parts"] = true
+            }
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/CasperFlyModz/discord.gg-rips/main/FPSBooster.lua"))()
         end
     })
     local Noclip = Tabs.pageMiscellaneous:AddToggle("Noclip", {Title = "Noclip", Default = false })
