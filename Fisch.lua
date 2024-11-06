@@ -12,6 +12,7 @@ getgenv().Settings = {
     ZoneE = {},
     UseZone = nil,
     CageCount = nil,
+    DeployCage = nil,
 }
 
 local function CreateMobileUI()
@@ -270,6 +271,32 @@ do
         getgenv().Settings.CageCount = value
     end)
     local AutoBuyCrabCage = Tabs.pageMain:AddToggle("AutoBuyCrabCage", {Title = "Auto Buy CrabCage", Default = false })
+    local InputDCage = Tabs.pageMain:AddInput("InputDCage", {
+        Title = "Input Deploy Cage",
+        Default = 1,
+        Placeholder = "Number To Deploy",
+        Numeric = true,
+        Finished = false,
+        Callback = function(Value)
+            getgenv().Settings.DeployCage = Value
+        end
+    })
+    InputDCage:OnChanged(function(value)
+        getgenv().Settings.DeployCage = value
+    end)
+    local DeployCageButton = Tabs.pageMain:AddButton({
+        Title = "Deply Cage(Manual)",
+        Callback = function()
+            for i=1, tonumber(getgenv().Settings.DeployCage) do
+                pcall(function()
+                    local ohTable1 = {
+                        ["CFrame"] = CFrame.new(335.498871, 126.5, 206.808578, 0.773450553, -1.46618362e-08, 0.633856595, 1.47070112e-09, 1, 2.13365627e-08, -0.633856595, -1.55705635e-08, 0.773450553)
+                    }
+                    game.Players.LocalPlayer.Character["Crab Cage"].Deploy:FireServer(ohTable1)
+                end)
+            end
+        end
+    })
     local AutoDeployCage = Tabs.pageMain:AddToggle("AutoDeployCage", {Title = "Auto Deploy Cage", Default = false })
     local AutoCollectCage = Tabs.pageMain:AddToggle("AutoCollectCage", {Title = "Auto Collect Cage", Default = false })
     local CalculateMaxCages = Tabs.pageMain:AddButton({
