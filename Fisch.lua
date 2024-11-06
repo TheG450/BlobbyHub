@@ -1244,6 +1244,20 @@ do
         task.spawn(function()
             while AutoDeployCage.Value do
                 wait()
+                coroutine.wrap(function()
+                    pcall(function()
+                        for i,v in pairs(game:GetService("Workspace").active:GetChildren()) do
+                            if v.Name == tostring(game.Players.LocalPlayer.Name) and v:FindFirstChild("Prompt") then
+                                local CageB = v:FindFirstChild("Cage") or v:WaitForChild("Cage", 5)
+                                local blocker = v:FindFirstChild("blocker") or v:WaitForChild("blocker", 5)
+                                local handle = v:FindFirstChild("handle") or v:WaitForChild("handle", 5)
+                                CageB:Destroy()
+                                blocker:Destroy()
+                                handle:Destroy()
+                            end
+                        end
+                    end)
+                end)()
                 if game.Players.LocalPlayer.Character:FindFirstChild("Crab Cage") then
                     pcall(function()
                         local ohTable1 = {
@@ -1267,12 +1281,11 @@ do
         task.spawn(function()
             while AutoCollectCage.Value do
                 wait()
-                local PlayerName = game.Players.LocalPlayer.Name
                 pcall(function()
                     local PlayerName = game.Players.LocalPlayer.Name
                     for i,v in pairs(game:GetService("Workspace").active:GetChildren()) do
                         if v.Name == PlayerName and v:FindFirstChild("Prompt") then
-                            local Prompt = v.Prompt
+                            local Prompt = v:FindFirstChild("Prompt") or v:WaitForChild("Prompt", 5)
                             if Prompt.Enabled == true then
                                 fireproximityprompt(Prompt)
                                 wait(.1)
