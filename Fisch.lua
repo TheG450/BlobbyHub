@@ -269,10 +269,14 @@ do
     InputCage:OnChanged(function(value)
         getgenv().Settings.CageCount = value
     end)
+    local AutoBuyCrabCage = Tabs.pageMain:AddToggle("AutoBuyCrabCage", {Title = "Auto Buy CrabCage", Default = false })
+    local AutoDeployCage = Tabs.pageMain:AddToggle("AutoDeployCage", {Title = "Auto Deploy Cage", Default = false })
+    local AutoCollectCage = Tabs.pageMain:AddToggle("AutoCollectCage", {Title = "Auto Collect Cage", Default = false })
     local CalculateMaxCages = Tabs.pageMain:AddButton({
         Title = "Calculate Max Cages",
         Callback = function()
-            local MaxCages = game:GetService("ReplicatedStorage").playerstats[tostring(game.Players.LocalPlayer.Name)].Stats.coins.Value / 45
+            local coins = game:GetService("ReplicatedStorage").playerstats[tostring(game.Players.LocalPlayer.Name)].Stats.coins.Value
+            local MaxCages = math.floor(coins / 45)
             InputCage:SetValue(tostring(MaxCages))
         end
     })
@@ -290,9 +294,6 @@ do
             game.Workspace.world.npcs.Merlin.Merlin.luck:InvokeServer()
         end
     })
-    local AutoBuyCrabCage = Tabs.pageMain:AddToggle("AutoBuyCrabCage", {Title = "Auto Buy CrabCage", Default = false })
-    local AutoDeployCage = Tabs.pageMain:AddToggle("AutoDeployCage", {Title = "Auto Deploy Cage", Default = false })
-    local AutoCollectCage = Tabs.pageMain:AddToggle("AutoCollectCage", {Title = "Auto Collect Cage", Default = false })
     local Bait = Tabs.pageMain:AddSection("Bait")
     local AutoEquipBait = Tabs.pageMain:AddToggle("AutoEquipBait", {Title = "Auto Equip Bait", Default = false })
     local BaitList = {}
