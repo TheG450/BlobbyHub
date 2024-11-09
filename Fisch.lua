@@ -89,7 +89,7 @@ local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/d
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
 local Window = Fluent:CreateWindow({
-    Title = "Blobby Hub" .. " | ".."[🐟] Fisch".." | ".."[Free Version]",
+    Title = "Blobby Hub" .. " | ".."[UPD] Fisch".." | ".."[Version 1.05.0]",
     TabWidth = 160,
     Size =  Device, --UDim2.fromOffset(480, 360), --default size (580, 460)
     Acrylic = false, -- การเบลออาจตรวจจับได้ การตั้งค่านี้เป็น false จะปิดการเบลอทั้งหมด
@@ -113,6 +113,7 @@ local Tabs = {
     --[[ Tabs --]]
     pageSetting = Window:AddTab({ Title = "Settings", Icon = "settings" }),
     pageMain = Window:AddTab({ Title = "Main", Icon = "home" }),
+    pageExtra = Window:AddTab({ Title = "Extra", Icon = "bar-chart" }),
     pageEvent = Window:AddTab({ Title = "Event", Icon = "clock" }),
     pageMiscellaneous = Window:AddTab({ Title = "Miscellaneous", Icon = "component" }),
     pageTeleport = Window:AddTab({ Title = "Teleport", Icon = "map" })
@@ -171,11 +172,11 @@ do
     SelectRod:OnChanged(function(Value)
         getgenv().Settings.Rod = Value
     end)
-    local InstantReel = Tabs.pageSetting:AddToggle("InstantReel", {Title = "Instant ReelFinish", Default = false })
+    local InstantReel = Tabs.pageSetting:AddToggle("InstantReel", {Title = "Instant ReelFinish", Default = true})
     InstantReel:OnChanged(function(value)
         getgenv().Settings.RealFinish = value
     end)
-    local FastShake = Tabs.pageSetting:AddToggle("FastShake", {Title = "Fast Shake", Default = false })
+    local FastShake = Tabs.pageSetting:AddToggle("FastShake", {Title = "Fast Shake", Default = true })
     FastShake:OnChanged(function(value)
         getgenv().Settings.FastShake = value
     end)
@@ -228,6 +229,7 @@ do
     --[[ MAIN ]]--------------------------------------------------------
     local General = Tabs.pageMain:AddSection("General")
     local AutoFishing = Tabs.pageMain:AddToggle("AutoFishing", {Title = "Auto Fishing", Default = false })
+    local AutoNuke = Tabs.pageMain:AddToggle("AutoNuke", {Title = "Auto Nuke MiniGame", Default = true })
     local SafeMode = Tabs.pageMain:AddToggle("SafeMode", {Title = "Safe Mode", Default = false })
     local SellAll = Tabs.pageMain:AddButton({
         Title = "Sell All",
@@ -254,71 +256,6 @@ do
                     })
                 end
             end)
-        end
-    })
-    local Cage = Tabs.pageMain:AddSection("Cage")
-    local InputCage = Tabs.pageMain:AddInput("InputCage", {
-        Title = "Input Cage",
-        Default = 1,
-        Placeholder = "Number Of CrabCages Required",
-        Numeric = true, -- Only allows numbers
-        Finished = false, -- Only calls callback when you press enter
-        Callback = function(Value)
-            getgenv().Settings.CageCount = Value
-        end
-    })
-    InputCage:OnChanged(function(value)
-        getgenv().Settings.CageCount = value
-    end)
-    local AutoBuyCrabCage = Tabs.pageMain:AddToggle("AutoBuyCrabCage", {Title = "Auto Buy CrabCage", Default = false })
-    local InputDCage = Tabs.pageMain:AddInput("InputDCage", {
-        Title = "Input Deploy Cage",
-        Default = 1,
-        Placeholder = "Number To Deploy",
-        Numeric = true,
-        Finished = false,
-        Callback = function(Value)
-            getgenv().Settings.DeployCage = Value
-        end
-    })
-    InputDCage:OnChanged(function(value)
-        getgenv().Settings.DeployCage = value
-    end)
-    local DeployCageButton = Tabs.pageMain:AddButton({
-        Title = "Deply Cage(Manual)",
-        Callback = function()
-            for i=1, tonumber(getgenv().Settings.DeployCage) do
-                pcall(function()
-                    local ohTable1 = {
-                        ["CFrame"] = CFrame.new(335.498871, 126.5, 206.808578, 0.773450553, -1.46618362e-08, 0.633856595, 1.47070112e-09, 1, 2.13365627e-08, -0.633856595, -1.55705635e-08, 0.773450553)
-                    }
-                    game.Players.LocalPlayer.Character["Crab Cage"].Deploy:FireServer(ohTable1)
-                end)
-            end
-        end
-    })
-    local AutoDeployCage = Tabs.pageMain:AddToggle("AutoDeployCage", {Title = "Auto Deploy Cage", Default = false })
-    local AutoCollectCage = Tabs.pageMain:AddToggle("AutoCollectCage", {Title = "Auto Collect Cage", Default = false })
-    local CalculateMaxCages = Tabs.pageMain:AddButton({
-        Title = "Calculate Max Cages",
-        Callback = function()
-            local coins = game:GetService("ReplicatedStorage").playerstats[tostring(game.Players.LocalPlayer.Name)].Stats.coins.Value
-            local MaxCages = math.floor(coins / 45)
-            InputCage:SetValue(tostring(MaxCages))
-        end
-    })
-    local TeleportToDeepslate = Tabs.pageMain:AddButton({
-        Title = "Teleport to Deepslate",
-        Callback = function()
-            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-1655.48938, -213.679398, -2846.83496, 0.574203014, -1.61517448e-08, 0.81871295, -3.60255825e-08, 1, 4.49946995e-08, -0.81871295, -5.53307018e-08, 0.574203014)
-        end
-    })
-    local BuyLuck = Tabs.pageMain:AddButton({
-        Title = "Buy Luck",
-        Callback = function()
-            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-930.627136, 223.783569, -988.325378, 0.950611174, 7.35006767e-09, -0.310384303, -2.37664355e-09, 1, 1.64016143e-08, 0.310384303, -1.48538852e-08, 0.950611174)
-            wait(2)
-            game.Workspace.world.npcs.Merlin.Merlin.luck:InvokeServer()
         end
     })
     local Bait = Tabs.pageMain:AddSection("Bait")
@@ -466,6 +403,72 @@ do
     local AutoShake = Tabs.pageMain:AddToggle("AutoShake", {Title = "Auto Shake", Default = false })
     local AutoReel = Tabs.pageMain:AddToggle("AutoReel", {Title = "Auto Reel", Default = false })
 
+    --[[ EXTRA]]--------------------------------------------------------
+    local Cage = Tabs.pageExtra:AddSection("Cage")
+    local InputCage = Tabs.pageExtra:AddInput("InputCage", {
+        Title = "Input Cage",
+        Default = 1,
+        Placeholder = "Number Of CrabCages Required",
+        Numeric = true, -- Only allows numbers
+        Finished = false, -- Only calls callback when you press enter
+        Callback = function(Value)
+            getgenv().Settings.CageCount = Value
+        end
+    })
+    InputCage:OnChanged(function(value)
+        getgenv().Settings.CageCount = value
+    end)
+    local AutoBuyCrabCage = Tabs.pageExtra:AddToggle("AutoBuyCrabCage", {Title = "Auto Buy CrabCage", Default = false })
+    local InputDCage = Tabs.pageExtra:AddInput("InputDCage", {
+        Title = "Input Deploy Cage",
+        Default = 1,
+        Placeholder = "Number To Deploy",
+        Numeric = true,
+        Finished = false,
+        Callback = function(Value)
+            getgenv().Settings.DeployCage = Value
+        end
+    })
+    InputDCage:OnChanged(function(value)
+        getgenv().Settings.DeployCage = value
+    end)
+    local DeployCageButton = Tabs.pageExtra:AddButton({
+        Title = "Deply Cage(Manual)",
+        Callback = function()
+            for i=1, tonumber(getgenv().Settings.DeployCage) do
+                pcall(function()
+                    local ohTable1 = {
+                        ["CFrame"] = CFrame.new(335.498871, 126.5, 206.808578, 0.773450553, -1.46618362e-08, 0.633856595, 1.47070112e-09, 1, 2.13365627e-08, -0.633856595, -1.55705635e-08, 0.773450553)
+                    }
+                    game.Players.LocalPlayer.Character["Crab Cage"].Deploy:FireServer(ohTable1)
+                end)
+            end
+        end
+    })
+    local AutoDeployCage = Tabs.pageExtra:AddToggle("AutoDeployCage", {Title = "Auto Deploy Cage", Default = false })
+    local AutoCollectCage = Tabs.pageExtra:AddToggle("AutoCollectCage", {Title = "Auto Collect Cage", Default = false })
+    local CalculateMaxCages = Tabs.pageExtra:AddButton({
+        Title = "Calculate Max Cages",
+        Callback = function()
+            local coins = game:GetService("ReplicatedStorage").playerstats[tostring(game.Players.LocalPlayer.Name)].Stats.coins.Value
+            local MaxCages = math.floor(coins / 45)
+            InputCage:SetValue(tostring(MaxCages))
+        end
+    })
+    local TeleportToDeepslate = Tabs.pageExtra:AddButton({
+        Title = "Teleport to Deepslate",
+        Callback = function()
+            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-1655.48938, -213.679398, -2846.83496, 0.574203014, -1.61517448e-08, 0.81871295, -3.60255825e-08, 1, 4.49946995e-08, -0.81871295, -5.53307018e-08, 0.574203014)
+        end
+    })
+    local BuyLuck = Tabs.pageExtra:AddButton({
+        Title = "Buy Luck",
+        Callback = function()
+            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-930.627136, 223.783569, -988.325378, 0.950611174, 7.35006767e-09, -0.310384303, -2.37664355e-09, 1, 1.64016143e-08, 0.310384303, -1.48538852e-08, 0.950611174)
+            wait(2)
+            game.Workspace.world.npcs.Merlin.Merlin.luck:InvokeServer()
+        end
+    })
 
     --[[ EVENT ]]--------------------------------------------------------
     local EventList = {}
@@ -534,8 +537,42 @@ do
             end
         end
     })
-    local AutoIngredients = Tabs.pageEvent:AddToggle("AutoIngredients", {Title = "Auto Ingredients", Default = false })
-    local AutoUseIngredients = Tabs.pageEvent:AddToggle("AutoUseIngredients", {Title = "Auto Use Ingredients", Default = false })
+    local Teasure = Tabs.pageEvent:AddSection("Teasure")
+    local TeleportToTeasure = Tabs.pageEvent:AddButton({
+        Title = "Teleport To Teasure",
+        Callback = function()
+            for i, v in pairs(game:GetService("Players").LocalPlayer.PlayerGui:GetChildren()) do
+                if v.Name == "Treasure Map" then
+                    if v.Enabled == true then
+                        local Coordination = v.Main:FindFirstChild("CoordinatesLabel") or v:WaitForChild("CoordinatesLabel", 5)
+                        local TreasurePosition = Coordination.Text
+                
+                        local x, y, z = TreasurePosition:match("X%s*([%d%.%-?]+),%s*Y%s*([%d%.%-?]+),%s*Z%s*([%d%.%-?]+)")
+                
+                        if x and y and z and not (x:find("?") or y:find("?") or z:find("?")) then
+                            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(tonumber(x), tonumber(y), tonumber(z))
+                        else
+                            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-2825.10229, 214.454575, 1517.53162, -0.411731094, -6.56982877e-08, 0.911305368, -7.25599421e-08, 1, 3.93096613e-08, -0.911305368, -4.99392563e-08, -0.411731094)
+                            wait(.5)
+                            Fluent:Notify({
+                                Title = "BLOBBY HUB",
+                                Content = "Fix Your TeasureMap",
+                                Duration = 3
+                            })
+                        end
+                    else
+                        Fluent:Notify({
+                            Title = "BLOBBY HUB",
+                            Content = "Equip Your TeasureMap",
+                            Duration = 3
+                        })
+                    end
+                end
+            end            
+        end
+    })
+    --local AutoIngredients = Tabs.pageEvent:AddToggle("AutoIngredients", {Title = "Auto Ingredients", Default = false })
+    --local AutoUseIngredients = Tabs.pageEvent:AddToggle("AutoUseIngredients", {Title = "Auto Use Ingredients", Default = false })
 
     --[[ MISCELLANEOUS ]]--------------------------------------------------------
     local BypassAfk = Tabs.pageMiscellaneous:AddButton({
@@ -980,51 +1017,6 @@ do
         end)
     end)
 
-    AutoIngredients:OnChanged(function()
-        task.spawn(function()
-            while AutoIngredients.Value do
-                wait(.1)
-                for i,v in pairs(game:GetService("Workspace").active:GetDescendants()) do
-                    if v:FindFirstChild("PickupPrompt") then
-                        for i2, v2 in pairs(v:GetChildren()) do
-                            if v2:IsA("BasePart") then
-                                game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v2.CFrame
-                                fireproximityprompt(v.PickupPrompt)
-                                wait(.2)
-                            end
-                        end
-                    end
-                end
-            end
-        end)
-    end)
-
-    AutoUseIngredients:OnChanged(function()
-        task.spawn(function()
-            local plr = game.Players.LocalPlayer
-            local character = plr.Character
-            while AutoUseIngredients.Value do
-                wait(.1)
-                if plr.Backpack:FindFirstChild("Witches Ingredient") or character:FindFirstChild("Witches Ingredient") then
-                    if not character:FindFirstChild("Witches Ingredient") then
-                        for i,v in pairs(plr.Backpack:GetChildren()) do
-                            if v.Name == "Witches Ingredient" and v:IsA("Tool") then
-                                character.Humanoid:EquipTool(v)
-                            end
-                        end
-                    else
-                        for i,v in pairs(game:GetService("Workspace").world.map.halloween.witch.WitchesPot.AcidTop:GetChildren()) do
-                            if v.Name == "Prompt" then
-                                character.HumanoidRootPart.CFrame = CFrame.new(404.780884, 134.500015, 317.74054, 0.661333382, -3.8419202e-08, -0.750092089, 7.82599141e-09, 1, -4.43193748e-08, 0.750092089, 2.3439668e-08, 0.661333382)
-                                fireproximityprompt(v)
-                            end
-                        end
-                    end
-                end
-            end
-        end)
-    end)
-
     AntiDrowning:OnChanged(function()
         task.spawn(function()
             local working = false
@@ -1322,6 +1314,44 @@ do
                         end
                     end
                 end)
+            end
+        end)
+    end)
+
+    AutoNuke:OnChanged(function()
+        task.spawn(function()
+            local Player = game:GetService("Players").LocalPlayer
+            local NukeMinigame = Player.PlayerGui:FindFirstChild("NukeMinigame")
+            while AutoNuke.Value do
+                wait()
+
+                if NukeMinigame then
+                    if NukeMinigame.Enabled == true then
+                        local Pointer = NukeMinigame.Center.Marker.Pointer
+                        local LeftButton = NukeMinigame.Center.Left
+                        local RightButton = NukeMinigame.Center.Right
+
+                        local function pressButton(button)
+                            local X = button.AbsolutePosition.X
+                            local Y = button.AbsolutePosition.Y
+                            local XS = button.AbsoluteSize.X
+                            local YS = button.AbsoluteSize.Y
+
+                            game:GetService("VirtualInputManager"):SendMouseButtonEvent(X + XS / 2, Y + YS / 2, 0, true, button, 1)
+                            game:GetService("VirtualInputManager"):SendMouseButtonEvent(X + XS / 2, Y + YS / 2, 0, false, button, 1)
+                        end
+
+                        local rotation = Pointer.Rotation
+
+                        if rotation > 40 then
+                            pressButton(LeftButton)
+                        elseif rotation < -40 then
+                            pressButton(RightButton)
+                        end
+                    else
+                        wait()
+                    end
+                end
             end
         end)
     end)
