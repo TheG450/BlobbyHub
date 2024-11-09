@@ -1138,7 +1138,7 @@ do
                     Safe.Name = "SafePlace"..tostring(player.Name)
                     Safe.Parent = workspace
                     Safe.Size = Vector3.new(25, 1, 25)
-                    Safe.Position = Vector3.new(471.196 + math.random(-50,50), 824.246, 324.262 + math.random(-50,50))
+                    Safe.Position = Vector3.new(-416.428 + math.random(-50,50), -324.906, 532.835 + math.random(-50,50))
                 else
                     return
                 end
