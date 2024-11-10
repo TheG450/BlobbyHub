@@ -875,6 +875,8 @@ do
                 
                 return closestPart
             end
+
+
             
             task.spawn(function()
                 while AutoFishing.Value do
@@ -922,7 +924,8 @@ do
                                 Casted = true
                                 wait(1)
                             end)
-                        elseif character[getgenv().Settings.Rod].values.bite.Value == true then
+                        end
+                        if character[getgenv().Settings.Rod].values.bite.Value == true then
                             Casted = false
                         end
                         if character:FindFirstChildOfClass("Tool") then
@@ -979,6 +982,12 @@ do
                                 end)
                             end
                         end
+                        character[getgenv().Settings.Rod].values.casted:GetPropertyChangedSignal("Value"):Connect(function()
+                            if character[getgenv().Settings.Rod].values.casted.Value == false then
+                                wait(1)
+                                Casted = false
+                            end
+                        end)
                     elseif SafeMode.Value == true and UseZone.Value == true then
                         if not character:FindFirstChild(getgenv().Settings.Rod) then
                             for i,v in pairs(plr.Backpack:GetChildren()) do
@@ -997,7 +1006,8 @@ do
                                 Casted = true
                                 wait(1)
                             end)
-                        elseif character[getgenv().Settings.Rod].values.bite.Value == true then
+                        end
+                        if character[getgenv().Settings.Rod].values.bite.Value == true then
                             Casted = false
                         end
                         if character:FindFirstChildOfClass("Tool") then
@@ -1065,6 +1075,20 @@ do
                                 end)
                             end
                         end
+                        character[getgenv().Settings.Rod].values.casted:GetPropertyChangedSignal("Value"):Connect(function()
+                            if character[getgenv().Settings.Rod].values.casted.Value == false then
+                                wait(.5)
+                                Casted = false
+                                character.HumanoidRootPart.Anchored = false
+                            end
+                        end)
+                        character[getgenv().Settings.Rod].values.bite:GetPropertyChangedSignal("Value"):Connect(function()
+                            if character[getgenv().Settings.Rod].values.bite.Value == false then
+                                wait(.5)
+                                Casted = false
+                                character.HumanoidRootPart.Anchored = false
+                            end
+                        end)
                     end
                 end
                 character.HumanoidRootPart.Anchored = false
