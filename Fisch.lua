@@ -1359,7 +1359,7 @@ do
 
             while UseZone.Value do
                 wait()
-                if SafeMode.Value then
+                if SafeMode.Value and AutoFishing.Value then
                     local Closest = getClosest(character.HumanoidRootPart.Position, {getgenv().Settings.Zone})
                     local ClosestEvent = getClosest(character.HumanoidRootPart.Position, getgenv().Settings.ZoneE)
                     
@@ -1810,11 +1810,16 @@ for i, v in pairs(game:GetService("CoreGui"):GetChildren()) do
     if v:IsA("ScreenGui") and v:FindFirstChild("Frame") then
         for _, mainPage in pairs(v:GetChildren()) do
             if mainPage:IsA("Frame") and mainPage:FindFirstChild("CanvasGroup") then
-                mainPage.Visible = getgenv().Settings.HideGui
+                if getgenv().Settings and getgenv().Settings.HideGui ~= nil then
+                    mainPage.Visible = getgenv().Settings.HideGui
+                else
+                    mainPage.Visible = true
+                end
             end
         end
     end
 end
+
 
 --ANTI AFK
 task.spawn(function()
