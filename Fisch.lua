@@ -17,8 +17,41 @@ getgenv().Settings = {
         Position1 = nil,
         Position2 = nil,
         position3 = nil,
-    }
+    },
+    Totems = nil,
+    AutoFishing = nil,
+    AutoEquipBait = nil,
+    SafeMode = nil,
+    AutoNuke = nil,
+    WebhookLink = nil,
+    TravellingMerchant = nil,
 }
+
+local FileName = tostring(game.Players.LocalPlayer.UserId).."_Settings.Blobby"
+local BaseFolder = "BLOBBYHUB"
+local SubFolder = "Fisch"
+
+function SaveSetting()
+    local json
+    local HttpService = game:GetService("HttpService")
+    if writefile then
+        json = HttpService:JSONEncode(getgenv().Settings)
+        makefolder(BaseFolder)
+        makefolder(BaseFolder.."\\"..SubFolder)
+        writefile(BaseFolder.."\\"..SubFolder.."\\"..FileName, json)
+    else
+        warn("ERROR: Can't save your settings")
+    end
+end
+
+function LoadSetting()
+    local HttpService = game:GetService("HttpService")
+    if readfile and isfile and isfile(BaseFolder.."\\"..SubFolder.."\\"..FileName) then
+        getgenv().Settings = HttpService:JSONDecode(readfile(BaseFolder.."\\"..SubFolder.."\\"..FileName))
+        print("Settings loaded successfully!")
+    end
+end
+
 
 local function CreateMobileUI()
     local blobbyGui = Instance.new("ScreenGui")
@@ -89,6 +122,7 @@ checkDevice()
 
 
 game:GetService("ReplicatedStorage").events.finishedloading:FireServer()
+LoadSetting()
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
@@ -120,8 +154,10 @@ local Tabs = {
     pageMain = Window:AddTab({ Title = "Main", Icon = "home" }),
     pageExtra = Window:AddTab({ Title = "Extra", Icon = "bar-chart" }),
     pageEvent = Window:AddTab({ Title = "Event", Icon = "clock" }),
+    pageItem = Window:AddTab({ Title = "Item", Icon = "shopping-cart" }),
     pageMiscellaneous = Window:AddTab({ Title = "Miscellaneous", Icon = "component" }),
-    pageTeleport = Window:AddTab({ Title = "Teleport", Icon = "map" })
+    pageTeleport = Window:AddTab({ Title = "Teleport", Icon = "map" }),
+    pageWebhook = Window:AddTab({ Title = "Webhooks", Icon = "globe" }),
 }
 
 do
@@ -156,6 +192,7 @@ do
         Default = getgenv().Settings.Rod or RodList[1],
         Callback = function(Value)
             getgenv().Settings.Rod = Value
+            SaveSetting()
         end
     })
     local RefreshRod = Tabs.pageSetting:AddButton({
@@ -176,14 +213,17 @@ do
     })
     SelectRod:OnChanged(function(Value)
         getgenv().Settings.Rod = Value
+        SaveSetting()
     end)
-    local InstantReel = Tabs.pageSetting:AddToggle("InstantReel", {Title = "Instant ReelFinish", Default = true})
+    local InstantReel = Tabs.pageSetting:AddToggle("InstantReel", {Title = "Instant ReelFinish", Default = getgenv().Settings.RealFinish or true})
     InstantReel:OnChanged(function(value)
         getgenv().Settings.RealFinish = value
+        SaveSetting()
     end)
-    local FastShake = Tabs.pageSetting:AddToggle("FastShake", {Title = "Fast Shake", Default = true })
+    local FastShake = Tabs.pageSetting:AddToggle("FastShake", {Title = "Fast Shake", Default = getgenv().Settings.FastShake or true })
     FastShake:OnChanged(function(value)
         getgenv().Settings.FastShake = value
+        SaveSetting()
     end)
     local Zone = Tabs.pageSetting:AddSection("Zone")
     local HowToUse = Tabs.pageSetting:AddParagraph({
@@ -210,6 +250,7 @@ do
         Default = getgenv().Settings.Zone or "",
         Callback = function(Value)
             getgenv().Settings.Zone = Value
+            SaveSetting()
         end
     })
     local SelectEventZone = Tabs.pageSetting:AddDropdown("SelectEventZone", {
@@ -220,6 +261,7 @@ do
     })
     SelectDefaultZone:OnChanged(function(Value)
         getgenv().Settings.Zone = Value
+        SaveSetting()
     end)
     SelectEventZone:OnChanged(function(Value)
         local Values = {}
@@ -227,15 +269,16 @@ do
             table.insert(Values, Value)
         end
         getgenv().Settings.ZoneE = Values
+        SaveSetting()
     end)
-    local UseZone = Tabs.pageSetting:AddToggle("UseZone", {Title = "Use Zone", Default = false })
+    local UseZone = Tabs.pageSetting:AddToggle("UseZone", {Title = "Use Zone", Default = getgenv().Settings.UseZone or false })
 
 
     --[[ MAIN ]]--------------------------------------------------------
     local General = Tabs.pageMain:AddSection("General")
-    local AutoFishing = Tabs.pageMain:AddToggle("AutoFishing", {Title = "Auto Fishing", Default = false })
-    local AutoNuke = Tabs.pageMain:AddToggle("AutoNuke", {Title = "Auto Nuke MiniGame", Default = true })
-    local SafeMode = Tabs.pageMain:AddToggle("SafeMode", {Title = "Safe Mode", Default = false })
+    local AutoFishing = Tabs.pageMain:AddToggle("AutoFishing", {Title = "Auto Fishing", Default = getgenv().Settings.AutoFishing or false })
+    local AutoNuke = Tabs.pageMain:AddToggle("AutoNuke", {Title = "Auto Nuke MiniGame", Default = getgenv().Settings.AutoNuke or true })
+    local SafeMode = Tabs.pageMain:AddToggle("SafeMode", {Title = "Safe Mode", Default = getgenv().Settings.SafeMode or false })
     local SellAll = Tabs.pageMain:AddButton({
         Title = "Sell All",
         Description = "Sell All Fishs",
@@ -264,7 +307,7 @@ do
         end
     })
     local Bait = Tabs.pageMain:AddSection("Bait")
-    local AutoEquipBait = Tabs.pageMain:AddToggle("AutoEquipBait", {Title = "Auto Equip Bait", Default = false })
+    local AutoEquipBait = Tabs.pageMain:AddToggle("AutoEquipBait", {Title = "Auto Equip Bait", Default = getgenv().Settings.AutoEquipBait or false })
     local BaitList = {}
     local BaitEquiped = false
     local function GetBaitList()
@@ -290,11 +333,13 @@ do
         Default = getgenv().Settings.Bait or BaitList[1],
         Callback = function(Value)
             getgenv().Settings.Bait = Value
+            SaveSetting()
         end
     })
     SelectBait:OnChanged(function(Value)
         getgenv().Settings.Bait = Value
         BaitEquiped = false
+        SaveSetting()
     end)
     local RefreshBait = Tabs.pageMain:AddButton({
         Title = "Refresh Bait",
@@ -325,6 +370,7 @@ do
                         Title = "Confirm",
                         Callback = function()
                             getgenv().Settings.FarmPosition = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+                            SaveSetting()
                         end
                     },
                     {
@@ -349,6 +395,7 @@ do
                         Title = "Confirm",
                         Callback = function()
                             getgenv().Settings.FarmPosition = nil
+                            SaveSetting()
                         end
                     },
                     {
@@ -475,39 +522,46 @@ do
         end
     })
     local CageAutoTitle = Tabs.pageExtra:AddSection("Cage (Automatic)")
-    local SavePosition1 = Tabs.pageMain:AddButton({
+    local AutoFarmCages = Tabs.pageExtra:AddToggle("AutoFarmCages", {Title = "Auto Farm Cages", Default = false })
+    local SavePosition1 = Tabs.pageExtra:AddButton({
         Title = "Save Farm Position1",
         Description = "Auto Cage Farm Position1",
         Callback = function()
             getgenv().Settings.AutoCagePosition.Position1 = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+            SaveSetting()
         end
     })
-    local SavePosition2 = Tabs.pageMain:AddButton({
+    local SavePosition2 = Tabs.pageExtra:AddButton({
         Title = "Save Farm Position2",
         Description = "Auto Cage Farm Position2",
         Callback = function()
             getgenv().Settings.AutoCagePosition.Position2 = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+            SaveSetting()
         end
     })
-    local SavePosition3 = Tabs.pageMain:AddButton({
+    local SavePosition3 = Tabs.pageExtra:AddButton({
         Title = "Save Farm Position3",
         Description = "Auto Cage Farm Position3",
         Callback = function()
             getgenv().Settings.AutoCagePosition.Position3 = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+            SaveSetting()
         end
     })
-    local ResetPosition = Tabs.pageMain:AddButton({
+    local ResetPosition = Tabs.pageExtra:AddButton({
         Title = "Reset Farm Positions",
         Description = "Reset Farm Positions",
         Callback = function()
             Window:Dialog({
                 Title = "Reset Farm Positions",
-                Content = "Are You Sure To Reset Position?",
+                Content = "Are You Sure To Reset All Positions?",
                 Buttons = {
                     {
                         Title = "Confirm",
                         Callback = function()
-                            getgenv().Settings.FarmPosition = nil
+                            getgenv().Settings.AutoCagePosition.Position1 = nil
+                            getgenv().Settings.AutoCagePosition.Position2 = nil
+                            getgenv().Settings.AutoCagePosition.Position3 = nil
+                            SaveSetting()
                         end
                     },
                     {
@@ -546,6 +600,7 @@ do
         Default = getgenv().Settings.Event or EventList[1],
         Callback = function(Value)
             getgenv().Settings.Event = Value
+            SaveSetting()
         end
     })
     local RefreshEvent = Tabs.pageEvent:AddButton({
@@ -566,6 +621,7 @@ do
     })
     SelectEvent:OnChanged(function(Value)
         getgenv().Settings.Event = Value
+        SaveSetting()
     end)
     local TeleportEvent = Tabs.pageEvent:AddButton({
         Title = "Teleport To Selected Event",
@@ -623,8 +679,57 @@ do
             end            
         end
     })
-    --local AutoIngredients = Tabs.pageEvent:AddToggle("AutoIngredients", {Title = "Auto Ingredients", Default = false })
-    --local AutoUseIngredients = Tabs.pageEvent:AddToggle("AutoUseIngredients", {Title = "Auto Use Ingredients", Default = false })
+
+
+    --[[ ITEM ]]--------------------------------------------------------
+    local SelectTotem = Tabs.pageItem:AddDropdown("SelectTotem", {
+        Title = "Select Totem",
+        Values = {"Sundial Totem","Smokescreen Totem","Tempest Totem","Windset Totem","Aurora Totem"},
+        Multi = false,
+        Default = getgenv().Settings.Totems or "",
+        Callback = function(Value)
+            getgenv().Settings.Totems = Value
+        end
+    })
+
+    local tpTotem = Tabs.pageItem:AddButton({
+    Title = "Teleport To Totem",
+    Callback = function()
+        local TotemsPosition = {
+            ["Sundial Totem"] = CFrame.new(-1149.45581, 134.532166, -1077.27539, -0.945118904, 0, -0.326726705, 0, 1, 0, 0.326726705, 0, -0.945118904),
+            ["Smokescreen Totem"] = CFrame.new(2791.71216, 137.350662, -629.452271, -0.998513579, 0.0327778272, 0.0435543507, 0.0298345778, 0.997334361, -0.0665888488, -0.0456208885, -0.0651904196, -0.996829748),
+            ["Tempest Totem"] = CFrame.new(36.4309044, 133.031143, 1946.11145, 0.602275848, 0, 0.798288047, 0, 1, 0, -0.798288047, 0, 0.602275848),
+            ["Windset Totem"] = CFrame.new(2851.60229, 178.119919, 2703.0332, -0.369645119, 3.03834677e-05, 0.929172993, 0.141992167, 0.988256574, 0.0564552285, -0.918259621, 0.152803689, -0.365308523),
+            ["Aurora Totem"] = CFrame.new(-1813.20496, -139.332184, -3280.39941, 0.671925902, -0.222812086, -0.70630753, 0.0369239748, 0.962564886, -0.268524557, 0.739697337, 0.154348925, 0.654999435)
+        }
+        local selectedTotem = getgenv().Settings.Totems
+        local totemCFrame = TotemsPosition[selectedTotem]
+
+        if totemCFrame then
+            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = totemCFrame
+        end
+    end
+    })
+
+    local BuyLuck = Tabs.pageItem:AddButton({
+        Title = "Buy Luck",
+        Callback = function()
+            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-930.627136, 223.783569, -988.325378, 0.950611174, 7.35006767e-09, -0.310384303, -2.37664355e-09, 1, 1.64016143e-08, 0.310384303, -1.48538852e-08, 0.950611174)
+            wait(2)
+            game.Workspace.world.npcs.Merlin.Merlin.luck:InvokeServer()
+        end
+    })
+
+    local BuyRelics = Tabs.pageItem:AddButton({
+        Title = "Buy Relics",
+        Callback = function()
+            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-930.627136, 223.783569, -988.325378, 0.950611174, 7.35006767e-09, -0.310384303, -2.37664355e-09, 1, 1.64016143e-08, 0.310384303, -1.48538852e-08, 0.950611174)
+            wait(2)
+            game.Workspace.world.npcs.Merlin.Merlin.power:InvokeServer()
+        end
+    })
+    
+    
 
     --[[ MISCELLANEOUS ]]--------------------------------------------------------
     local BypassAfk = Tabs.pageMiscellaneous:AddButton({
@@ -713,9 +818,29 @@ do
         end
     })
 
+    --[[ WEBHOOKS ]]--------------------------------------------------------
+    local WebhookLink = Tabs.pageWebhook:AddInput("WebhookLink", {
+        Title = "Webhook Link",
+        Default = getgenv().Settings.WebhookLink or "",
+        Placeholder = "Webhook Link",
+        Numeric = false,
+        Finished = false,
+        Callback = function(Value)
+            getgenv().Settings.WebhookLink = Value
+            SaveSetting()
+        end
+    })
+    WebhookLink:OnChanged(function(Value)
+        getgenv().Settings.WebhookLink = Value
+        SaveSetting()
+    end)
+    local SendTravellingMerchant = Tabs.pageWebhook:AddToggle("MerchantBoat", {Title = "Merchant Boat", Default = getgenv().Settings.TravellingMerchant or false })
+
     --[[ SCRIPTS ]]--------------------------------------------------------
     AutoFishing:OnChanged(function()
         task.spawn(function()
+            getgenv().Settings.AutoFishing = AutoFishing.Value
+            SaveSetting()
             local GuiService = game:GetService('GuiService')
             local VirtualInputManager = game:GetService('VirtualInputManager')
             local over = game:GetService("Players").LocalPlayer.PlayerGui:WaitForChild("over")
@@ -944,6 +1069,8 @@ do
 
     AutoEquipBait:OnChanged(function()
         task.spawn(function()
+            getgenv().Settings.AutoEquipBait = AutoEquipBait.Value
+            SaveSetting()
             while AutoEquipBait.Value do
                 wait(.1)
                 if not game:GetService("Players").LocalPlayer.PlayerGui.hud.safezone.backpack:FindFirstChild("bait") and BaitEquiped == false then
@@ -1181,6 +1308,8 @@ do
 
     SafeMode:OnChanged(function()
         task.spawn(function()
+            getgenv().Settings.SafeMode = SafeMode.Value
+            SaveSetting()
             local workspace = game:GetService("Workspace")
             local player = game:GetService("Players").LocalPlayer
             if SafeMode.Value then
@@ -1200,6 +1329,8 @@ do
 
     UseZone:OnChanged(function()
         task.spawn(function()
+            getgenv().Settings.UseZone = UseZone.Value
+            SaveSetting()
             local character = game.Players.LocalPlayer.Character
             local characterPosition = character.HumanoidRootPart.Position
 
@@ -1372,6 +1503,8 @@ do
 
     AutoNuke:OnChanged(function()
         task.spawn(function()
+            getgenv().Settings.AutoNuke = AutoNuke.Value
+            SaveSetting()
             local Player = game:GetService("Players").LocalPlayer
             local NukeMinigame = Player.PlayerGui:FindFirstChild("NukeMinigame")
             while AutoNuke.Value do
@@ -1405,6 +1538,257 @@ do
                     end
                 end
             end
+        end)
+    end)
+
+    SendTravellingMerchant:OnChanged(function()
+        task.spawn(function()
+            getgenv().Settings.TravellingMerchant = SendTravellingMerchant.Value
+            SaveSetting()
+            local HttpService = game:GetService("HttpService")
+            local active = game:GetService("Workspace"):FindFirstChild("active")
+            local webhookSent = false
+
+            local function DiscordHook(Link, Tags, Zone, Item1, Item2, Item3)
+                local url = Link
+                local data = {
+                    ["content"] = "",
+                    ["embeds"] = {
+                        {
+                            ["title"] = "***Game: Fisch***",
+                            ["description"] = Tags.."\n\n".."**Username:** " .."||"..game.Players.LocalPlayer.Name.."||".."\n"
+                                                .."**Travelling Merchant At: **"..Zone.."\n"
+                                                .."**Item 1: **"..tostring(Item1).."\n"
+                                                .."**Item 2: **"..tostring(Item2).."\n"
+                                                .."**Item 3: **"..tostring(Item3).."\n\n"
+                                                .."```".."\n"
+                                                .."game:GetService"..'('..'"'.."TeleportService"..'"'..')'..":TeleportToPlaceInstance"..'('..tostring(game.PlaceId)..", "..'"'..tostring(game.JobId)..'"'..", ".."game.Players.LocalPlayer"..")".."\n"
+                                                .."```".."",
+                            ["type"] = "rich",
+                            ["color"] = tonumber(0x9966CC),
+                            ["image"] = {
+                                ["url"] = "http://www.roblox.com/Thumbs/Avatar.ashx?x=150&y=150&Format=Png&username=" ..
+                                    tostring(game:GetService("Players").LocalPlayer.Name)
+                            }
+                        }
+                    }
+                }
+                local newdata = HttpService:JSONEncode(data)
+                local headers = {
+                    ["content-type"] = "application/json"
+                }
+                request = http_request or request or HttpPost or syn.request
+                local HOOK = {Url = url, Body = newdata, Method = "POST", Headers = headers}
+                request(HOOK)
+            end
+
+            if active then
+                active.ChildAdded:Connect(function(child)
+                    if SendTravellingMerchant.Value then
+                        if child.Name == "Merchant Boat" and child:IsA("Model") and not webhookSent then
+                            webhookSent = true
+                            local Items
+                            local filteredItems = {}
+
+                            task.wait(5)
+                            for i = 1, 10 do
+                                Items = child:GetChildren()
+                                if #Items > 0 then break end
+                                wait(0.5)
+                            end
+
+                            for _, item in pairs(Items) do
+                                if item.Name ~= "Boat" and item.Name ~= "1" and item.Name ~= "2" and item.Name ~= "3" then
+                                    table.insert(filteredItems, item.Name)
+                                end
+                            end
+
+                            local Item1 = filteredItems[1] or "N/A"
+                            local Item2 = filteredItems[2] or "N/A"
+                            local Item3 = filteredItems[3] or "N/A"
+                            DiscordHook(
+                                tostring(getgenv().Settings.WebhookLink),
+                                "@everyone",
+                                tostring(game.Players.LocalPlayer.Character.zone.Value),
+                                Item1,
+                                Item2,
+                                Item3
+                            )
+                        end
+                    end
+                end)
+
+                active.ChildRemoved:Connect(function(child)
+                    if child.Name == "Merchant Boat" then
+                        webhookSent = false
+                    end
+                end)
+            end
+        end)
+    end)
+
+    AutoFarmCages:OnChanged(function()
+        task.spawn(function()
+            local player = game.Players.LocalPlayer
+            local character = player.Character or player.CharacterAdded:Wait()
+            local zone = character:FindFirstChild("zone") or character:WaitForChild("zone", 5)
+            local Collected = false
+        
+            local function CheckCages()
+                -- Check player's backpack for Crab Cage tools and validate their stack size
+                for _, tool in pairs(player.Backpack:GetChildren()) do
+                    if string.find(tool.Name, "Crab Cage") and tool:IsA("Tool") then
+                        local toolName = tostring(tool.Name)
+                        for _, inventoryItem in pairs(game:GetService("ReplicatedStorage").playerstats[tostring(player.Name)].Inventory:GetChildren()) do
+                            if string.find(inventoryItem.Name, toolName) then
+                                local stack = inventoryItem:FindFirstChild("Stack") or inventoryItem:WaitForChild("Stack", 5)
+                                if stack and stack.Value < 1000 then
+                                    return false
+                                end
+                            end
+                        end
+                    else
+                        for i2,v2 in pairs(character:GetChildren()) do
+                            if string.find(v2.Name, "Crab Cage") and tool:IsA("Tool") then
+                                return true
+                            else
+                                return false
+                            end
+                        end
+                    end
+                end
+                return true
+            end
+        
+            local function Deploy(position)
+                pcall(function()
+                    local deployData = {
+                        ["CFrame"] = position
+                    }
+                    game.Players.LocalPlayer.Character["Crab Cage"].Deploy:FireServer(deployData)
+                end)
+            end
+        
+            local function HandleCrabCages()
+                local itemsCollected = 0
+                local maxItems = 1000
+            
+                for _, cage in pairs(game:GetService("Workspace").world.interactables["Crab Cage"]:GetChildren()) do
+                    if cage.Name == "Crab Cage" and cage:FindFirstChild("purchaserompt") then
+                        local prompt = cage:FindFirstChild("purchaserompt") or cage:WaitForChild("purchaserompt", 5)
+                        while itemsCollected < maxItems do
+                            fireproximityprompt(prompt)
+                            task.wait(0.1) -- รอระหว่างการโต้ตอบ
+                            local confirm = game.Players.LocalPlayer.PlayerGui.over:FindFirstChild("prompt") or game.Players.LocalPlayer.PlayerGui.over:WaitForChild("prompt", 5)
+                            if confirm and confirm.confirm then
+                                for _, connection in pairs(getconnections(confirm.confirm.MouseButton1Click)) do
+                                    connection:Fire()
+                                    itemsCollected = itemsCollected + 1
+                                    if itemsCollected >= maxItems then
+                                        break
+                                    end
+                                end
+                            end
+                        end
+                        if itemsCollected >= maxItems then
+                            break
+                        end
+                    end
+                end
+            
+                if itemsCollected >= maxItems then
+                    Collected = true
+                else
+                    Collected = false
+                end
+            end            
+        
+            local function InteractWithActivePrompt()
+                local PlayerName = game.Players.LocalPlayer.Name
+                local foundObject = false -- ตัวแปรตรวจสอบสถานะ
+            
+                for _, obj in pairs(game:GetService("Workspace").active:GetChildren()) do
+                    if obj.Name == PlayerName and obj:FindFirstChild("Prompt") then
+                        foundObject = true
+                        local object = obj
+                        local Prompt = obj.Prompt
+                        while object and object:FindFirstChild("Prompt") do
+                            fireproximityprompt(Prompt)
+                            task.wait(0.1)
+                        end
+                    else
+                        foundObject = false
+                    end
+                end
+            
+                if not foundObject then
+                    Collected = false
+                end
+            end
+            
+        
+            while AutoFarmCages.Value do
+                task.wait()
+                if zone.Value and zone.Value.Name == "Desolate Deep" then
+                    local player = game.Players.LocalPlayer
+                    local workspaceActive = game:GetService("Workspace"):FindFirstChild("active")
+
+                    if workspaceActive then
+                        local found = false
+
+                        for _, child in pairs(workspaceActive:GetChildren()) do
+                            if child.Name == player.Name and child:FindFirstChild("Prompt") then
+                                print("Found: " .. child.Name)
+                                found = true
+                                break
+                            end
+                        end
+
+                        if not found then
+                            print("Not Found")
+                        end
+                    end
+
+                else
+                    character.HumanoidRootPart.CFrame = CFrame.new(-1651.90564, -213.679443, -2842.21362)
+                    AutoFarmCages:SetValue(false)
+                    Fluent:Notify({
+                        Title = "BLOBBY HUB",
+                        Content = "Save Your Positions",
+                        Duration = 5
+                    })
+                    task.wait(5)
+                end
+            end
+        end)
+        task.spawn(function()
+            while AutoFarmCages.Value do
+                wait()
+                pcall(function()
+                    for _, v in pairs(game:GetService("Workspace").active:GetChildren()) do
+                        if v.Name == tostring(game.Players.LocalPlayer.Name) and v:FindFirstChild("Prompt") then
+                            local CageB = v:FindFirstChild("Cage")
+                            local blocker = v:FindFirstChild("blocker")
+                            local handle = v:FindFirstChild("handle")
+                            if CageB then
+                                pcall(function()
+                                    --CageB:Destroy()
+                                end)
+                            end
+                            if blocker then
+                                pcall(function()
+                                   --blocker:Destroy()
+                                end)
+                            end
+                            if handle then
+                                pcall(function()
+                                    --handle:Destroy()
+                                end)
+                            end
+                        end
+                    end
+                end)
+            end            
         end)
     end)
 end
