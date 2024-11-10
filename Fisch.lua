@@ -1007,9 +1007,6 @@ do
                                 wait(1)
                             end)
                         end
-                        if character[getgenv().Settings.Rod].values.bite.Value == true then
-                            Casted = false
-                        end
                         if character:FindFirstChildOfClass("Tool") then
                             if character[getgenv().Settings.Rod].values.casted.Value == true and character[getgenv().Settings.Rod].values.bite.Value == false and character[getgenv().Settings.Rod]:FindFirstChild("bobber") and character[getgenv().Settings.Rod].values.bobberzone.Value ~= "" then
                                 pcall(function()
@@ -1039,6 +1036,9 @@ do
                             end
                         end
                         if character:FindFirstChildOfClass("Tool") then
+                            if character[getgenv().Settings.Rod].values.bite.Value == true then
+                                Casted = false
+                            end
                             if character[getgenv().Settings.Rod].values.bite.Value == true and character[getgenv().Settings.Rod].values.casted.Value == true and character[getgenv().Settings.Rod]:FindFirstChild("bobber") and character[getgenv().Settings.Rod].values.bobberzone.Value ~= "" then
                                 pcall(function()
                                     GuiService.SelectedObject = nil
@@ -1077,14 +1077,14 @@ do
                         end
                         character[getgenv().Settings.Rod].values.casted:GetPropertyChangedSignal("Value"):Connect(function()
                             if character[getgenv().Settings.Rod].values.casted.Value == false then
-                                wait(.5)
+                                wait(.1)
                                 Casted = false
                                 character.HumanoidRootPart.Anchored = false
                             end
                         end)
                         character[getgenv().Settings.Rod].values.bite:GetPropertyChangedSignal("Value"):Connect(function()
                             if character[getgenv().Settings.Rod].values.bite.Value == false then
-                                wait(.5)
+                                wait(.1)
                                 Casted = false
                                 character.HumanoidRootPart.Anchored = false
                             end
@@ -1873,26 +1873,26 @@ for i, v in pairs(game:GetService("CoreGui"):GetChildren()) do
     end
 end
 
-local mt = getrawmetatable(game)
-setreadonly(mt, false)
+-- local mt = getrawmetatable(game)
+-- setreadonly(mt, false)
 
-local oldNamecall = mt.__namecall
+-- local oldNamecall = mt.__namecall
 
-mt.__namecall = newcclosure(function(self, ...)
-    local args = {...}
-    local method = getnamecallmethod()
+-- mt.__namecall = newcclosure(function(self, ...)
+--     local args = {...}
+--     local method = getnamecallmethod()
     
-    if method == "FireServer" and self.Name == "reelfinished" then
-        local A1 = args[1]
-        if A1 < 1 then
-            args[1] = 100
-            args[2] = true
-            return oldNamecall(self, unpack(args))
-        end
-    end
-    return oldNamecall(self, ...)
-end)
+--     if method == "FireServer" and self.Name == "reelfinished" then
+--         local A1 = args[1]
+--         if A1 < 1 then
+--             args[1] = 100
+--             args[2] = true
+--             return oldNamecall(self, unpack(args))
+--         end
+--     end
+--     return oldNamecall(self, ...)
+-- end)
 
-setreadonly(mt, true)
+-- setreadonly(mt, true)
 
 Window:SelectTab(1)
