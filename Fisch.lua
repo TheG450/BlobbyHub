@@ -13,6 +13,11 @@ getgenv().Settings = {
     UseZone = nil,
     CageCount = nil,
     DeployCage = nil,
+    AutoCagePosition = {
+        Position1 = nil,
+        Position2 = nil,
+        position3 = nil,
+    }
 }
 
 local function CreateMobileUI()
@@ -404,7 +409,7 @@ do
     local AutoReel = Tabs.pageMain:AddToggle("AutoReel", {Title = "Auto Reel", Default = false })
 
     --[[ EXTRA]]--------------------------------------------------------
-    local Cage = Tabs.pageExtra:AddSection("Cage")
+    local Cage = Tabs.pageExtra:AddSection("Cage (Manual)")
     local InputCage = Tabs.pageExtra:AddInput("InputCage", {
         Title = "Input Cage",
         Default = 1,
@@ -469,6 +474,53 @@ do
             game.Workspace.world.npcs.Merlin.Merlin.luck:InvokeServer()
         end
     })
+    local CageAutoTitle = Tabs.pageExtra:AddSection("Cage (Automatic)")
+    local SavePosition1 = Tabs.pageMain:AddButton({
+        Title = "Save Farm Position1",
+        Description = "Auto Cage Farm Position1",
+        Callback = function()
+            getgenv().Settings.AutoCagePosition.Position1 = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+        end
+    })
+    local SavePosition2 = Tabs.pageMain:AddButton({
+        Title = "Save Farm Position2",
+        Description = "Auto Cage Farm Position2",
+        Callback = function()
+            getgenv().Settings.AutoCagePosition.Position2 = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+        end
+    })
+    local SavePosition3 = Tabs.pageMain:AddButton({
+        Title = "Save Farm Position3",
+        Description = "Auto Cage Farm Position3",
+        Callback = function()
+            getgenv().Settings.AutoCagePosition.Position3 = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+        end
+    })
+    local ResetPosition = Tabs.pageMain:AddButton({
+        Title = "Reset Farm Positions",
+        Description = "Reset Farm Positions",
+        Callback = function()
+            Window:Dialog({
+                Title = "Reset Farm Positions",
+                Content = "Are You Sure To Reset Position?",
+                Buttons = {
+                    {
+                        Title = "Confirm",
+                        Callback = function()
+                            getgenv().Settings.FarmPosition = nil
+                        end
+                    },
+                    {
+                        Title = "Cancel",
+                        Callback = function()
+                            return
+                        end
+                    }
+                }
+            })
+        end
+    })
+
 
     --[[ EVENT ]]--------------------------------------------------------
     local EventList = {}
