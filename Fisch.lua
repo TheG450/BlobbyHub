@@ -1,5 +1,11 @@
 repeat wait() until game:IsLoaded() and game.Players and game.Players.LocalPlayer and game.Players.LocalPlayer.Character
+repeat local VirtualInputManager = game:GetService("VirtualInputManager")
+    VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
+    wait(0.1)
+    VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Return, false, game) 
+until game:GetService("Players").LocalPlayer.PlayerGui.loading.Enabled == false
 getgenv().Settings = {
+    HideGui = nil,
     Rod = nil,
     RealFinish = nil,
     FarmPosition = nil,
@@ -40,7 +46,7 @@ function SaveSetting()
         makefolder(BaseFolder.."\\"..SubFolder)
         writefile(BaseFolder.."\\"..SubFolder.."\\"..FileName, json)
     else
-        warn("ERROR: Can't save your settings")
+        error("ERROR: Can't save your settings")
     end
 end
 
@@ -48,7 +54,7 @@ function LoadSetting()
     local HttpService = game:GetService("HttpService")
     if readfile and isfile and isfile(BaseFolder.."\\"..SubFolder.."\\"..FileName) then
         getgenv().Settings = HttpService:JSONDecode(readfile(BaseFolder.."\\"..SubFolder.."\\"..FileName))
-        print("Settings loaded successfully!")
+        warn("Settings loaded successfully!")
     end
 end
 
@@ -120,8 +126,6 @@ end
 
 checkDevice()
 
-
-game:GetService("ReplicatedStorage").events.finishedloading:FireServer()
 LoadSetting()
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
@@ -143,6 +147,8 @@ if oCButton then
             if v.Name == "Frame" and v:FindFirstChild("CanvasGroup") then
                 local EN = not v.Visible
                 v.Visible = EN
+                getgenv().Settings.HideGui = EN
+                SaveSetting()
             end
         end
     end)
@@ -215,12 +221,12 @@ do
         getgenv().Settings.Rod = Value
         SaveSetting()
     end)
-    local InstantReel = Tabs.pageSetting:AddToggle("InstantReel", {Title = "Instant ReelFinish", Default = getgenv().Settings.RealFinish or true})
+    local InstantReel = Tabs.pageSetting:AddToggle("InstantReel", {Title = "Instant ReelFinish", Default = getgenv().Settings.RealFinish or false})
     InstantReel:OnChanged(function(value)
         getgenv().Settings.RealFinish = value
         SaveSetting()
     end)
-    local FastShake = Tabs.pageSetting:AddToggle("FastShake", {Title = "Fast Shake", Default = getgenv().Settings.FastShake or true })
+    local FastShake = Tabs.pageSetting:AddToggle("FastShake", {Title = "Fast Shake", Default = getgenv().Settings.FastShake or false })
     FastShake:OnChanged(function(value)
         getgenv().Settings.FastShake = value
         SaveSetting()
@@ -277,7 +283,7 @@ do
     --[[ MAIN ]]--------------------------------------------------------
     local General = Tabs.pageMain:AddSection("General")
     local AutoFishing = Tabs.pageMain:AddToggle("AutoFishing", {Title = "Auto Fishing", Default = getgenv().Settings.AutoFishing or false })
-    local AutoNuke = Tabs.pageMain:AddToggle("AutoNuke", {Title = "Auto Nuke MiniGame", Default = getgenv().Settings.AutoNuke or true })
+    local AutoNuke = Tabs.pageMain:AddToggle("AutoNuke", {Title = "Auto Nuke MiniGame", Default = getgenv().Settings.AutoNuke or false })
     local SafeMode = Tabs.pageMain:AddToggle("SafeMode", {Title = "Safe Mode", Default = getgenv().Settings.SafeMode or false })
     local SellAll = Tabs.pageMain:AddButton({
         Title = "Sell All",
@@ -1799,6 +1805,17 @@ Fluent:Notify({
     Duration = 8
 })
 
+--[[ SET GUI ]]--------------------------------------------------------
+for i, v in pairs(game:GetService("CoreGui"):GetChildren()) do
+    if v:IsA("ScreenGui") and v:FindFirstChild("Frame") then
+        for _, mainPage in pairs(v:GetChildren()) do
+            if mainPage:IsA("Frame") and mainPage:FindFirstChild("CanvasGroup") then
+                mainPage.Visible = getgenv().Settings.HideGui
+            end
+        end
+    end
+end
+
 --ANTI AFK
 task.spawn(function()
     while wait(320) do
@@ -1812,6 +1829,20 @@ task.spawn(function()
         end)
     end
 end)
+
+--SET HIDE
+for i, v in pairs(game:GetService("CoreGui"):GetChildren()) do
+    if v:IsA("ScreenGui") and v:FindFirstChild("Frame") then
+        for _, mainPage in pairs(v:GetChildren()) do
+            if mainPage:IsA("Frame") and mainPage:FindFirstChild("CanvasGroup") then
+                mainPage:GetPropertyChangedSignal("Visible"):Connect(function()
+                    getgenv().Settings.HideGui = mainPage.Visible
+                    SaveSetting()
+                end)
+            end
+        end
+    end
+end
 
 local mt = getrawmetatable(game)
 setreadonly(mt, false)
