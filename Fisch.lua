@@ -876,8 +876,6 @@ do
                 return closestPart
             end
 
-
-            
             task.spawn(function()
                 while AutoFishing.Value do
                     wait()
@@ -1007,10 +1005,11 @@ do
                                 wait(1)
                             end)
                         end
+                        Casted = false
                         if character:FindFirstChildOfClass("Tool") then
                             if character[getgenv().Settings.Rod].values.casted.Value == true and character[getgenv().Settings.Rod].values.bite.Value == false and character[getgenv().Settings.Rod]:FindFirstChild("bobber") and character[getgenv().Settings.Rod].values.bobberzone.Value ~= "" then
                                 pcall(function()
-                                    local shakeui = game:GetService("Players").LocalPlayer.PlayerGui:WaitForChild("shakeui")
+                                    local shakeui = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("shakeui") or game:GetService("Players").LocalPlayer.PlayerGui:WaitForChild("shakeui", 5)
                                     if shakeui then
                                         if getgenv().Settings.FastShake == true then
                                             local Button = game:GetService("Players").LocalPlayer.PlayerGui.shakeui.safezone.button:FindFirstChild("ripple")
@@ -1075,21 +1074,20 @@ do
                                 end)
                             end
                         end
-                        character[getgenv().Settings.Rod].values.casted:GetPropertyChangedSignal("Value"):Connect(function()
-                            if character[getgenv().Settings.Rod].values.casted.Value == false then
-                                wait(.1)
-                                Casted = false
-                                character.HumanoidRootPart.Anchored = false
-                            end
-                        end)
-                        character[getgenv().Settings.Rod].values.bite:GetPropertyChangedSignal("Value"):Connect(function()
-                            if character[getgenv().Settings.Rod].values.bite.Value == false then
-                                wait(.1)
-                                Casted = false
-                                character.HumanoidRootPart.Anchored = false
-                            end
-                        end)
+                        -- character[getgenv().Settings.Rod].values.bite:GetPropertyChangedSignal("Value"):Connect(function()
+                        --     if character[getgenv().Settings.Rod].values.bite.Value == false then
+                        --         wait(.1)
+                        --         Casted = false
+                        --         character.HumanoidRootPart.Anchored = false
+                        --     end
+                        -- end)
                     end
+                    character[getgenv().Settings.Rod].values.casted:GetPropertyChangedSignal("Value"):Connect(function()
+                        if character[getgenv().Settings.Rod].values.casted.Value == false then
+                            wait(.1)
+                            character.HumanoidRootPart.Anchored = false
+                        end
+                    end)
                 end
                 character.HumanoidRootPart.Anchored = false
                 GuiService.SelectedObject = nil
