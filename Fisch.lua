@@ -1028,6 +1028,11 @@ do
                                             VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
                                         end
                                         character.HumanoidRootPart.Anchored = true
+                                    else
+                                        character[getgenv().Settings.Rod].events.reset:FireServer()
+                                        character.HumanoidRootPart.Anchored = false
+                                        Casted = false
+                                        wait(.1)
                                     end
                                 end)
                             else
