@@ -960,17 +960,9 @@ do
                                         GuiService.SelectedObject = nil
                                         local fish = game:GetService("Players").LocalPlayer.PlayerGui.reel.bar:FindFirstChild("fish") or game:GetService("Players").LocalPlayer.PlayerGui.reel.bar:WaitForChild("fish", 5)
                                         local playerbar = game:GetService("Players").LocalPlayer.PlayerGui.reel.bar:FindFirstChild("playerbar") or game:GetService("Players").LocalPlayer.PlayerGui.reel.bar:WaitForChild("playerbar", 5)
-                                        local function fireReelFinished()
-                                            game:GetService("ReplicatedStorage").events.reelfinished:FireServer(100, true)
-                                        end
-                                        coroutine.wrap(function()
-                                            fish:GetPropertyChangedSignal("Position"):Wait()
-                                            fireReelFinished()
-                                        end)()
-                                        coroutine.wrap(function()
-                                            playerbar:GetPropertyChangedSignal("Position"):Wait()
-                                            fireReelFinished()
-                                        end)()
+                                            
+                                        playerbar:GetPropertyChangedSignal("Position"):Wait()
+                                        game:GetService("ReplicatedStorage").events.reelfinished:FireServer(100, true)
                                     else
                                         if game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("reel") then
                                             game:GetService("Players").LocalPlayer.PlayerGui.reel.bar.playerbar.Size = UDim2.new(1, 0, 1, 0)
@@ -1540,38 +1532,54 @@ do
             SaveSetting()
             local Player = game:GetService("Players").LocalPlayer
             local NukeMinigame = Player.PlayerGui:FindFirstChild("NukeMinigame")
+            local catch = true -- Start with catch enabled
+        
+            local function pressButton(button)
+                if button and button:IsA("GuiButton") then
+                    local X = button.AbsolutePosition.X
+                    local Y = button.AbsolutePosition.Y
+                    local XS = button.AbsoluteSize.X
+                    local YS = button.AbsoluteSize.Y
+        
+                    game:GetService("VirtualInputManager"):SendMouseButtonEvent(X + XS / 2, Y + YS / 2, 0, true, button, 1)
+                    game:GetService("VirtualInputManager"):SendMouseButtonEvent(X + XS / 2, Y + YS / 2, 0, false, button, 1)
+                end
+            end
+        
             while AutoNuke.Value do
-                wait()
-
-                if NukeMinigame then
-                    if NukeMinigame.Enabled == true then
-                        local Pointer = NukeMinigame.Center.Marker.Pointer
-                        local LeftButton = NukeMinigame.Center.Left
-                        local RightButton = NukeMinigame.Center.Right
-
-                        local function pressButton(button)
-                            local X = button.AbsolutePosition.X
-                            local Y = button.AbsolutePosition.Y
-                            local XS = button.AbsoluteSize.X
-                            local YS = button.AbsoluteSize.Y
-
-                            game:GetService("VirtualInputManager"):SendMouseButtonEvent(X + XS / 2, Y + YS / 2, 0, true, button, 1)
-                            game:GetService("VirtualInputManager"):SendMouseButtonEvent(X + XS / 2, Y + YS / 2, 0, false, button, 1)
-                        end
-
+                task.wait(0.1)
+        
+                if NukeMinigame and NukeMinigame.Enabled then
+                    catch = false
+        
+                    local Pointer = NukeMinigame:FindFirstChild("Center") and NukeMinigame.Center.Marker.Pointer
+                    local LeftButton = NukeMinigame.Center:FindFirstChild("Left")
+                    local RightButton = NukeMinigame.Center:FindFirstChild("Right")
+        
+                    if Pointer and Pointer:IsA("GuiObject") then
                         local rotation = Pointer.Rotation
-
-                        if rotation > 40 then
+        
+                        if rotation > 35 then
                             pressButton(LeftButton)
-                        elseif rotation < -40 then
+                        elseif rotation < -35 then
                             pressButton(RightButton)
                         end
-                    else
-                        wait()
+                    end
+                else
+                    if not catch then
+                        task.wait(2)
+                        catch = true
+                        local rod = getgenv().Settings.Rod
+                        if rod and Player.Character:FindFirstChild(rod) then
+                            local resetEvent = Player.Character[rod].events:FindFirstChild("reset")
+                            if resetEvent then
+                                resetEvent:FireServer()
+                            end
+                        end
                     end
                 end
             end
-        end)
+        end)        
     end)
 
     SendTravellingMerchant:OnChanged(function()
