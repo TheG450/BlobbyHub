@@ -357,19 +357,19 @@ do
                                     if Dialog and Dialog.Visible == true then
                                         for i, v in pairs(Dialog:GetChildren()) do
                                             if v.Name == "Accept" and v:IsA("TextButton") then
-                                                firesignal(v.MouseButton1Down)
-                                                -- local buttonX = v.AbsolutePosition.X + v.AbsoluteSize.X / 2
-                                                -- local buttonY = v.AbsolutePosition.Y + v.AbsoluteSize.Y / 2
-                                                -- local offsetX = buttonX + 50
-                                                -- local offsetY = buttonY + 50
+                                                --firesignal(v.MouseButton1Down)
+                                                local buttonX = v.AbsolutePosition.X + v.AbsoluteSize.X / 2
+                                                local buttonY = v.AbsolutePosition.Y + v.AbsoluteSize.Y / 2
+                                                local offsetX = buttonX + 50
+                                                local offsetY = buttonY + 50
                                                 
-                                                -- VirtualInputManager:SendMouseButtonEvent(offsetX, offsetY, 0, true, Dialog, 0)
-                                                -- wait(0.05)
-                                                -- VirtualInputManager:SendMouseButtonEvent(offsetX, offsetY, 0, false, Dialog, 0)
+                                                VirtualInputManager:SendMouseButtonEvent(offsetX, offsetY, 0, true, Dialog, 0)
+                                                wait(0.05)
+                                                VirtualInputManager:SendMouseButtonEvent(offsetX, offsetY, 0, false, Dialog, 0)
                                                 
-                                                -- VirtualInputManager:SendMouseButtonEvent(buttonX, buttonY, 0, true, Dialog, 0)
-                                                -- wait(0.05)
-                                                -- VirtualInputManager:SendMouseButtonEvent(buttonX, buttonY, 0, false, Dialog, 0)
+                                                VirtualInputManager:SendMouseButtonEvent(buttonX, buttonY, 0, true, Dialog, 0)
+                                                wait(0.05)
+                                                VirtualInputManager:SendMouseButtonEvent(buttonX, buttonY, 0, false, Dialog, 0)
                                             end
                                         end
                                     end
