@@ -652,37 +652,35 @@ do
         end
     })
     local Teasure = Tabs.pageEvent:AddSection("Teasure")
-    local TeleportToTeasure = Tabs.pageEvent:AddButton({
-        Title = "Teleport To Teasure",
+    local TeleportToNpc = Tabs.pageEvent:AddButton({
+        Title = "Teleport To NPC",
         Callback = function()
-            for i, v in pairs(game:GetService("Players").LocalPlayer.PlayerGui:GetChildren()) do
-                if v.Name == "Treasure Map" then
-                    if v.Enabled == true then
-                        local Coordination = v.Main:FindFirstChild("CoordinatesLabel") or v:WaitForChild("CoordinatesLabel", 5)
-                        local TreasurePosition = Coordination.Text
-                
-                        local x, y, z = TreasurePosition:match("X%s*([%d%.%-?]+),%s*Y%s*([%d%.%-?]+),%s*Z%s*([%d%.%-?]+)")
-                
-                        if x and y and z and not (x:find("?") or y:find("?") or z:find("?")) then
-                            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(tonumber(x), tonumber(y), tonumber(z))
-                        else
-                            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-2825.10229, 214.454575, 1517.53162, -0.411731094, -6.56982877e-08, 0.911305368, -7.25599421e-08, 1, 3.93096613e-08, -0.911305368, -4.99392563e-08, -0.411731094)
-                            wait(.5)
-                            Fluent:Notify({
-                                Title = "BLOBBY HUB",
-                                Content = "Fix Your TeasureMap",
-                                Duration = 3
-                            })
+            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-2825.10229, 214.454575, 1517.53162, -0.411731094, -6.56982877e-08, 0.911305368, -7.25599421e-08, 1, 3.93096613e-08, -0.911305368, -4.99392563e-08, -0.411731094)
+        end
+    })
+    local EquipTreasure = Tabs.pageEvent:AddButton({
+        Title = "Equip&Repair Treasure Maps",
+        Callback = function()
+            for i,v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+                local success, error = pcall(function()
+                    if v.Name == "Treasure Map" and v:IsA("Tool") then
+                        local humanoid = game.Players.LocalPlayer.Character:FindFirstChild("Humanoid")
+                        humanoid:EquipTool(v)
+                        wait(.1)
+                        game.Workspace.world.npcs["Jack Marrow"].treasure.repairmap:InvokeServer()
+                        wait(.5)
+                        for i,v in pairs(game:GetService("Workspace").world.chests:GetChildren()) do
+                            if string.find(v.Name, "TreasureChest") and v:IsA("BasePart") and not v:FindFirstChild("ChestOpen") then
+                                local prompt = v:FindFirstChild("ProximityPrompt") or v:WaitForChild("ProximityPrompt", 5)
+                                prompt.HoldDuration = 0
+                                fireproximityprompt(prompt, 1)
+                            end
                         end
-                    else
-                        Fluent:Notify({
-                            Title = "BLOBBY HUB",
-                            Content = "Equip Your TeasureMap",
-                            Duration = 3
-                        })
+                        wait(.1)
+                        break
                     end
-                end
-            end            
+                end)
+            end
         end
     })
 

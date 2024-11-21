@@ -357,19 +357,19 @@ do
                                     if Dialog and Dialog.Visible == true then
                                         for i, v in pairs(Dialog:GetChildren()) do
                                             if v.Name == "Accept" and v:IsA("TextButton") then
-                                                --firesignal(v.MouseButton1Down)
-                                                local buttonX = v.AbsolutePosition.X + v.AbsoluteSize.X / 2
-                                                local buttonY = v.AbsolutePosition.Y + v.AbsoluteSize.Y / 2
-                                                local offsetX = buttonX + 50
-                                                local offsetY = buttonY + 50
+                                                firesignal(v.MouseButton1Down)
+                                                -- local buttonX = v.AbsolutePosition.X + v.AbsoluteSize.X / 2
+                                                -- local buttonY = v.AbsolutePosition.Y + v.AbsoluteSize.Y / 2
+                                                -- local offsetX = buttonX + 50
+                                                -- local offsetY = buttonY + 50
                                                 
-                                                VirtualInputManager:SendMouseButtonEvent(offsetX, offsetY, 0, true, Dialog, 0)
-                                                wait(0.05)
-                                                VirtualInputManager:SendMouseButtonEvent(offsetX, offsetY, 0, false, Dialog, 0)
+                                                -- VirtualInputManager:SendMouseButtonEvent(offsetX, offsetY, 0, true, Dialog, 0)
+                                                -- wait(0.05)
+                                                -- VirtualInputManager:SendMouseButtonEvent(offsetX, offsetY, 0, false, Dialog, 0)
                                                 
-                                                VirtualInputManager:SendMouseButtonEvent(buttonX, buttonY, 0, true, Dialog, 0)
-                                                wait(0.05)
-                                                VirtualInputManager:SendMouseButtonEvent(buttonX, buttonY, 0, false, Dialog, 0)
+                                                -- VirtualInputManager:SendMouseButtonEvent(buttonX, buttonY, 0, true, Dialog, 0)
+                                                -- wait(0.05)
+                                                -- VirtualInputManager:SendMouseButtonEvent(buttonX, buttonY, 0, false, Dialog, 0)
                                             end
                                         end
                                     end
@@ -390,16 +390,24 @@ do
         task.spawn(function()
             local player = game.Players.LocalPlayer
             local character = player.Character or player.CharacterAdded:Wait()
-            
+    
+            local function updateCharacter()
+                character = player.Character or player.CharacterAdded:Wait()
+            end
+    
+            player.CharacterAdded:Connect(function()
+                task.wait(0.5)
+                updateCharacter()
+            end)
+    
             local VirtualInputManager = game:GetService("VirtualInputManager")
             local ReplicatedStorage = game:GetService("ReplicatedStorage")
             local Workspace = game:GetService("Workspace")
             local VirtualUser = game:GetService("VirtualUser")
-        
+            
             local targetMob = nil
-            local lastPosition = nil
             local antifall = nil
-
+    
             if AutoFarmQuest.Value then
                 VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.R, false, nil)
                 VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.R, false, nil)
@@ -412,16 +420,21 @@ do
                     antifall:Destroy()
                     antifall = nil
                 end
+                for i,v in pairs(character.HumanoidRootPart:GetChildren()) do
+                    if v.Name == "BodyVelocity" then
+                        v:Destroy()
+                    end
+                end
             end
-        
+    
             while AutoFarmMob.Value do
                 task.wait()
-
+    
                 local weaponEquip = character:GetAttribute("WeaponEquipped")
                 local health = character:FindFirstChild("Humanoid") and character.Humanoid.Health or 0
-
-                pcall(function()
-                    if character.Humanoid.Health > 0 then
+    
+                local success, error = pcall(function()
+                    if character and character:FindFirstChild("Humanoid") and character.Humanoid.Health > 0 then
                         if weaponEquip then
                             if targetMob and targetMob:FindFirstChild("Humanoid") and targetMob.Humanoid.Health > 0 then
                                 local mobCFrame = targetMob.HumanoidRootPart.CFrame
@@ -447,7 +460,6 @@ do
                                         currentHealth = character.Humanoid.Health
                                     until currentHealth >= (maxHealth * 0.5)
                                 end
-    
                             else
                                 for _, mob in ipairs(Workspace.Npcs:GetChildren()) do
                                     if mob.Name == getgenv().Settings.SelectMob and mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 then
@@ -462,9 +474,12 @@ do
                         end
                     end
                 end)
+                if not success then
+                    warn("errorMessage: " .. error)
+                end
             end
-        end)        
-    end)
+        end)
+    end)    
 
     AutoFarmWanted:OnChanged(function()
         task.spawn(function()
