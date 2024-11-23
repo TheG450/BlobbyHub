@@ -209,8 +209,8 @@ do
 
     --[[ VIRTUAL ]]--------------------------------------------------------
     local ShowStaminaFlow = Tabs.pageVirtual:AddToggle("ShowStaminaFlow", {Title = "Show Stamina, Flow", Default = getgenv().Settings.ShowStaminaFlow or false })
-    local HitboxExpander = Tabs.pageExtra:AddSection("HitboxExpander")
-    local HitboxSize = Tabs.pageMain:AddSlider("HitboxSize", {
+    local HitboxExpander = Tabs.pageVirtual:AddSection("HitboxExpander")
+    local HitboxSize = Tabs.pageVirtual:AddSlider("HitboxSize", {
         Title = "Hitbox Size",
         Default = 20,
         Min = 0,
