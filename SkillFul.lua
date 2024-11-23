@@ -643,8 +643,8 @@ do
                     if v.Name == "/e ball" and v:IsA("Model") then
                         pcall(function()
                             local Collider = v:FindFirstChild("Collider")
-                            Collider.Size = Vector3.new(30, 30, 30)
-                            Collider.Transparency = 0.75
+                            Collider.Size = Vector3.new(getgenv().Settings.HitboxSize, getgenv().Settings.HitboxSize, getgenv().Settings.HitboxSize)
+                            Collider.Transparency = 0.85
                         end)
                     end
                 end
