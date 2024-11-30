@@ -82,7 +82,7 @@ local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/d
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
 local Window = Fluent:CreateWindow({
-    Title = "Blobby Hub" .. " | ".."Slayer Online [Update 1]".." | ".."[Version 1.05.0]",
+    Title = "Blobby Hub" .. " | ".."Slayer Online [Update 2]",
     TabWidth = 160,
     Size =  Device, --UDim2.fromOffset(480, 360), --default size (580, 460)
     Acrylic = false, -- การเบลออาจตรวจจับได้ การตั้งค่านี้เป็น false จะปิดการเบลอทั้งหมด
@@ -221,7 +221,7 @@ do
     --[[ TELEPORT ]]--------------------------------------------------------
     local SelectTeleport = Tabs.pageTeleport:AddDropdown("SelectMob", {
         Title = "Select Mob",
-        Values = {"Fukushima Village", "Buttlefly Village", "Mount Natagumo", "Kumotori Village", "Mount Kumotori Peak", "Cave", "Final Selection", "Water Trainer House"},
+        Values = {"Fukushima Village", "Buttlefly Village", "Red Light District", "Mount Natagumo", "Kumotori Village", "Mount Kumotori Peak", "Cave", "Final Selection", "Water Trainer House"},
         Multi = false,
         Default = getgenv().Settings.SelectTeleport or "Fukushima Village",
         Callback = function(Value)
@@ -239,7 +239,8 @@ do
         ["Mount Kumotori Peak"] = CFrame.new(231.065, 212.896, -3856.38),
         ["Cave"] = CFrame.new(1488.1, 7.60565, -5290.35),
         ["Final Selection"] = CFrame.new(-1558.73, 6.35564, -5119.1),
-        ["Water Trainer House"] = CFrame.new(-1813.07, 154.078, -1497.25)
+        ["Water Trainer House"] = CFrame.new(-1813.07, 154.078, -1497.25),
+        ["Red Light District"] = CFrame.new(80.2396, 28.4931, -328.365)
     }
     local Teleport = Tabs.pageTeleport:AddButton({
         Title = "Teleport",
@@ -332,11 +333,14 @@ do
                             if player.PlayerGui.Interface.QuestProgress.Visible == true then
                                 if player.PlayerGui.Interface.QuestProgress.QuestName.Text == "Benjen Help" then
                                     for i,v in pairs(game:GetService("Workspace").IgnoreList.QuestUtilities:GetChildren()) do
-                                        if v.Name == tostring(player.Name).."Logs" and character.Humanoid.Health > 0  then
-                                            local woodLog = v:FindFirstChild("WoodLog")
-                                            character.HumanoidRootPart.CFrame = woodLog.WoodLog.CFrame
-                                            fireproximityprompt(woodLog.WoodLog.ProximityPrompt)
-                                        end
+                                        pcall(function()
+                                            if v.Name == tostring(player.Name).."Logs" then
+                                                local woodLog = v:FindFirstChild("WoodLog")
+                                                character.HumanoidRootPart.CFrame = woodLog.WoodLog.CFrame
+                                                wait(.1)
+                                                fireproximityprompt(woodLog.WoodLog.ProximityPrompt)
+                                            end
+                                        end)
                                     end
                                 elseif player.PlayerGui.Interface.QuestProgress.QuestName.Text == "Theon Help" then
                                     for i,v in pairs(game:GetService("Workspace").Npcs:GetDescendants()) do
@@ -345,6 +349,26 @@ do
                                             game:GetService("VirtualUser"):Button1Down(Vector2.new(9999,9999))
                                             game:GetService("VirtualUser"):Button1Up(Vector2.new(9999,9999))
                                         end
+                                    end
+                                elseif player.PlayerGui.Interface.QuestProgress.QuestName.Text == "Yuno Help" then
+                                    for i,v in pairs(game:GetService("Workspace").IgnoreList.QuestUtilities:GetChildren()) do
+                                        pcall(function()
+                                            if v.Name == tostring(player.Name).."Trashs" then
+                                                local Trash = v:FindFirstChild("Trash")
+                                                character.HumanoidRootPart.CFrame = Trash.CFrame * CFrame.new(0, 8, 0)
+                                                fireproximityprompt(Trash.ProximityPrompt, 1)
+                                            end
+                                        end)
+                                    end
+                                elseif player.PlayerGui.Interface.QuestProgress.QuestName.Text == "Guizera Help" then
+                                    for i,v in pairs(game:GetService("Workspace").IgnoreList.QuestUtilities:GetChildren()) do
+                                        pcall(function()
+                                            if v.Name == "Balthazar" then
+                                                local Part = v:FindFirstChild("HumanoidRootPart")
+                                                character.HumanoidRootPart.CFrame = Part.CFrame * CFrame.new(0, 0, -3)
+                                                fireproximityprompt(Part.Deliver)
+                                            end
+                                        end)
                                     end
                                 end
                             else

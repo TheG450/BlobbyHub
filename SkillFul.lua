@@ -43,6 +43,31 @@ getgenv().Settings = {
     HitboxSize = nil,
 }
 
+local FileName = tostring(game.Players.LocalPlayer.UserId).."_Settings.Blobby"
+local BaseFolder = "BLOBBYHUB"
+local SubFolder = "SkillFul"
+
+function SaveSetting()
+    local json
+    local HttpService = game:GetService("HttpService")
+    if writefile then
+        json = HttpService:JSONEncode(getgenv().Settings)
+        makefolder(BaseFolder)
+        makefolder(BaseFolder.."\\"..SubFolder)
+        writefile(BaseFolder.."\\"..SubFolder.."\\"..FileName, json)
+    else
+        error("ERROR: Can't save your settings")
+    end
+end
+
+function LoadSetting()
+    local HttpService = game:GetService("HttpService")
+    if readfile and isfile and isfile(BaseFolder.."\\"..SubFolder.."\\"..FileName) then
+        getgenv().Settings = HttpService:JSONDecode(readfile(BaseFolder.."\\"..SubFolder.."\\"..FileName))
+        warn("Settings loaded successfully!")
+    end
+end
+
 local function CreateMobileUI()
     local blobbyGui = Instance.new("ScreenGui")
     blobbyGui.Name = "BlobbyGui"
@@ -109,6 +134,7 @@ local function checkDevice()
 end
 
 checkDevice()
+LoadSetting()
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
@@ -158,10 +184,12 @@ do
         Rounding = 0,
         Callback = function(Value)
             getgenv().Settings.SpeedMultiple = Value
+            SaveSetting()
         end
     })
     SpeedMultiple:OnChanged(function(Value)
         getgenv().Settings.SpeedMultiple = Value
+        SaveSetting()
     end)
     local SpeedMultiplier = Tabs.pageMain:AddToggle("SpeedMultiplier", {Title = "Speed Multiplier", Default = getgenv().Settings.SpeedMultiplier or false })
     local FlowMultiple = Tabs.pageMain:AddSlider("FlowMultiple", {
@@ -172,10 +200,12 @@ do
         Rounding = 0,
         Callback = function(Value)
             getgenv().Settings.FlowMultiple = Value
+            SaveSetting()
         end
     })
     FlowMultiple:OnChanged(function(Value)
         getgenv().Settings.FlowMultiple = Value
+        SaveSetting()
     end)
     local FlowMultiplier = Tabs.pageMain:AddToggle("FlowMultiplier", {Title = "Flow Multiplier", Default = getgenv().Settings.FlowMMultiplier or false })
     local PowerMultiple = Tabs.pageMain:AddSlider("PowerMultiple", {
@@ -186,10 +216,12 @@ do
         Rounding = 0,
         Callback = function(Value)
             getgenv().Settings.PowerMultiple = Value
+            SaveSetting()
         end
     })
     PowerMultiple:OnChanged(function(Value)
         getgenv().Settings.PowerMultiple = Value
+        SaveSetting()
     end)
     local PowerMultiplier = Tabs.pageMain:AddToggle("PowerMultiplier", {Title = "Power Multiplier", Default = getgenv().Settings.PowerMultiplier or false })
     local JumpMultiple = Tabs.pageMain:AddSlider("JumpMultiple", {
@@ -200,28 +232,36 @@ do
         Rounding = 0,
         Callback = function(Value)
             getgenv().Settings.JumpMultiple = Value
+            SaveSetting()
         end
     })
     JumpMultiple:OnChanged(function(Value)
         getgenv().Settings.JumpMultiple = Value
+        SaveSetting()
     end)
     local JumpMultiplier = Tabs.pageMain:AddToggle("JumpMultiplier", {Title = "Jump Multiplier", Default = getgenv().Settings.JumpMultiplier or false })
 
     --[[ VIRTUAL ]]--------------------------------------------------------
     local ShowStaminaFlow = Tabs.pageVirtual:AddToggle("ShowStaminaFlow", {Title = "Show Stamina, Flow", Default = getgenv().Settings.ShowStaminaFlow or false })
+    ShowStaminaFlow:OnChanged(function()
+        getgenv().Settings.ShowStaminaFlow = ShowStaminaFlow.Value
+        SaveSetting()
+    end)
     local HitboxExpander = Tabs.pageVirtual:AddSection("HitboxExpander")
     local HitboxSize = Tabs.pageVirtual:AddSlider("HitboxSize", {
         Title = "Hitbox Size",
         Default = 20,
         Min = 0,
-        Max = 100,
+        Max = 1000,
         Rounding = 0,
         Callback = function(Value)
             getgenv().Settings.HitboxSize = Value
+            SaveSetting()
         end
     })
     HitboxSize:OnChanged(function(Value)
         getgenv().Settings.HitboxSize = Value
+        SaveSetting()
     end)
     local Hitbox = Tabs.pageVirtual:AddToggle("Hitbox", {Title = "Hitbox", Default = getgenv().Settings.Hitbox or false })
 
@@ -407,6 +447,8 @@ do
 
     InfStamina:OnChanged(function()
         task.spawn(function()
+            getgenv().Settings.InfStamina = InfStamina.Value
+            SaveSetting()
             player.CharacterAdded:Connect(function(newCharacter)
                 character = newCharacter
             end)
@@ -427,6 +469,8 @@ do
     end)
     InfFlow:OnChanged(function()
         task.spawn(function()
+            getgenv().Settings.InfFlow = InfFlow.Value
+            SaveSetting()
             player.CharacterAdded:Connect(function(newCharacter)
                 character = newCharacter
             end)
@@ -447,6 +491,8 @@ do
     end)
     InfPower:OnChanged(function()
         task.spawn(function()
+            getgenv().Settings.InfPower = InfPower.Value
+            SaveSetting()
             player.CharacterAdded:Connect(function(newCharacter)
                 character = newCharacter
             end)
@@ -467,6 +513,8 @@ do
     end)
     SpeedMultiplier:OnChanged(function()
         task.spawn(function()
+            getgenv().Settings.SpeedMultiplier = SpeedMultiplier.Value
+            SaveSetting()
             player.CharacterAdded:Connect(function(newCharacter)
                 character = newCharacter
             end)
@@ -487,6 +535,8 @@ do
     end)
     FlowMultiplier:OnChanged(function()
         task.spawn(function()
+            getgenv().Settings.FlowMultiplier = FlowMultiplier.Value
+            SaveSetting()
             player.CharacterAdded:Connect(function(newCharacter)
                 character = newCharacter
             end)
@@ -507,6 +557,8 @@ do
     end)
     PowerMultiplier:OnChanged(function()
         task.spawn(function()
+            getgenv().Settings.PowerMultiplier = PowerMultiplier.Value
+            SaveSetting()
             player.CharacterAdded:Connect(function(newCharacter)
                 character = newCharacter
             end)
@@ -527,6 +579,8 @@ do
     end)
     JumpMultiplier:OnChanged(function()
         task.spawn(function()
+            getgenv().Settings.JumpMultiplier = JumpMultiplier.Value
+            SaveSetting()
             player.CharacterAdded:Connect(function(newCharacter)
                 character = newCharacter
             end)
@@ -547,6 +601,8 @@ do
     end)
     LockAtBall:OnChanged(function()
         task.spawn(function()
+            getgenv().Settings.LockAtBall = LockAtBall.Value
+            SaveSetting()
             while LockAtBall.Value do
                 task.wait()
 
@@ -571,6 +627,8 @@ do
     end)
     SlideTackle:OnChanged(function()
         task.spawn(function()
+            getgenv().Settings.SlideTackle = SlideTackle.Value
+            SaveSetting()
             while SlideTackle.Value do
                 task.wait()
 
@@ -599,6 +657,8 @@ do
     end)
     Dribble:OnChanged(function()
         task.spawn(function()
+            getgenv().Settings.Dribble = Dribble.Value
+            SaveSetting()
             -- local function ClostestPlayer()
             --     local target = nil
             --     local range = math.huge
@@ -637,6 +697,8 @@ do
     end)
     Hitbox:OnChanged(function()
         task.spawn(function()
+            getgenv().Settings.Hitbox = Hitbox.Value
+            SaveSetting()
             while Hitbox.Value do
                 task.wait()
                 for i,v in pairs(game:GetService("Workspace").Messi:GetChildren()) do
