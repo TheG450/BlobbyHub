@@ -75,6 +75,8 @@ getgenv().Settings = {
     AutoFarmWanted = nil,
     AutoFarmDungeon = nil,
     AutoTrainBreathing = nil,
+    SelectClan = nil,
+    AutoSpinClan = nil,
 }
 
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
@@ -307,7 +309,41 @@ do
             game:GetService("ReplicatedStorage").ReplicatedStorage.Remotes.Misc:FireServer("Melee", "Breath")
         end
     })
+    local Spin = Tabs.pageMiscellaneous:AddSection("Clan Spin")
+    local SelectClan = Tabs.pageMiscellaneous:AddDropdown("SelectClan", {
+        Title = "Select Clan",
+        Values = {"Unohana", "Uzumaki", "Kurosaki", "Shiba", "Agatsuma", "Haganezuka", "Hashibira", "Kocho", "Tokito", "Shinasugawa", "Himejima", "Rengoku", "Tomioka", "Kamado", "Tsugikuni"},
+        Multi = false,
+        Default = getgenv().Settings.ClSelectClanan or "Tsugikuni",
+        Callback = function(Value)
+            getgenv().Settings.SelectClan = Value
+        end
+    })
+    SelectClan:OnChanged(function(Value)
+        getgenv().Settings.SelectClan = Value
+    end)
+    local AutoSpinClan = Tabs.pageMiscellaneous:AddToggle("AutoSpinClan", {Title = "Auto Spin Clan", Description = "***Open Menu Statistics Before Use***", Default = getgenv().Settings.AutoSpinClan or false })
+    local Redeem = Tabs.pageMiscellaneous:AddSection("Redeem")
+    local RedeemCode = Tabs.pageMiscellaneous:AddButton({
+        Title = "Redeem Codes",
+        Callback = function()
+            local codes = {
+                "BugsFixedGiveMeRobux",
+                "LikesNVisitsNFavs",
+                "Update2",
+                "8HoursMaintenance",
+                "Update1.5",
+            }
 
+            for _, code in ipairs(codes) do
+                local ohString1 = "Codes"
+                local ohString2 = "Redeem"
+                local ohString3 = code
+
+                game:GetService("ReplicatedStorage").ReplicatedStorage.Remotes.Interface:FireServer(ohString1, ohString2, ohString3)
+            end
+        end
+    })
 
     --[[ SCRIPTS ]]--------------------------------------------------------
     AutoFarmQuest:OnChanged(function()
@@ -769,6 +805,51 @@ do
                 end
             end
         end)           
+    end)
+
+    AutoSpinClan:OnChanged(function()
+        task.spawn(function()
+            local player = game:GetService("Players").LocalPlayer
+
+            while AutoSpinClan.Value do
+                wait()
+                pcall(function()
+                    local Text = player.PlayerGui.Interact.Statistics.ClanBuffs.ClanName.Text
+                    local targetName = string.gsub(Text, "^Clan: ", ""):lower():gsub("^%s*(.-)%s*$", "%1")
+                    local selectedClan = tostring(getgenv().Settings.SelectClan):lower():gsub("^%s*(.-)%s*$", "%1")
+
+                    if player.PlayerGui.Interface.Spins.Visible == false then
+                        wait(1)
+                        if targetName == selectedClan then
+                            AutoSpinClan:SetValue(false)
+                            wait(.1)
+                            Fluent:Notify({
+                                Title = "BLOBBY HUB",
+                                Content = "You Got " .. getgenv().Settings.SelectClan .. ".",
+                                Duration = 5
+                            })
+                            wait(1)
+                        else
+                            local ohString1 = "Products"
+                            local ohString2 = "Clan_Spins"
+                            game:GetService("ReplicatedStorage").ReplicatedStorage.Remotes.Misc:FireServer(ohString1, ohString2)
+                            wait(0.5)
+                            for _, v in pairs(player.PlayerGui.Interact:GetChildren()) do
+                                if v.Name == "Confirmation" and v.Visible == true then
+                                    local yes = v:FindFirstChild("Accept")
+                                    if yes then
+                                        firesignal(yes.MouseButton1Down)
+                                    end
+                                end
+                            end
+                            wait(.6)
+                        end
+                    else
+                        wait(.1)
+                    end
+                end)
+            end
+        end)
     end)
 end
 
