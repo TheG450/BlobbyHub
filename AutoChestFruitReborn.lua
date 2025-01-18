@@ -58,8 +58,6 @@ while getgenv().AutoChest do
         else
             if getgenv().HopServer then
                 HopServer()
-                wait(5)
-                break
             end
         end
     end
