@@ -7,6 +7,7 @@ getgenv().Settings = {
     AutoFarmChristmasGift = nil,
     AutoUse = nil,
     AutoDestroySelected = nil,
+    AutoDestroySelectedReal = nil,
     AutoKillBoss = nil,
 }
 
@@ -59,7 +60,7 @@ do
     --[[Main]]---------------------------------------------------------------------------------------------------------------------
     local SelectItemList = Tabs.pageMain:AddDropdown("SelectItemList", {
         Title = "Select Item List",
-        Values = {"Oil Cup", "Blood Cup", "Acid Cup", "Light Cup", "Radioactive Cup", "Space Cup", "Eater Cup", "Dark Eye", "Drip Cup", "Pepci", "Unholy Cross", "Bacteria Cup", "Knight Helmet", "Lonely Pain Cup", "Cup Of Mankind", "Truly Oil Cup", "Knowledge Cup", "Internet Cup", "Tiredness Cup", "Tears Of Pain", "Unknown Mechanism", "True Sins Cup", "Madness Cup", "Mega Serum", "Organic Serum", "Forbidden Paranoid", "God’s Excerpt", "Omniversal Core", "Complex Soul", "Titan Essence", "Death Blood", "Theothes Flesh", "Fallen Blood", "Ruler Head", "Seraphim Book", "Rebellion Sword", "AtomX", "The Truth", "Fresh Elder Flesh", "Elder Blood", "Tyrant Crown", "Blessing Of Ares", "Cries Of A GOD", "Faith", "Foolish Cup", "Heavens Gate", "Archverse", "Cursed Essence", "Gemstone Solidifler", "Jolly Milk", "UnJolly Milk", "Saint Jolly Milk", "Stained UnJolly Milk", "Glacier Cup",},
+        Values = {"Anvil", "Oil Cup", "Blood Cup", "Acid Cup", "Light Cup", "Radioactive Cup", "Space Cup", "Eater Cup", "Dark Eye", "Drip Cup", "Pepci", "Unholy Cross", "Bacteria Cup", "Knight Helmet", "Lonely Pain Cup", "Cup Of Mankind", "Truly Oil Cup", "Knowledge Cup", "Internet Cup", "Tiredness Cup", "Tears Of Pain", "Unknown Mechanism", "True Sins Cup", "Madness Cup", "Mega Serum", "Organic Serum", "Forbidden Paranoid", "Core Of The Unknown", "God's Excerpt", "Omniversal Core", "Omniversal Crystal", "Complex Soul", "Clockwork's Crown", "Titan Essence", "Death Blood", "Theothes Flesh", "Fallen Blood", "Ruler Head", "Seraphim Book", "Rebellion Sword", "AtomX", "The Truth", "FRESH ELDER FLESH", "Elder Blood", "Tyrant Crown", "Blessing Of Ares", "Cries Of A GOD", "Faith", "Foolish Cup", "Heavens Gate", "Archverse", "Cursed Essence", "Gemstone Solidifier", "Weak Hammer", "Mediocre Hammer", "Jolly Milk", "UnJolly Milk", "Saint Jolly Milk", "Stained UnJolly Milk", "Glacier Cup",},
         Multi = true,
         Default = getgenv().Settings.SelectItemList or {},
     })
@@ -74,7 +75,7 @@ do
     
     local SelectItemBossList = Tabs.pageMain:AddDropdown("SelectItemBossList", {
         Title = "Select Item Boss List",
-        Values = {"Paper", "Kings Arm", "Warp Spiral", "Unknown Eye", "Warp Eater", "Omnius", "Nowhere Chicken Nuggets", "Ruler Will’s", "Holy Awakener", "Ancient Sigil"},
+        Values = {"Paper", "Kings Arm", "Warp Spiral", "Unknown Eye", "Warp Eater", "Omnius", "Nowhere Chicken Nuggets", "Ruler Will's", "Holy Awakener", "Ancient Sigil"},
         Multi = true,
         Default = getgenv().Settings.SelectItemBossList or {},
     })
@@ -86,7 +87,8 @@ do
         getgenv().Settings.SelectItemBossList = Values
         SaveSetting()
     end)
-    local AutoDestroySelected = Tabs.pageMain:AddToggle("AutoDestroySelected", {Title = "Auto Destroy Selected", Default = getgenv().Settings.AutoDestroySelected or false })
+    local AutoDestroySelected = Tabs.pageMain:AddToggle("AutoDestroySelected", {Title = "Auto Destroy Selected(Not Permanent)", Default = getgenv().Settings.AutoDestroySelected or false })
+    local AutoDestroySelectedReal = Tabs.pageMain:AddToggle("AutoDestroySelectedReal", {Title = "Auto Destroy Selected(Permanent)", Default = getgenv().Settings.AutoDestroySelectedReal or false })
     local AutoFarmChest = Tabs.pageMain:AddToggle("AutoFarmChest", {Title = "Auto Farm Chest", Default = getgenv().Settings.AutoFarmChest or false })
     local AutoFarmChristmasSock = Tabs.pageMain:AddToggle("AutoFarmChristmasSock", {Title = "AutoFarm Christmas Sock", Default = getgenv().Settings.AutoFarmChristmasSock or false })
     local AutoFarmChristmasGift = Tabs.pageMain:AddToggle("AutoFarmChristmasGift", {Title = "AutoFarm Christmas Gift", Default = getgenv().Settings.AutoFarmChristmasGift or false })
@@ -96,7 +98,7 @@ do
     --[[Main]]---------------------------------------------------------------------------------------------------------------------
     local CS1 = Tabs.pageMiscellaneous:AddSection("Comming Soon!!!")
     --[[Main]]---------------------------------------------------------------------------------------------------------------------
-    local CS2 = Tabs.pageWebhook:AddSection("Zone")
+    local CS2 = Tabs.pageWebhook:AddSection("Comming Soon!!!")
 
     --[[SCRIPTS]]---------------------------------------------------------------------------------------------------------------------
     local function getHumanoidRootPart()
@@ -104,7 +106,6 @@ do
         return character:WaitForChild("HumanoidRootPart", 5)
     end
 
-    local AutoDestroyConnection;
     AutoDestroySelected:OnChanged(function()
         task.spawn(function()
             getgenv().Settings.AutoDestroySelected = AutoDestroySelected.Value
@@ -118,36 +119,48 @@ do
                 end
             end
         end)
-        -- task.spawn(function()
-        --     if AutoDestroySelected.Value then
-        --         -- เมื่อเปิด Toggle
-        --         local function destroyIfMatches(item)
-        --             if (table.find(getgenv().Settings.SelectItemList, item.Name) or table.find(getgenv().Settings.SelectItemBossList, item.Name)) then
-        --                 item:Destroy()
-        --             end
-        --         end
-        
-        --         local backpack = game.Players.LocalPlayer:WaitForChild("Backpack")
-        
-        --         -- ฟัง event เมื่อมี item ถูกเพิ่มเข้ามา
-        --         AutoDestroyConnection = backpack.ChildAdded:Connect(function(child)
-        --             task.defer(function() -- ใช้ task.defer เพื่อให้ event รันในลำดับที่ถูกต้อง
-        --                 destroyIfMatches(child)
-        --             end)
-        --         end)
-        
-        --         -- ตรวจสอบรายการที่มีอยู่ใน Backpack ทันทีเมื่อเปิด Toggle
-        --         for _, item in pairs(backpack:GetChildren()) do
-        --             destroyIfMatches(item)
-        --         end
-        --     else
-        --         -- เมื่อปิด Toggle
-        --         if AutoDestroyConnection then
-        --             AutoDestroyConnection:Disconnect() -- ปิดการฟัง event
-        --             AutoDestroyConnection = nil -- ล้างตัวแปร
-        --         end
-        --     end
-        -- end)
+    end)
+    AutoDestroySelectedReal:OnChanged(function()
+        task.spawn(function()
+            getgenv().Settings.AutoDestroySelectedReal = AutoDestroySelectedReal.Value
+            SaveSetting()
+            while AutoDestroySelectedReal.Value do
+                wait()
+                pcall(function()
+                    for _, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+                        if (table.find(getgenv().Settings.SelectItemList, v.Name) or table.find(getgenv().Settings.SelectItemBossList, v.Name)) and v:IsA("Tool") then
+                            local player = game.Players.LocalPlayer
+                            local character = player.Character or player.CharacterAdded:Wait()
+                            local humanoid = character:WaitForChild("Humanoid")
+                    
+                            humanoid:EquipTool(v)
+                    
+                            task.wait(0.1)
+                            humanoid:UnequipTools()
+                            v.Parent = workspace
+                    
+                            if v.Handle then
+                                v.Handle.CFrame = CFrame.new(0, 0, 0)
+                                v:Destroy()
+                            end
+                        end
+                    end
+                end)
+            end
+        end)
+        task.spawn(function()
+            while AutoDestroySelectedReal.Value do
+                wait()
+                pcall(function()
+                    for _, v in pairs(game:GetService("Workspace"):GetChildren()) do
+                        if (table.find(getgenv().Settings.SelectItemList, v.Name) or table.find(getgenv().Settings.SelectItemBossList, v.Name)) and v:IsA("Tool") then
+                            v:Destroy()
+                            wait(.05)
+                        end
+                    end
+                end)
+            end
+        end)
     end)
     AutoFarmChest:OnChanged(function()
         task.spawn(function()
@@ -164,7 +177,7 @@ do
                             fireproximityprompt(v.ProximityPrompt)
                         else
                             for i, j in pairs(game:GetService("Workspace"):GetChildren()) do
-                                if (string.find(j.Name, "Chest") or string.find(j.Name, "Crystal") or string.find(j.Name, "chest")) and j:FindFirstChild("ProximityPrompt") then
+                                if (string.find(j.Name, "Chest") or string.find(j.Name, "Crystal") or string.find(j.Name, "chest") or string.find(j.Name, "RulerHead") or string.find(j.Name, "ElderBody") or string.find(j.Name, "LordsBlade")) and j:FindFirstChild("ProximityPrompt") then
                                     HumanoidRootPart.CFrame = j.CFrame
                                     wait(0.1)
                                     fireproximityprompt(j.ProximityPrompt)
@@ -222,7 +235,7 @@ do
                 wait()
                 pcall(function()
                     for _, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
-                        if string.find(v.Name, "Chest") or string.find(v.Name, "Sock") or string.find(v.Name, "chest") then
+                        if (string.find(v.Name, "Chest") or string.find(v.Name, "Sock") or string.find(v.Name, "chest")) and v.used.Value == false then
                             local character = game.Players.LocalPlayer.Character or game.Players.LocalPlayer.CharacterAdded:Wait()
                             local humanoid = character:FindFirstChild("Humanoid")
                             if humanoid then
@@ -251,12 +264,12 @@ do
             while AutoKillBoss.Value do
                 wait()
                 for i,v in pairs(game:GetService("Workspace")["boss's"]:GetDescendants()) do
-                    if v:IsA("Model") and v:FindFirstChild("die") and v.Humanoid.Health <= v.Humanoid.MaxHealth then
+                    if v:IsA("Model") and (v:FindFirstChild("die") or v:FindFirstChild("Follow")) and v.Humanoid.Health <= v.Humanoid.MaxHealth then
                         v.Humanoid.Health = 0
                     end
                 end
                 for i,v in pairs(game:GetService("Workspace"):GetDescendants()) do
-                    if v.Name == "God Paranoid" and v:FindFirstChild("die") and v.Humanoid.Health <= v.Humanoid.MaxHealth then
+                    if (v.Name == "God Paranoid" or v.Name == "The First Elder God") and v:FindFirstChild("die") and v.Humanoid.Health <= v.Humanoid.MaxHealth then
                         v.Humanoid.Health = 0
                     end
                 end
