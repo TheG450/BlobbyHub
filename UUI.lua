@@ -235,7 +235,7 @@ do
                 wait()
                 pcall(function()
                     for _, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
-                        if (string.find(v.Name, "Chest") or string.find(v.Name, "Sock") or string.find(v.Name, "chest")) and v.used.Value == false then
+                        if (string.find(v.Name, "Chest") or string.find(v.Name, "Sock") or string.find(v.Name, "chest")) then
                             local character = game.Players.LocalPlayer.Character or game.Players.LocalPlayer.CharacterAdded:Wait()
                             local humanoid = character:FindFirstChild("Humanoid")
                             if humanoid then
