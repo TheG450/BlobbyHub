@@ -287,7 +287,8 @@ do
             QuestName,
             MobName,
             IslandName,
-            Type
+            Type,
+            Boss
         }
         if Lvl > 0 and Lvl <= 50 then
             Details.QuestNumber = 1
@@ -301,6 +302,7 @@ do
             Details.MobName = "Bandit Leader [Lv.50]"
             Details.IslandName = "Starter"
             Details.Type = "Bandit Leader"
+            Details.Boss = true
         elseif Lvl > 100 and Lvl <= 200 then
             Details.QuestNumber = 3
             Details.QuestName = "Quest 3"
@@ -313,6 +315,7 @@ do
             Details.MobName = "Monkey King [Lv.150]"
             Details.IslandName = "Jungle"
             Details.Type = "Monkey King"
+            Details.Boss = true
         elseif Lvl > 300 and Lvl <= 450 then
             Details.QuestNumber = 5
             Details.QuestName = "Quest 5"
@@ -325,6 +328,7 @@ do
             Details.MobName = "Snow Bandit Leader [Lv.450]"
             Details.IslandName = "Snow"
             Details.Type = "Snow Bandit Leader"
+            Details.Boss = true
         elseif Lvl > 600 and Lvl <= 1100 then
             Details.QuestNumber = 7
             Details.QuestName = "Quest 7"
@@ -337,6 +341,7 @@ do
             Details.MobName = "Desert King [Lv.1500]"
             Details.IslandName = "Desert"
             Details.Type = "Desert King"
+            Details.Boss = true
         elseif Lvl > 1500 and Lvl <= 2250 then
             Details.QuestNumber = 9
             Details.QuestName = "Quest 9"
@@ -349,6 +354,7 @@ do
             Details.MobName = "Dark Adventure [Lv.2500]"
             Details.IslandName = "Shells"
             Details.Type = "Dark Adventure"
+            Details.Boss = true
         elseif Lvl > 3000 and Lvl <= 4000 then
             Details.QuestNumber = 11
             Details.QuestName = "Quest 11"
@@ -361,18 +367,20 @@ do
             Details.MobName = "Sorceror Teacher [Lv.4500]"
             Details.IslandName = "Hidden"
             Details.Type = "Sorceror Teacher"
-        elseif Lvl > 5000 and Lvl <= 6250 then
+            Details.Boss = true
+        elseif Lvl > 5000 and Lvl <= 100000 then
             Details.QuestNumber = 13
             Details.QuestName = "Quest 13"
             Details.MobName = "Frost Soldier [Lv.6000]"
             Details.IslandName = "Frost"
             Details.Type = "Frost Soldier"
-        elseif Lvl > 6250  then
+        elseif Lvl > 100000  then --6250
             Details.QuestNumber = 14
             Details.QuestName = "Quest 14"
             Details.MobName = "Frost King [Lv.7500]"
             Details.IslandName = "Frost"
-            Details.Type = "Frost King"
+            Details.Type = "Frost King" or "Snow Bandit"
+            Details.Boss = true
         end
 
         return Details
@@ -416,7 +424,7 @@ do
                 local Details = checkQuest(Levels)
                 local Active = game:GetService("Players").LocalPlayer.QuestData1:FindFirstChild("Active") or game:GetService("Players").LocalPlayer.QuestData1:WaitForChild("Active", 5)
 
-                function BringMonster(TargetCFrame)
+                function BringMonster(TargetCFrame, Boss)
                     -- for i,v in pairs(game:GetService("Workspace").Main[Details.IslandName][Details.Type]:GetChildren()) do
                     --     if v.Name == Details.MobName then
                     --         if v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
@@ -435,21 +443,23 @@ do
                     --         end
                     --     end
                     -- end
-                    for i,v in pairs(game:GetService("Workspace").Main[Details.IslandName][Details.Type]:GetChildren()) do
-                        for x,y in pairs(game:GetService("Workspace").Main[Details.IslandName][Details.Type]:GetChildren()) do
-                            if v.Name == Details.MobName then
-                                if y.Name == Details.MobName then
-                                    v.HumanoidRootPart.CFrame = y.HumanoidRootPart.CFrame
-                                    --v.HumanoidRootPart.CanCollide = false
-                                    -- v.Humanoid.PlatformStand = true
-                                    -- y.Humanoid.PlatformStand = true
-                                    y.HumanoidRootPart.CanCollide = false
-                                    v.Humanoid.WalkSpeed = 0
-                                    y.Humanoid.WalkSpeed = 0
-                                    v.Humanoid.JumpPower = 0
-                                    y.Humanoid.JumpPower = 0
-                                    if sethiddenproperty then
-                                        sethiddenproperty(game.Players.LocalPlayer, "SimulationRadius", math.huge)
+                    if Boss ~= true then
+                        for i,v in pairs(game:GetService("Workspace").Main[Details.IslandName][Details.Type]:GetChildren()) do
+                            for x,y in pairs(game:GetService("Workspace").Main[Details.IslandName][Details.Type]:GetChildren()) do
+                                if v.Name == Details.MobName then
+                                    if y.Name == Details.MobName then
+                                        v.HumanoidRootPart.CFrame = y.HumanoidRootPart.CFrame
+                                        --v.HumanoidRootPart.CanCollide = false
+                                        -- v.Humanoid.PlatformStand = true
+                                        -- y.Humanoid.PlatformStand = true
+                                        y.HumanoidRootPart.CanCollide = false
+                                        v.Humanoid.WalkSpeed = 0
+                                        y.Humanoid.WalkSpeed = 0
+                                        v.Humanoid.JumpPower = 0
+                                        y.Humanoid.JumpPower = 0
+                                        if sethiddenproperty then
+                                            sethiddenproperty(game.Players.LocalPlayer, "SimulationRadius", math.huge)
+                                        end
                                     end
                                 end
                             end
@@ -464,25 +474,27 @@ do
                                 if game:GetService("Players").LocalPlayer.QuestData1.Quest.Value == Details.QuestNumber then
                                     for i,v in pairs(game:GetService("Workspace").Main[Details.IslandName][Details.Type]:GetChildren()) do
                                         if Active.Value then
-                                            if v.Name == Details.MobName and v.Humanoid.Health > 0 then
-                                                repeat
-                                                    wait()
-                                                    HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0, 7, 0) * CFrame.Angles(math.rad(-90), 0, 0)
-                                                    game.Players.LocalPlayer.Character.Humanoid.PlatformStand = true
-                                                    --HumanoidRootPart.CFrame = TargetHumanoidRootPart.CFrame * CFrame.new(0, 0, 7)
-                                                    BringMonster(v.HumanoidRootPart.CFrame)
-                                                    Attack()
-                                                    task.spawn(function()
-                                                        pcall(function()
-                                                            for i,v in pairs(game:GetService("Workspace").Main[Details.IslandName][Details.Type]:GetDescendants()) do
-                                                                if v.Name == Details.MobName and v.Humanoid.Health < (v.Humanoid.MaxHealth * 0.9) then
-                                                                    v.Humanoid.Health = 0
-                                                                    v.Humanoid.RigType = "R15"
+                                            if v.Name == Details.MobName and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") then
+                                                if v.Humanoid.Health > 0 then
+                                                    repeat
+                                                        wait()
+                                                        HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0, 7, 0) * CFrame.Angles(math.rad(-90), 0, 0)
+                                                        game.Players.LocalPlayer.Character.Humanoid.PlatformStand = true
+                                                        --HumanoidRootPart.CFrame = TargetHumanoidRootPart.CFrame * CFrame.new(0, 0, 7)
+                                                        BringMonster(v.HumanoidRootPart.CFrame, Details.Boss)
+                                                        Attack()
+                                                        task.spawn(function()
+                                                            pcall(function()
+                                                                for i,v in pairs(game:GetService("Workspace").Main[Details.IslandName][Details.Type]:GetDescendants()) do
+                                                                    if v.Name == Details.MobName and v.Humanoid.Health < (v.Humanoid.MaxHealth * 0.9) then
+                                                                        v.Humanoid.Health = 0
+                                                                        v.Humanoid.RigType = "R15"
+                                                                    end
                                                                 end
-                                                            end
+                                                            end)
                                                         end)
-                                                    end)
-                                                until not AutoFarmLevel.Value or v.Humanoid.Health <= 0
+                                                    until not AutoFarmLevel.Value or v.Humanoid.Health <= 0
+                                                end
                                             else
                                                 for j,k in pairs(game:GetService("Workspace").Npc.Quest:GetChildren()) do
                                                     if k.Name == Details.QuestName and k:FindFirstChild("ProximityPrompt") then
