@@ -12,6 +12,7 @@ getgenv().Settings = {
     JujutsuMission = nil,
     BleachMission = nil,
     SelectIsland = nil,
+    AutoFarmBoss = nil,
 }
 
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
@@ -40,10 +41,10 @@ local Tabs = {
 do
     --[[ SETTINGS ]]--------------------------------------------------------
     local Settings = Tabs.pageSetting:AddSection("Settings")
-    local WeaponTyle = {"Combat", "Sword", "Fruit"}
+    local WeaponType = {"Combat", "Sword", "Fruit"}
     local SelectWeaponType = Tabs.pageSetting:AddDropdown("SelectWeaponType", {
         Title = "Select Weapon Type",
-        Values = WeaponTyle,
+        Values = WeaponType,
         Multi = false,
         Default = getgenv().Settings.SelectWeaponType or "",
         Callback = function(Value)
@@ -100,7 +101,7 @@ do
             playerNames[player.Name] = true
         end
     
-        for i, v in pairs(game:GetService("Workspace").Main:GetChildren()) do
+        for i, v in pairs(game:GetService("Workspace").Main:GetDescendants()) do
             if v:IsA("Model") and v:FindFirstChild("Humanoid") then
                 if not playerNames[v.Name] and not uniqueMobs[v.Name] then
                     table.insert(MobList, v.Name)
@@ -108,6 +109,36 @@ do
                 end
             end
         end
+
+        -- สมมติว่า 'Main' เป็น Child ของ Workspace
+        -- local Main = workspace:FindFirstChild("Main")
+
+        -- if Main then
+        --     local npcTable = {}
+
+        --     -- ฟังก์ชันสำหรับค้นหา NPC ภายในโฟลเดอร์ย่อย
+        --     local function collectNPCs(folder)
+        --         for _, child in ipairs(folder:GetChildren()) do
+        --             if child:IsA("Model") then
+        --                 table.insert(npcTable, child) -- เพิ่ม Model เข้า Table
+        --             elseif child:IsA("Folder") then
+        --                 collectNPCs(child) -- ค้นหาต่อในโฟลเดอร์ย่อย
+        --             end
+        --         end
+        --     end
+
+        --     -- เรียกฟังก์ชัน collectNPCs กับโฟลเดอร์ Main
+        --     collectNPCs(Main)
+
+        --     -- ตรวจสอบ NPC ที่เก็บใน Table
+        --     print("NPCs collected:")
+        --     for _, npc in ipairs(npcTable) do
+        --         print(npc.Name)
+        --     end
+        -- else
+        --     warn("Main folder not found in Workspace!")
+        -- end
+
     end
     
     local function mobListRemove()
@@ -147,6 +178,8 @@ do
         end
     })
     local AutoFarmMob = Tabs.pageMain:AddToggle("AutoFarmMob", {Title = "Auto Farm Mob", Default = getgenv().Settings.AutoFarmMob or false })
+    local Boss = Tabs.pageMain:AddSection("Boss")
+    local AutoFarmBoss = Tabs.pageMain:AddToggle("AutoFarmBoss", {Title = "Auto Farm Boss", Default = getgenv().Settings.AutoFarmBoss or false })
 
     --[[ EXTRA ]]--------------------------------------------------------
     local Mission = Tabs.pageExtra:AddSection("Mission")
@@ -164,8 +197,8 @@ do
         end
     end
     GetIslandList()
-    local SelectIsland = Tabs.pageTeleport:AddDropdown("SelectMobs", {
-        Title = "Select Mob",
+    local SelectIsland = Tabs.pageTeleport:AddDropdown("SelectIsland", {
+        Title = "Select Island",
         Values = IslandList,
         Multi = false,
         Default = getgenv().Settings.SelectIsland or "",
@@ -288,7 +321,7 @@ do
             Details.Type = "Snow Bandit"
         elseif Lvl > 450 and Lvl <= 600 then
             Details.QuestNumber = 6
-            Details.QuestName = "Quest 6"
+            Details.QuestName = "Quest  6"
             Details.MobName = "Snow Bandit Leader [Lv.450]"
             Details.IslandName = "Snow"
             Details.Type = "Snow Bandit Leader"
@@ -384,18 +417,40 @@ do
                 local Active = game:GetService("Players").LocalPlayer.QuestData1:FindFirstChild("Active") or game:GetService("Players").LocalPlayer.QuestData1:WaitForChild("Active", 5)
 
                 function BringMonster(TargetCFrame)
+                    -- for i,v in pairs(game:GetService("Workspace").Main[Details.IslandName][Details.Type]:GetChildren()) do
+                    --     if v.Name == Details.MobName then
+                    --         if v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
+                    --             if (v.HumanoidRootPart.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude < tonumber(150) then
+                    --                 v.HumanoidRootPart.CFrame = TargetCFrame
+                    --                 v.Humanoid.WalkSpeed = 0
+                    --                 v.Humanoid.JumpPower = 0
+                    --                 v.HumanoidRootPart.CanCollide = false
+                    --                 --v.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
+                    --                 v.HumanoidRootPart.Transparency = 1
+                    --                 if v.Humanoid:FindFirstChild("Animator") then
+                    --                     v.Humanoid.Animator:Destroy()
+                    --                 end
+                    --                 sethiddenproperty(game.Players.LocalPlayer, "SimulationRadius", math.huge)
+                    --             end
+                    --         end
+                    --     end
+                    -- end
                     for i,v in pairs(game:GetService("Workspace").Main[Details.IslandName][Details.Type]:GetChildren()) do
-                        if v.Name == Details.MobName then
-                            if v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
-                                if (v.HumanoidRootPart.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude < tonumber(150) then
-                                    v.HumanoidRootPart.CFrame = TargetCFrame
-                                    v.HumanoidRootPart.CanCollide = false
-                                    v.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
-                                    v.HumanoidRootPart.Transparency = 1
-                                    if v.Humanoid:FindFirstChild("Animator") then
-                                        v.Humanoid.Animator:Destroy()
+                        for x,y in pairs(game:GetService("Workspace").Main[Details.IslandName][Details.Type]:GetChildren()) do
+                            if v.Name == Details.MobName then
+                                if y.Name == Details.MobName then
+                                    v.HumanoidRootPart.CFrame = y.HumanoidRootPart.CFrame
+                                    --v.HumanoidRootPart.CanCollide = false
+                                    -- v.Humanoid.PlatformStand = true
+                                    -- y.Humanoid.PlatformStand = true
+                                    y.HumanoidRootPart.CanCollide = false
+                                    v.Humanoid.WalkSpeed = 0
+                                    y.Humanoid.WalkSpeed = 0
+                                    v.Humanoid.JumpPower = 0
+                                    y.Humanoid.JumpPower = 0
+                                    if sethiddenproperty then
+                                        sethiddenproperty(game.Players.LocalPlayer, "SimulationRadius", math.huge)
                                     end
-                                    sethiddenproperty(game.Players.LocalPlayer, "SimulationRadius", math.huge)
                                 end
                             end
                         end
@@ -410,10 +465,24 @@ do
                                     for i,v in pairs(game:GetService("Workspace").Main[Details.IslandName][Details.Type]:GetChildren()) do
                                         if Active.Value then
                                             if v.Name == Details.MobName and v.Humanoid.Health > 0 then
-                                                HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0, 7, 0) * CFrame.Angles(math.rad(-90), 0, 0)
-                                                --HumanoidRootPart.CFrame = TargetHumanoidRootPart.CFrame * CFrame.new(0, 0, 7)
-                                                BringMonster(v.HumanoidRootPart.CFrame)
-                                                Attack()
+                                                repeat
+                                                    wait()
+                                                    HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0, 7, 0) * CFrame.Angles(math.rad(-90), 0, 0)
+                                                    game.Players.LocalPlayer.Character.Humanoid.PlatformStand = true
+                                                    --HumanoidRootPart.CFrame = TargetHumanoidRootPart.CFrame * CFrame.new(0, 0, 7)
+                                                    BringMonster(v.HumanoidRootPart.CFrame)
+                                                    Attack()
+                                                    task.spawn(function()
+                                                        pcall(function()
+                                                            for i,v in pairs(game:GetService("Workspace").Main[Details.IslandName][Details.Type]:GetDescendants()) do
+                                                                if v.Name == Details.MobName and v.Humanoid.Health < (v.Humanoid.MaxHealth * 0.9) then
+                                                                    v.Humanoid.Health = 0
+                                                                    v.Humanoid.RigType = "R15"
+                                                                end
+                                                            end
+                                                        end)
+                                                    end)
+                                                until v.Humanoid.Health <= 0
                                             else
                                                 for j,k in pairs(game:GetService("Workspace").Npc.Quest:GetChildren()) do
                                                     if k.Name == Details.QuestName and k:FindFirstChild("ProximityPrompt") then
@@ -426,6 +495,7 @@ do
                                                 if Quest.Name == Details.QuestName and Quest:FindFirstChild("ProximityPrompt") then
                                                     HumanoidRootPart.CFrame = Quest.HumanoidRootPart.CFrame * CFrame.new(0, 3.5, 0)
                                                     task.wait(.1)
+                                                    Quest.ProximityPrompt.HoldDuration = 0
                                                     VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.E, false, game)
                                                     task.wait(.55)
                                                     VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.E, false, game)
@@ -478,16 +548,16 @@ do
                 if not Success then
                     warn("Error: "..Err)
                 end
-                task.spawn(function()
-                    pcall(function()
-                        for i,v in pairs(game:GetService("Workspace").Main[Details.IslandName][Details.Type]:GetDescendants()) do
-                            if v.Name == Details.MobName and v.Humanoid.Health < (v.Humanoid.MaxHealth * 0.9) then
-                                v.Humanoid.Health = 0
-                                v.Humanoid.RigType = "R15"
-                            end
-                        end
-                    end)
-                end)
+                -- task.spawn(function()
+                --     pcall(function()
+                --         for i,v in pairs(game:GetService("Workspace").Main[Details.IslandName][Details.Type]:GetDescendants()) do
+                --             if v.Name == Details.MobName and v.Humanoid.Health < (v.Humanoid.MaxHealth * 0.9) then
+                --                 v.Humanoid.Health = 0
+                --                 v.Humanoid.RigType = "R15"
+                --             end
+                --         end
+                --     end)
+                -- end)
             end
             if not AutoFarmLevel.Value then
                 pcall(function()
@@ -496,6 +566,7 @@ do
                             task.wait(.1)
                             v:Destroy()
                             antifall = nil
+                            game.Players.LocalPlayer.Character.Humanoid.PlatformStand = false
                         end
                     end
                 end)
@@ -508,7 +579,10 @@ do
             while AutoStats.Value do
                 task.wait()
                 for i,v in ipairs(getgenv().Settings.SelecStats) do
-                    game:GetService("Players").LocalPlayer.PlayerGui.HUD.Stats.Iinv.Setting.Event:FireServer(v, "1")
+                    pcall(function()
+                        local Event = game:GetService("Players").LocalPlayer.PlayerGui.HUD.Stats.Iinv.Setting:FindFirstChild("Event") or game:GetService("Players").LocalPlayer.PlayerGui.HUD.Stats.Iinv.Setting:WaitForChild("Event", 9e99)
+                        Event:FireServer(v, "1")
+                    end)
                 end
             end
         end)
@@ -536,6 +610,103 @@ do
             end)
         end)
     end)    
+
+    AutoFarmBoss:OnChanged(function()
+        task.spawn(function()
+            player.CharacterAdded:Connect(function(newCharacter)
+                character = newCharacter
+                HumanoidRootPart = newCharacter:WaitForChild("HumanoidRootPart", 9e99)
+            end)
+
+            while AutoFarmBoss.Value do
+                wait()
+                pcall(function()
+                    if HumanoidRootPart:FindFirstChild("antifall") and HumanoidRootPart:FindFirstChildOfClass("BodyVelocity") then
+                        for _, tool in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+                            if tool:IsA("Tool") and tool:FindFirstChild(getgenv().Settings.SelectWeaponType) then
+                                for i,v in pairs(game:GetService("Workspace").Main.RaidBoss:GetChildren()) do
+                                    if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") then
+                                        local UI = v.HumanoidRootPart:FindFirstChild("UI") or v.HumanoidRootPart:WaitForChild("UI")
+                                        if UI.Enabled == true then
+                                            if v.Humanoid.Health > 0 then
+                                                repeat wait()
+                                                    HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0, 7, 0) * CFrame.Angles(math.rad(-90), 0, 0)
+                                                    game.Players.LocalPlayer.Character.Humanoid.PlatformStand = true
+                                                    --HumanoidRootPart.CFrame = TargetHumanoidRootPart.CFrame * CFrame.new(0, 0, 7)
+                                                    Attack()
+                                                    task.spawn(function()
+                                                        pcall(function()
+                                                            for _,Kill in pairs(game:GetService("Workspace").Main.RaidBoss:GetDescendants()) do
+                                                                if Kill:IsA("Model") and Kill.Humanoid.Health < (Kill.Humanoid.MaxHealth * 0.9) then
+                                                                    Kill.Humanoid.Health = 0
+                                                                    Kill.Humanoid.RigType = "R15"
+                                                                end
+                                                            end
+                                                        end)
+                                                    end)
+                                                until v.Humanoid.Health <= 0
+                                            else
+                                                HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0, 12, 0) * CFrame.Angles(math.rad(-90), 0, 0)
+                                            end
+                                        end
+                                    else
+                                        for j,k in pairs(game:GetService("Workspace").Main.Boss:GetChildren()) do
+                                            if k:IsA("Model") and k:FindFirstChild("HumanoidRootPart") and k:FindFirstChild("Humanoid") then
+                                                local UI = k.HumanoidRootPart:FindFirstChild("UI") or k.HumanoidRootPart:WaitForChild("UI")
+                                                if UI.Enabled == true then
+                                                    if k.Humanoid.Health > 0 then
+                                                        repeat wait()
+                                                            HumanoidRootPart.CFrame = k.HumanoidRootPart.CFrame * CFrame.new(0, 7, 0) * CFrame.Angles(math.rad(-90), 0, 0)
+                                                            game.Players.LocalPlayer.Character.Humanoid.PlatformStand = true
+                                                            --HumanoidRootPart.CFrame = TargetHumanoidRootPart.CFrame * CFrame.new(0, 0, 7)
+                                                            Attack()
+                                                            task.spawn(function()
+                                                                pcall(function()
+                                                                    for _,Kill in pairs(game:GetService("Workspace").Main.Boss:GetDescendants()) do
+                                                                        if Kill:IsA("Model") and Kill.Humanoid.Health < (Kill.Humanoid.MaxHealth * 0.9) then
+                                                                            Kill.Humanoid.Health = 0
+                                                                            Kill.Humanoid.RigType = "R15"
+                                                                        end
+                                                                    end
+                                                                end)
+                                                            end)
+                                                        until k.Humanoid.Health <= 0
+                                                    else
+                                                        HumanoidRootPart.CFrame = k.HumanoidRootPart.CFrame * CFrame.new(0, 12, 0) * CFrame.Angles(math.rad(-90), 0, 0)
+                                                    end
+                                                end
+                                            end
+                                        end
+                                    end
+
+                                end
+                            else
+                                EquipTool(getgenv().Settings.SelectWeaponType)
+                            end
+                        end
+                    else
+                        antifall = Instance.new("BodyVelocity", game.Players.LocalPlayer.Character.HumanoidRootPart)
+                        antifall.Velocity = Vector3.new(0, 0, 0)
+                        antifall.MaxForce = Vector3.new(100000, 100000, 100000)
+                        antifall.P = 1250
+                        antifall.Name = "antifall"
+                    end
+                end)
+            end
+            if not AutoFarmBoss.Value then
+                pcall(function()
+                    for i,v in pairs(game.Players.LocalPlayer.Character.HumanoidRootPart:GetChildren()) do
+                        if v.Name == "antifall" or v:IsA("BodyVelocity") then
+                            task.wait(.1)
+                            v:Destroy()
+                            antifall = nil
+                            game.Players.LocalPlayer.Character.Humanoid.PlatformStand = false
+                        end
+                    end
+                end)
+            end
+        end)
+    end)
 end
 
 -- Anti AFK

@@ -60,7 +60,7 @@ do
     --[[Main]]---------------------------------------------------------------------------------------------------------------------
     local SelectItemList = Tabs.pageMain:AddDropdown("SelectItemList", {
         Title = "Select Item List",
-        Values = {"Anvil", "Oil Cup", "Blood Cup", "Acid Cup", "Light Cup", "Radioactive Cup", "Space Cup", "Eater Cup", "Dark Eye", "Drip Cup", "Pepci", "Unholy Cross", "Bacteria Cup", "Knight Helmet", "Lonely Pain Cup", "Cup Of Mankind", "Truly Oil Cup", "Knowledge Cup", "Internet Cup", "Tiredness Cup", "Tears Of Pain", "Unknown Mechanism", "True Sins Cup", "Madness Cup", "Mega Serum", "Organic Serum", "Forbidden Paranoid", "Core Of The Unknown", "God's Excerpt", "Omniversal Core", "Omniversal Crystal", "Complex Soul", "Clockwork's Crown", "Titan Essence", "Death Blood", "Theothes Flesh", "Fallen Blood", "Ruler Head", "Seraphim Book", "Rebellion Sword", "AtomX", "The Truth", "FRESH ELDER FLESH", "Elder Blood", "Tyrant Crown", "Blessing Of Ares", "Cries Of A GOD", "Faith", "Foolish Cup", "Heavens Gate", "Archverse", "Cursed Essence", "Gemstone Solidifier", "Weak Hammer", "Mediocre Hammer", "Jolly Milk", "UnJolly Milk", "Saint Jolly Milk", "Stained UnJolly Milk", "Glacier Cup",},
+        Values = {"Anvil", "Oil Cup", "Blood Cup", "Acid Cup", "Light Cup", "Radioactive Cup", "Space Cup", "Eater Cup", "Golden Cup", "Dark Eye", "Drip Cup", "Pepci", "Unholy Cross", "Bacteria Cup", "Knight Helmet", "Lonely Pain Cup", "Cup Of Mankind", "Truly Oil Cup", "Knowledge Cup", "Internet Cup", "Tiredness Cup", "Tears Of Pain", "Unknown Mechanism", "True Sins Cup", "Madness Cup", "Mega Serum", "Organic Serum", "Forbidden Paranoid", "Core of The Unknown", "God's Excerpt", "Omniversal Core", "Omniversal Crystal", "Complex Soul", "Clockwork's Crown", "Titan Essence", "Death Blood", "Theothes Flesh", "Fallen Blood", "Ruler Head", "Seraphim Book", "Rebellion Sword", "AtomX", "The Truth", "FRESH ELDER FLESH", "Elder Blood", "Tyrant Crown", "Blessing Of Ares", "Cries Of A GOD", "Faith", "Foolish Cup", "Heavens Gate", "Archverse", "Cursed Essence", "Gemstone Solidifier", "Weak Hammer", "Mediocre Hammer", "Jolly Milk", "UnJolly Milk", "Saint Jolly Milk", "Stained UnJolly Milk", "Glacier Cup", "Epic Santa Present"},
         Multi = true,
         Default = getgenv().Settings.SelectItemList or {},
     })
@@ -171,13 +171,13 @@ do
                 local HumanoidRootPart = getHumanoidRootPart()
                 pcall(function()
                     for _, v in pairs(game:GetService("Workspace").chests:GetChildren()) do
-                        if (string.find(v.Name, "Chest") or string.find(v.Name, "Crystal")) and v:FindFirstChild("ProximityPrompt") then
+                        if (string.find(v.Name, "Chest") or string.find(v.Name, "Crystal") or string.find(string.lower(v.Name), string.lower("Cursed")) or string.find(string.lower(v.Name), string.lower("Lucky"))) and v:FindFirstChild("ProximityPrompt") then
                             HumanoidRootPart.CFrame = v.CFrame
                             wait(0.1)
                             fireproximityprompt(v.ProximityPrompt)
                         else
                             for i, j in pairs(game:GetService("Workspace"):GetChildren()) do
-                                if (string.find(j.Name, "Chest") or string.find(j.Name, "Crystal") or string.find(j.Name, "chest") or string.find(j.Name, "RulerHead") or string.find(j.Name, "ElderBody") or string.find(j.Name, "LordsBlade")) and j:FindFirstChild("ProximityPrompt") then
+                                if (string.find(j.Name, "Chest") or string.find(j.Name, "Crystal") or string.find(j.Name, "chest") or string.find(j.Name, "RulerHead") or string.find(j.Name, "ElderBody") or string.find(j.Name, "LordsBlade") or string.find(string.lower(v.Name), string.lower("Cursed")) or string.find(string.lower(v.Name), string.lower("Lucky"))) and j:FindFirstChild("ProximityPrompt") then
                                     HumanoidRootPart.CFrame = j.CFrame
                                     wait(0.1)
                                     fireproximityprompt(j.ProximityPrompt)
@@ -237,14 +237,17 @@ do
                     for _, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
                         if (string.find(v.Name, "Chest") or string.find(v.Name, "Sock") or string.find(v.Name, "chest")) then
                             local character = game.Players.LocalPlayer.Character or game.Players.LocalPlayer.CharacterAdded:Wait()
-                            local humanoid = character:FindFirstChild("Humanoid")
+                            local humanoid = character:FindFirstChild("Humanoid") or character:WaitForChild("Humanoid", 9e99)
                             if humanoid then
                                 humanoid:EquipTool(v)
                                 v:Activate()
                             end
-                        elseif string.find(v.Name, "Gift") and v.used.Value == false then
+                        end
+                    end
+                    for _, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+                        if string.find(v.Name, "Gift") and v.used.Value == false then
                             local character = game.Players.LocalPlayer.Character or game.Players.LocalPlayer.CharacterAdded:Wait()
-                            local humanoid = character:FindFirstChild("Humanoid")
+                            local humanoid = character:FindFirstChild("Humanoid") or character:WaitForChild("Humanoid", 9e99)
                             if humanoid then
                                 humanoid:EquipTool(v)
                                 wait(.1)
@@ -293,3 +296,6 @@ task.spawn(function()
 end)
 
 Window:SelectTab(1)
+
+--game:GetService("Workspace")["omni_portal1"].ProximityPrompt
+--3149.29272, 47883.5195, 34478.6836, -0.337581515, -1.1924425e-08, 0.941296279, -3.97436928e-09, 1, 1.12427418e-08, -0.941296279, 5.42827693e-11, -0.337581515
