@@ -482,7 +482,7 @@ do
                                                             end
                                                         end)
                                                     end)
-                                                until v.Humanoid.Health <= 0
+                                                until not AutoFarmLevel.Value or v.Humanoid.Health <= 0
                                             else
                                                 for j,k in pairs(game:GetService("Workspace").Npc.Quest:GetChildren()) do
                                                     if k.Name == Details.QuestName and k:FindFirstChild("ProximityPrompt") then
@@ -644,7 +644,7 @@ do
                                                             end
                                                         end)
                                                     end)
-                                                until v.Humanoid.Health <= 0
+                                                until not AutoFarmBoss.Value or v.Humanoid.Health <= 0
                                             else
                                                 HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0, 12, 0) * CFrame.Angles(math.rad(-90), 0, 0)
                                             end
@@ -670,7 +670,7 @@ do
                                                                     end
                                                                 end)
                                                             end)
-                                                        until k.Humanoid.Health <= 0
+                                                        until not AutoFarmBoss.Value or k.Humanoid.Health <= 0
                                                     else
                                                         HumanoidRootPart.CFrame = k.HumanoidRootPart.CFrame * CFrame.new(0, 12, 0) * CFrame.Angles(math.rad(-90), 0, 0)
                                                     end
