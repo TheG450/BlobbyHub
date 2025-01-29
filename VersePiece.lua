@@ -379,7 +379,7 @@ do
             Details.QuestName = "Quest 14"
             Details.MobName = "Frost King [Lv.7500]"
             Details.IslandName = "Frost"
-            Details.Type = "Frost King" or "Snow Bandit"
+            Details.Type = "Frost King"
             Details.Boss = true
         end
 
@@ -475,25 +475,51 @@ do
                                     for i,v in pairs(game:GetService("Workspace").Main[Details.IslandName][Details.Type]:GetChildren()) do
                                         if Active.Value then
                                             if v.Name == Details.MobName and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") then
-                                                if v.Humanoid.Health > 0 then
-                                                    repeat
-                                                        wait()
-                                                        HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0, 7, 0) * CFrame.Angles(math.rad(-90), 0, 0)
-                                                        game.Players.LocalPlayer.Character.Humanoid.PlatformStand = true
-                                                        --HumanoidRootPart.CFrame = TargetHumanoidRootPart.CFrame * CFrame.new(0, 0, 7)
-                                                        BringMonster(v.HumanoidRootPart.CFrame, Details.Boss)
-                                                        Attack()
-                                                        task.spawn(function()
-                                                            pcall(function()
-                                                                for i,v in pairs(game:GetService("Workspace").Main[Details.IslandName][Details.Type]:GetDescendants()) do
-                                                                    if v.Name == Details.MobName and v.Humanoid.Health < (v.Humanoid.MaxHealth * 0.9) then
-                                                                        v.Humanoid.Health = 0
-                                                                        v.Humanoid.RigType = "R15"
+                                                if Details.MobName == "Frost King [Lv.7500]" then
+                                                    for BossIndex, BossValue in pairs(game:GetService("Workspace").Main.Frost["Frost King"]:GetChildren()) do
+                                                        if BossValue.Name == "Frost King [Lv.7500]" and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") then
+                                                            if BossValue.Humanoid.Health > 0 then
+                                                                repeat
+                                                                    wait()
+                                                                    HumanoidRootPart.CFrame = BossValue.HumanoidRootPart.CFrame * CFrame.new(0, 7, 0) * CFrame.Angles(math.rad(-90), 0, 0)
+                                                                    game.Players.LocalPlayer.Character.Humanoid.PlatformStand = true
+                                                                    --HumanoidRootPart.CFrame = TargetHumanoidRootPart.CFrame * CFrame.new(0, 0, 7)
+                                                                    Attack()
+                                                                    task.spawn(function()
+                                                                        pcall(function()
+                                                                            for IKIndex,IKValue in pairs(game:GetService("Workspace").Main.Frost["Frost King"]:GetDescendants()) do
+                                                                                if IKValue.Name == Details.MobName and IKValue.Humanoid.Health < (IKValue.Humanoid.MaxHealth * 0.9) then
+                                                                                    IKValue.Humanoid.Health = 0
+                                                                                    IKValue.Humanoid.RigType = "R15"
+                                                                                end
+                                                                            end
+                                                                        end)
+                                                                    end)
+                                                                until not AutoFarmLevel.Value or BossValue.Humanoid.Health <= 0
+                                                            end
+                                                        end 
+                                                    end
+                                                else
+                                                    if v.Humanoid.Health > 0 then
+                                                        repeat
+                                                            wait()
+                                                            HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0, 7, 0) * CFrame.Angles(math.rad(-90), 0, 0)
+                                                            game.Players.LocalPlayer.Character.Humanoid.PlatformStand = true
+                                                            --HumanoidRootPart.CFrame = TargetHumanoidRootPart.CFrame * CFrame.new(0, 0, 7)
+                                                            BringMonster(v.HumanoidRootPart.CFrame, Details.Boss)
+                                                            Attack()
+                                                            task.spawn(function()
+                                                                pcall(function()
+                                                                    for i,v in pairs(game:GetService("Workspace").Main[Details.IslandName][Details.Type]:GetDescendants()) do
+                                                                        if v.Name == Details.MobName and v.Humanoid.Health < (v.Humanoid.MaxHealth * 0.9) then
+                                                                            v.Humanoid.Health = 0
+                                                                            v.Humanoid.RigType = "R15"
+                                                                        end
                                                                     end
-                                                                end
+                                                                end)
                                                             end)
-                                                        end)
-                                                    until not AutoFarmLevel.Value or v.Humanoid.Health <= 0
+                                                        until not AutoFarmLevel.Value or v.Humanoid.Health <= 0
+                                                    end
                                                 end
                                             else
                                                 for j,k in pairs(game:GetService("Workspace").Npc.Quest:GetChildren()) do
