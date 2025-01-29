@@ -9,6 +9,7 @@ getgenv().Settings = {
     DeliveryPoint = nil,
     DeliveryPointExtra = nil,
 }
+local AntiSpam = false
 
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
@@ -89,6 +90,7 @@ do
                             wait(2)
                             game.Players.LocalPlayer.Character.HumanoidRootPart.Anchored = false
                             game:GetService("ReplicatedStorage").Shared.DeployHandler.ReturnHome:FireServer()
+                            AntiSpam = false
                         end)
                     end)
                 else
@@ -100,69 +102,78 @@ do
                 end
             end
             pcall(function()
-                for i,v in pairs(game:GetService("Workspace").BuildZones:GetChildren()) do
-                    if v.Name == "Zone" and v.Player.Value == game.Players.LocalPlayer then
-                    local Vehicle = v:FindFirstChild("Vehicle") or v:WaitForChild("Vehicle", 9e99)
-                    local Count = Vehicle:GetChildren()
-                        if #Count == 1 then
-                            local CarModel = Vehicle:FindFirstChild("CarModel")
-                            for WheelsIndex, WheelsValue in pairs(CarModel:GetChildren()) do
-                                if WheelsValue.Name == "Wheels" and WheelsValue:IsA("Folder") then
-                                    for WheelIndex, WheelValue in pairs(WheelsValue:GetChildren()) do
-                                        if WheelValue:IsA("BasePart") then
-                                            WheelValue:Destroy()
+                if not AntiSpam then
+                    AntiSpam = true
+                    for i,v in pairs(game:GetService("Workspace").BuildZones:GetChildren()) do
+                        if v.Name == "Zone" and v.Player.Value == game.Players.LocalPlayer then
+                        local Vehicle = v:FindFirstChild("Vehicle") or v:WaitForChild("Vehicle", 9e99)
+                        local Count = Vehicle:GetChildren()
+                            if #Count == 1 then
+                                local CarModel = Vehicle:FindFirstChild("CarModel")
+                                for WheelsIndex, WheelsValue in pairs(CarModel:GetChildren()) do
+                                    if WheelsValue.Name == "Wheels" and WheelsValue:IsA("Folder") then
+                                        for WheelIndex, WheelValue in pairs(WheelsValue:GetChildren()) do
+                                            if WheelValue:IsA("BasePart") then
+                                                WheelValue:Destroy()
+                                            end
                                         end
                                     end
                                 end
-                            end
-                            for x=1, 2 do
-                                if getgenv().Settings.DeliveryPoint == "1" then
-                                    TP(CFrame.new(-15.5, 461, -1221.5))
-                                elseif getgenv().Settings.DeliveryPoint == "2" then
-                                    TP(CFrame.new(-1018.5, 462.5, -1221.5))
-                                elseif getgenv().Settings.DeliveryPoint == "3" then
-                                    TP(CFrame.new(-2121.5, 462.5, -2134.5))
-                                elseif getgenv().Settings.DeliveryPoint == "4" then
-                                    TP(CFrame.new(-531.75, 462.5, -3354.5))
-                                elseif getgenv().Settings.DeliveryPoint == "5" then
-                                    TP(CFrame.new(-310.5, 462.5, -5784.5))
-                                elseif getgenv().Settings.DeliveryPoint == "6" then
-                                    TP(CFrame.new(-310.5, 462.5, -7339.5))
+                                for x=1, 2 do
+                                    if getgenv().Settings.DeliveryPoint == "1" then
+                                        TP(CFrame.new(-15.5, 461, -1221.5))
+                                    elseif getgenv().Settings.DeliveryPoint == "2" then
+                                        TP(CFrame.new(-1018.5, 462.5, -1221.5))
+                                    elseif getgenv().Settings.DeliveryPoint == "3" then
+                                        TP(CFrame.new(-2121.5, 462.5, -2134.5))
+                                    elseif getgenv().Settings.DeliveryPoint == "4" then
+                                        TP(CFrame.new(-531.75, 462.5, -3354.5))
+                                    elseif getgenv().Settings.DeliveryPoint == "5" then
+                                        TP(CFrame.new(-310.5, 462.5, -5784.5))
+                                    elseif getgenv().Settings.DeliveryPoint == "6" then
+                                        TP(CFrame.new(-310.5, 462.5, -7339.5))
+                                    end
                                 end
-                            end
-                        else
-                            game:GetService("ReplicatedStorage").Shared.DeployHandler.AssembleCar:InvokeServer()
-                            wait(1.5)
-                            game:GetService("ReplicatedStorage").Shared.DeployHandler.DeployCar:FireServer()
-                            wait(.5)
-                            local CarModel = Vehicle:FindFirstChild("CarModel")
-                            for WheelsIndex, WheelsValue in pairs(CarModel:GetChildren()) do
-                                if WheelsValue.Name == "Wheels" and WheelsValue:IsA("Folder") then
-                                    for WheelIndex, WheelValue in pairs(WheelsValue:GetChildren()) do
-                                        if WheelValue:IsA("BasePart") then
-                                            WheelValue:Destroy()
+                            else
+                                game:GetService("ReplicatedStorage").Shared.DeployHandler.AssembleCar:InvokeServer()
+                                wait(1.5)
+                                game:GetService("ReplicatedStorage").Shared.DeployHandler.DeployCar:FireServer()
+                                wait(.5)
+                                local CarModel = Vehicle:FindFirstChild("CarModel")
+                                for WheelsIndex, WheelsValue in pairs(CarModel:GetChildren()) do
+                                    if WheelsValue.Name == "Wheels" and WheelsValue:IsA("Folder") then
+                                        for WheelIndex, WheelValue in pairs(WheelsValue:GetChildren()) do
+                                            if WheelValue:IsA("BasePart") then
+                                                WheelValue:Destroy()
+                                            end
                                         end
                                     end
                                 end
-                            end
-                            for x=1, 2 do
-                                if getgenv().Settings.DeliveryPoint == "1" then
-                                    TP(CFrame.new(-15.5, 461, -1221.5))
-                                elseif getgenv().Settings.DeliveryPoint == "2" then
-                                    TP(CFrame.new(-1018.5, 462.5, -1221.5))
-                                elseif getgenv().Settings.DeliveryPoint == "3" then
-                                    TP(CFrame.new(-2121.5, 462.5, -2134.5))
-                                elseif getgenv().Settings.DeliveryPoint == "4" then
-                                    TP(CFrame.new(-531.75, 462.5, -3354.5))
-                                elseif getgenv().Settings.DeliveryPoint == "5" then
-                                    TP(CFrame.new(-310.5, 462.5, -5784.5))
-                                elseif getgenv().Settings.DeliveryPoint == "6" then
-                                    TP(CFrame.new(-310.5, 462.5, -7339.5))
+                                for x=1, 2 do
+                                    if getgenv().Settings.DeliveryPoint == "1" then
+                                        TP(CFrame.new(-15.5, 461, -1221.5))
+                                    elseif getgenv().Settings.DeliveryPoint == "2" then
+                                        TP(CFrame.new(-1018.5, 462.5, -1221.5))
+                                    elseif getgenv().Settings.DeliveryPoint == "3" then
+                                        TP(CFrame.new(-2121.5, 462.5, -2134.5))
+                                    elseif getgenv().Settings.DeliveryPoint == "4" then
+                                        TP(CFrame.new(-531.75, 462.5, -3354.5))
+                                    elseif getgenv().Settings.DeliveryPoint == "5" then
+                                        TP(CFrame.new(-310.5, 462.5, -5784.5))
+                                    elseif getgenv().Settings.DeliveryPoint == "6" then
+                                        TP(CFrame.new(-310.5, 462.5, -7339.5))
+                                    end
                                 end
+                                
                             end
-                            
                         end
                     end
+                else
+                    Fluent:Notify({
+                        Title = "BlobbyHub",
+                        Content = "Wait Delivery Success :>",
+                        Duration = 5
+                    })
                 end
             end)
         end
