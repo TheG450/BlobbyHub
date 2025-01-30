@@ -9,6 +9,7 @@ getgenv().Settings = {
     DeliveryPoint = nil,
     DeliveryPointExtra = nil,
     AutoFarm = nil,
+    BlackScreen = nil,
 }
 local AntiSpam = false
 
@@ -79,10 +80,12 @@ do
                         Tween:Play()
                         Tween.Completed:Connect(function()
                             game.Players.LocalPlayer.Character.HumanoidRootPart.Anchored = true
+                            repeat task.wait(.1) until game:GetService("Players").LocalPlayer.PlayerGui.MainGui.Deploy.Main.Deliver.Visible == true
+                            task.wait(.5)
                             pcall(function()
                                 game:GetService("ReplicatedStorage").RemoteEvents.DeliveryHandlerRemotes.DeliverItems:InvokeServer(getgenv().Settings.DeliveryPoint)
                             end)
-                            task.wait(1)
+                            task.wait(.5)
                             for i,v in pairs(game.Players.LocalPlayer.Character.HumanoidRootPart:GetChildren()) do
                                 if v.Name == "antifall" then
                                     v:Destroy()
@@ -176,6 +179,7 @@ do
     local Start = false
     local Spawn = false
     local AutoFarm = Tabs.pageMain:AddToggle("AutoFarm", {Title = "Auto Farm", Default = getgenv().Settings.AutoFarm or false })
+    local BlackScreen = Tabs.pageMain:AddToggle("BlackScreen", {Title = "BlackScreen", Default = getgenv().Settings.BlackScreen or false })
     -- local FixBug = Tabs.pageMain:AddButton({
     --     Title = "FixBug",
     --     Callback = function()
@@ -212,10 +216,12 @@ do
                         Tween:Play()
                         Tween.Completed:Connect(function()
                             game.Players.LocalPlayer.Character.HumanoidRootPart.Anchored = true
+                            repeat task.wait(.1) until game:GetService("Players").LocalPlayer.PlayerGui.MainGui.Deploy.Main:FindFirstChild("Deliver").Visible
+                            task.wait(.5)
                             pcall(function()
                                 game:GetService("ReplicatedStorage").RemoteEvents.DeliveryHandlerRemotes.DeliverItems:InvokeServer(getgenv().Settings.DeliveryPoint)
                             end)
-                            task.wait(1)
+                            task.wait(.5)
                             for i,v in pairs(game.Players.LocalPlayer.Character.HumanoidRootPart:GetChildren()) do
                                 if v.Name == "antifall" then
                                     v:Destroy()
@@ -255,55 +261,106 @@ do
                     end
                 end
             end
+            spawn(function()
+                pcall(function()
+                    for i,v in pairs(game:GetService("Workspace"):GetChildren()) do
+                        if v.Name == "Trees" or v.Name == "Towers" or v.Name == "DesertHouses" or v.Name == "IceSpikes" or v.Name == "Barricades" or v.Name == "Mountian" or v.Name == "Rocks" or v.Name == "Roadblocks" or v.Name == "IceRoadBlockers" or v.Name == "SnowHills" or v.Name == "BreakingPlatforms" or v.Name == "ForestHills" or v.Name == "ContainersOnRoad" or v.Name == "Containers" or v.Name == "CaveRocks" or v.Name == "IceBridge" or v.Name == "IceWall" or v.Name == "DesertRoadBlocker" then
+                            v:Destroy()
+                        end
+                    end
+                end)
+            end)
             while AutoFarm.Value do
                 wait()
-                for i,v in pairs(game:GetService("Workspace"):GetChildren()) do
-                    if v.Name == "Trees" or v.Name == "Towers" or v.Name == "DesertHouses" or v.Name == "IceSpikes" or v.Name == "Barricades" or v.Name == "Mountian" or v.Name == "Rocks" or v.Name == "Roadblocks" or v.Name == "IceRoadBlockers" or v.Name == "SnowHills" or v.Name == "BreakingPlatforms" or v.Name == "ForestHills" or v.Name == "ContainersOnRoad" or v.Name == "Containers" or v.Name == "CaveRocks" or v.Name == "IceBridge" or v.Name == "IceWall" or v.Name == "DesertRoadBlocker" then
-                        v:Destroy()
-                    end
-                end
-                for i,v in pairs(game:GetService("Workspace").BuildZones:GetChildren()) do
-                    if v.Name == "Zone" and v.Player.Value == game.Players.LocalPlayer then
-                    local Vehicle = v:FindFirstChild("Vehicle") or v:WaitForChild("Vehicle", 9e99)
-                    local Count = Vehicle:GetChildren()
-                        if #Count == 1 then
-                            local CarModel = Vehicle:FindFirstChild("CarModel")
-                            for CrateIndex, CrateValue in pairs(CarModel:GetChildren()) do
-                                if string.find(CrateValue.Name, "Crate") or string.find(CrateValue.Name, "FirstAidKit") or string.find(CrateValue.Name, "WheatPalette") then
-                                    if not Start then
-                                        Start = true
-                                        for WheelsIndex, WheelsValue in pairs(CarModel:GetChildren()) do
-                                            if WheelsValue.Name == "Wheels" and WheelsValue:IsA("Folder") then
-                                                for WheelIndex, WheelValue in pairs(WheelsValue:GetChildren()) do
-                                                    if WheelValue:IsA("BasePart") then
-                                                        WheelValue:Destroy()
+                pcall(function()
+                    for i,v in pairs(game:GetService("Workspace").BuildZones:GetChildren()) do
+                        if v.Name == "Zone" and v.Player.Value == game.Players.LocalPlayer then
+                        local Vehicle = v:FindFirstChild("Vehicle") or v:WaitForChild("Vehicle", 9e99)
+                        local Count = Vehicle:GetChildren()
+                            if #Count == 1 then
+                                local CarModel = Vehicle:FindFirstChild("CarModel")
+                                for CrateIndex, CrateValue in pairs(CarModel:GetChildren()) do
+                                    if string.find(CrateValue.Name, "Crate") or string.find(CrateValue.Name, "FirstAidKit") or string.find(CrateValue.Name, "WheatPalette") then
+                                        if not Start then
+                                            Start = true
+                                            for WheelsIndex, WheelsValue in pairs(CarModel:GetChildren()) do
+                                                if WheelsValue.Name == "Wheels" and WheelsValue:IsA("Folder") then
+                                                    for WheelIndex, WheelValue in pairs(WheelsValue:GetChildren()) do
+                                                        if WheelValue:IsA("BasePart") then
+                                                            WheelValue:Destroy()
+                                                        end
                                                     end
                                                 end
                                             end
-                                        end
-                                        for BodyIndex, BodyValue in pairs(CarModel:GetChildren()) do
-                                            if BodyValue.Name ~= "VehicleSeat" and BodyValue:IsA("Model") then
-                                                BodyValue:Destroy()
+                                            for BodyIndex, BodyValue in pairs(CarModel:GetChildren()) do
+                                                if BodyValue.Name ~= "VehicleSeat" and BodyValue:IsA("Model") then
+                                                    BodyValue:Destroy()
+                                                end
                                             end
+                                            TeleportPoint()
+                                            Notify("Started Delivery", 2)
                                         end
-                                        TeleportPoint()
-                                        Notify("Started Delivery", 2)
                                     end
                                 end
-                            end
-                        else
-                            if not Spawn then
-                                Spawn = true
-                                game:GetService("ReplicatedStorage").Shared.DeployHandler.AssembleCar:InvokeServer()
-                                wait(1.5)
-                                Notify("Deploying Car", 2)
-                                game:GetService("ReplicatedStorage").Shared.DeployHandler.DeployCar:FireServer()
-                                wait(.5)
+                            else
+                                if not Spawn then
+                                    Spawn = true
+                                    game:GetService("ReplicatedStorage").Shared.DeployHandler.AssembleCar:InvokeServer()
+                                    wait(1.5)
+                                    Notify("Deploying Car", 2)
+                                    game:GetService("ReplicatedStorage").Shared.DeployHandler.DeployCar:FireServer()
+                                    wait(.5)
+                                end
                             end
                         end
                     end
-                end
+                end)
             end
+        end)
+    end)
+
+    local function CreateBlackScreen(Parent)
+        local blackScreen = Instance.new("ScreenGui")
+        blackScreen.Name = "BlackScreen"
+        blackScreen.DisplayOrder = 1e+07
+        blackScreen.IgnoreGuiInset = true
+        blackScreen.ScreenInsets = Enum.ScreenInsets.DeviceSafeInsets
+        blackScreen.Parent = Parent
+
+        local blackFrame = Instance.new("Frame")
+        blackFrame.Name = "BlackFrame"
+        blackFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+        blackFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+        blackFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+        blackFrame.BorderSizePixel = 0
+        blackFrame.Position = UDim2.fromScale(0.5, 0.5)
+        blackFrame.Size = UDim2.fromScale(1, 1)
+        blackFrame.ZIndex = 1e+07
+
+        local uIAspectRatioConstraint = Instance.new("UIAspectRatioConstraint")
+        uIAspectRatioConstraint.Name = "UIAspectRatioConstraint"
+        uIAspectRatioConstraint.AspectRatio = 1.78
+        uIAspectRatioConstraint.Parent = blackFrame
+
+        blackFrame.Parent = blackScreen
+    end
+
+    local BlackScreen = false
+    BlackScreen:OnChanged(function()
+        task.spawn(function()
+            pcall(function()
+                if not BlackScreen then
+                    BlackScreen = true
+                    CreateBlackScreen(game:GetService("Players").LocalPlayer.PlayerGui)
+                else
+                    for i,v in pairs(game:GetService("Players").LocalPlayer.PlayerGui:GetChildren()) do
+                        if v.Name == "BlackScreen" then
+                            v:Destroy()
+                            BlackScreen = false
+                        end
+                    end
+                end
+            end)
         end)
     end)
 
