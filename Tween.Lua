@@ -25,3 +25,20 @@ local function TP(Target)
         antifall.Name = "antifall"
     end
 end
+
+
+local function velocityTeleport(destination)
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local hrp = character:WaitForChild("HumanoidRootPart")
+
+    local bodyVelocity = Instance.new("BodyVelocity", hrp)
+    bodyVelocity.MaxForce = Vector3.new(9e9, 9e9, 9e9) -- ทำให้เคลื่อนที่ได้ทุกทิศทาง
+    bodyVelocity.Velocity = (destination.Position - hrp.Position).unit * 50
+
+    wait((destination.Position - hrp.Position).Magnitude / 50) -- คำนวณเวลาที่ควรใช้เดินทาง
+    bodyVelocity:Destroy()
+end
+
+-- ทดสอบเคลื่อนที่แบบ Velocity
+velocityTeleport(CFrame.new(500, 10, 500))

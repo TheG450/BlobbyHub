@@ -1,4 +1,8 @@
 repeat wait() until game:IsLoaded() and game.Players and game.Players.LocalPlayer and game.Players.LocalPlayer.Character
+if game.PlaceId ~= 117856377735280 then
+    game.Players.LocalPlayer:Kick("Wrong Map")
+    return
+end
 for i,v in pairs(game:GetService("Workspace"):GetChildren()) do
     if v.Name == "InvisibleWalls" then
         v:Destroy()
@@ -227,7 +231,7 @@ do
                                     v:Destroy()
                                 end
                             end
-                            wait(2)
+                            wait(1)
                             Notify("Delivery Success", 2)
                             game.Players.LocalPlayer.Character.HumanoidRootPart.Anchored = false
                             game:GetService("ReplicatedStorage").Shared.DeployHandler.ReturnHome:FireServer()
@@ -319,48 +323,37 @@ do
         end)
     end)
 
-    local function CreateBlackScreen(Parent)
-        local blackScreen = Instance.new("ScreenGui")
-        blackScreen.Name = "BlackScreen"
-        blackScreen.DisplayOrder = 1e+07
-        blackScreen.IgnoreGuiInset = true
-        blackScreen.ScreenInsets = Enum.ScreenInsets.DeviceSafeInsets
-        blackScreen.Parent = Parent
-
-        local blackFrame = Instance.new("Frame")
-        blackFrame.Name = "BlackFrame"
-        blackFrame.AnchorPoint = Vector2.new(0.5, 0.5)
-        blackFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-        blackFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
-        blackFrame.BorderSizePixel = 0
-        blackFrame.Position = UDim2.fromScale(0.5, 0.5)
-        blackFrame.Size = UDim2.fromScale(1, 1)
-        blackFrame.ZIndex = 1e+07
-
-        local uIAspectRatioConstraint = Instance.new("UIAspectRatioConstraint")
-        uIAspectRatioConstraint.Name = "UIAspectRatioConstraint"
-        uIAspectRatioConstraint.AspectRatio = 1.78
-        uIAspectRatioConstraint.Parent = blackFrame
-
-        blackFrame.Parent = blackScreen
-    end
-
-    local BlackScreen = false
     BlackScreen:OnChanged(function()
         task.spawn(function()
-            pcall(function()
-                if not BlackScreen then
-                    BlackScreen = true
-                    CreateBlackScreen(game:GetService("Players").LocalPlayer.PlayerGui)
-                else
-                    for i,v in pairs(game:GetService("Players").LocalPlayer.PlayerGui:GetChildren()) do
-                        if v.Name == "BlackScreen" then
-                            v:Destroy()
-                            BlackScreen = false
-                        end
+            local function CreateBlackScreen(At)
+                local blackScreen = Instance.new("ScreenGui")
+                blackScreen.Name = "BlackScreen"
+                blackScreen.DisplayOrder = 1e+07
+                blackScreen.IgnoreGuiInset = true
+                blackScreen.ScreenInsets = Enum.ScreenInsets.DeviceSafeInsets
+                blackScreen.ResetOnSpawn = false
+                blackScreen.Parent = At
+        
+                local frame = Instance.new("Frame")
+                frame.Name = "Frame"
+                frame.AnchorPoint = Vector2.new(0.5, 0.5)
+                frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+                frame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+                frame.BorderSizePixel = 0
+                frame.Position = UDim2.fromScale(0.5, 0.5)
+                frame.Size = UDim2.fromScale(1, 1)
+                frame.ZIndex = 1e+07
+                frame.Parent = blackScreen
+            end
+            if BlackScreen.Value then
+                CreateBlackScreen(game:GetService("Players").LocalPlayer.PlayerGui)
+            else
+                for i,v in pairs(game:GetService("Players").LocalPlayer.PlayerGui:GetChildren()) do
+                    if v.Name == "BlackScreen" then
+                        v:Destroy()
                     end
-                end
-            end)
+                end    
+            end
         end)
     end)
 
