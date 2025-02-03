@@ -219,6 +219,7 @@ do
                     TweenHeight.Completed:Connect(function()
                         Tween:Play()
                         Tween.Completed:Connect(function()
+                            task.wait(.5)
                             game.Players.LocalPlayer.Character.HumanoidRootPart.Anchored = true
                             repeat task.wait(.1) until game:GetService("Players").LocalPlayer.PlayerGui.MainGui.Deploy.Main:FindFirstChild("Deliver").Visible
                             task.wait(.5)
